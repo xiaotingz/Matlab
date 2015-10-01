@@ -28,14 +28,14 @@ DistriSD_r2 = sqrt(total_r2/length(Aug_r2));
 
 
 %% GBCD/CurvDistri data in DREAM3D file: mean value and SD
-
-CurvDistri = h5read('/Volumes/RESEARCH/Simple Geometry Jun.21_Aug/Aug.27 v1_v4abs/Aug_v1_GBCD.dream3d','/SurfaceMeshDataContainer/ENSEMBLE_DATA/GBCD');
+CurvDistri = h5read('/Volumes/RESEARCH/Simple Geometry Jun.21_Aug/Aug.24 r2_v4abs/Aug24_r2_CurvDistri.dream3d','/SurfaceMeshDataContainer/ENSEMBLE_DATA/GBCD');
 
 j = 1;
 for i = 1 : length(CurvDistri)
-    if CurvDistri(i,1) ~= 0 || CurvDistri(i,2) ~= 0;
+    if CurvDistri(i,1) ~= 0 
+%     if CurvDistri(i) ~= 0
         data(j,1) = i;
-        data(j,2) = CurvDistri(i,1);
+        data(j,2) = CurvDistri(i);
         data(j,3) = CurvDistri(i,2);
         j = j + 1;
     end
@@ -92,3 +92,18 @@ for i = 1:length(data_cleared)
     total = total + (mean2 - data_cleared(i,3))^2 ;
 end
 SD = sqrt(total/length(data_cleared));
+
+%% compare the .dat result given by D3D & graph_gbcd
+d3d = textread('s4_GBCDRes9_gmt_1.dat');
+graph_gbcd = textread('s4_GBCDRes9_converted_gmt_1.dat');
+d3d(1,:) = [];
+graph_gbcd(1,:) = [];
+
+ave_D3D = sum(d3d(:,3))/length(d3d(:,3));
+ave_graph_gbcd = sum(graph_gbcd(:,3))/length(graph_gbcd(:,3));
+max_D3D = max(d3d(:,3));
+max_graph_gbcd = max(graph_gbcd(:,3));
+
+difference = roundn((d3d(:,3) - graph_gbcd(:,3)),-3);
+% ave_diff = sum(abs(difference))/length(difference);
+max_diff = max(difference);

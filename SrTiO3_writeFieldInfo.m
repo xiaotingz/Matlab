@@ -7,6 +7,5 @@ data = [FieldID, PhaseID, orientation(:,1:3)].';
 
 % NOTICE! the first line of orientation file should be #fields. Do it directly on the txt file
 fileID = fopen('SrTiO3_orientation.txt','w');
-fprintf(fileID,'%4i %4i %15.8f %15.8f %15.8f\n', data);
+fprintf(fileID,'%-4i %-4i %-15.8f %-15.8f %-15.8f\n', data);
 fclose(fileID);
-
