@@ -1,12 +1,32 @@
 %% distribution data in gmt file: mean value and SD
 
-Aug_r1 = textread('Aug_v1_CurvDistri_gmt_1.dat');
-Aug_r2 = textread('Aug27_v2_CurvDistri_gmt_1.dat');
+% Aug_r1 = textread('c1_CurvDistri_gmt_1.dat');
+% Aug_r2 = textread('Aug27_v2_CurvDistri_gmt_1.dat');
 % Aug_s4 = textread('Aug24_s4_GBCD_gmt_1.dat');
 
+% % -----------------------------------------------------
+% % if resolution is too small and there are NaNs, need to clean NaN first
+
+tmp = textread('c6_CurvDistri_gmt_1.dat').';
+tmp(:,1) = [];
+tmp1 = tmp(1,:);
+tmp2 = tmp(2,:);
+tmp3 = tmp(3,:);
+tmp4 = tmp(4,:);
+
+boolean = ~isnan(tmp3);
+Aug_r1(1,:) = tmp1(boolean);
+Aug_r1(2,:) = tmp2(boolean);
+Aug_r1(3,:) = tmp3(boolean);
+Aug_r1(4,:) = tmp4(boolean);
+
+Aug_r1 = Aug_r1.';
+% % -----------------------------------------------------
+% Aug_r1(1,:) = [];
+
 DistriMean_r1 = sum(Aug_r1(:,3))/length(Aug_r1);
-DistriMean_r2 = sum(Aug_r2(:,3))/length(Aug_r2);
-% DistriMean_s4 = sum(Aug_s4(:,3))/length(Aug_s4);
+% % DistriMean_r2 = sum(Aug_r2(:,3))/length(Aug_r2);
+% % DistriMean_s4 = sum(Aug_s4(:,3))/length(Aug_s4);
 
 total_r1 = 0;
 for i = 1 : length(Aug_r1)
@@ -14,11 +34,11 @@ for i = 1 : length(Aug_r1)
 end
 DistriSD_r1 = sqrt(total_r1/length(Aug_r1));
 
-total_r2 = 0;
-for i = 1 : length(Aug_r2)
-    total_r2 = total_r2 + (DistriMean_r2 - Aug_r2(i,3))^2;
-end
-DistriSD_r2 = sqrt(total_r2/length(Aug_r2));
+% total_r2 = 0;
+% for i = 1 : length(Aug_r2)
+%     total_r2 = total_r2 + (DistriMean_r2 - Aug_r2(i,3))^2;
+% end
+% DistriSD_r2 = sqrt(total_r2/length(Aug_r2));
 % 
 % total_s4 = 0;
 % for i = 1 : length(Aug_s4)

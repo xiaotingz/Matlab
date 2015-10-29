@@ -1,12 +1,12 @@
 % important data:
-    % data_grain [grainId, grainDiameter, grainCurvature]
+    % data_grain [grainId, grainDiameter, #Faces, grainCurvature]
     % data_grid [bin_low, bin_high, #Faces, AveCurvature, #Grains, SMD] 
 %  notice
     % change step between 40&100 to make different scale plot
-
+%% get data_grid 
 start = 0;
 width = 1;
-step = 100;
+step = 40;
 data_grid = zeros(step,6);
 s_cur = 0;
 s_faces = 0;
@@ -45,26 +45,32 @@ end
 % what percent of grains are considered in this plot
 considered = double(sum(data_grid(:,5))/length(data_grain));
 
-
+%% Plot 
 % plot average curvature of bin
-figure('name','Grain Curvature vs #Faces')
 scatter(data_grid(:,3),data_grid(:,4),30,'filled');
-xlabel('#Faces','FontSize',13);
-ylabel('Grain Curvature','FontSize',13);
-grid on
-% plot standard mean deviation
-range = zeros(step,2);
-for i = 1:step
+set(gca,'fontsize',13)
+xlabel('#Face of Grains','FontSize',15);
+ylabel('Integral Mean Curvature, \mu^{-1}','FontSize',15);
+% plot standard Standard Deviation
+range = zeros(length(data_grid),2);
+for i = 1:length(data_grid)
     range(i,1) = data_grid(i,4) + data_grid(i,6); % up value
     range(i,2) = data_grid(i,4) - data_grid(i,6); % down value
     line([data_grid(i,3),data_grid(i,3)],[range(i,1),range(i,2)]);
     hold on
 end
-axis([0,70,-0.5,3]);
-% % % Plot Grain Diameter vs Number of Faces
-% % figure('name','Grain Diameter vs Number of Faces')
-% % scatter(grain_diameter_raw,num_of_neigh,30,'filled');
-% % xlabel('Grain Diameter','FontSize',13);
-% % ylabel('Number of Neighbor','FontSize',13);
-% % axis([0.9,10,0,100]);
-% % grid on
+
+
+line([0,40],[0,0],'LineStyle','--', 'Color',[0.5 0.5 0.5])
+
+% disable tick on top and right of the box
+    % get handle to current axes
+a = gca;
+    % set box property to off and remove background color
+set(a,'box','off','color','none')
+    % create new, empty axes with box but without ticks
+b = axes('Position',get(a,'Position'),'box','on','xtick',[],'ytick',[]);
+    % set original axes as active
+axes(a)
+    % link axes in case of zooming
+linkaxes([a b])

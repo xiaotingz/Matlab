@@ -2,11 +2,11 @@
     % data_final [LabelA, LabelB, FaceArea, FaceCurvature]
 
 % load data
-facelabel = double(h5read('/Volumes/RESEARCH/Jul.7 SmallIN100/Jul7_ForCurv_m3c.dream3d','/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceLabels'));
-curvature_of_triangle = h5read('/Volumes/RESEARCH/Jul.7 SmallIN100/Jul7_ForCurv_m3c.dream3d','/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshMeanCurvatures');
-num_of_neigh = double(h5read('/Volumes/RESEARCH/Jul.7 SmallIN100/Jul7_ForCurv_m3c.dream3d','/VoxelDataContainer/FIELD_DATA/NumNeighbors'));
-neighborList = double(h5read('/Volumes/RESEARCH/Jul.7 SmallIN100/Jul7_ForCurv_m3c.dream3d','/VoxelDataContainer/FIELD_DATA/NeighborList'));
-triangle_area_raw = roundn(h5read('/Volumes/RESEARCH/Jul.7 SmallIN100/Jul7_ForCurv_m3c.dream3d','/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas'),-8);
+facelabel = double(h5read('/Volumes/RESEARCH/Grain Curvature/Jun.24 Ferrite/Jun.24 ForCurv_centroid.dream3d','/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceLabels'));
+curvature_of_triangle = h5read('/Volumes/RESEARCH/Grain Curvature/Jun.24 Ferrite/Jun.24 ForCurv_centroid.dream3d','/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshMeanCurvatures');
+num_of_neigh = double(h5read('/Volumes/RESEARCH/Grain Curvature/Jun.24 Ferrite/Jun.24 ForCurv_centroid.dream3d','/VoxelDataContainer/FIELD_DATA/NumNeighbors'));
+neighborList = double(h5read('/Volumes/RESEARCH/Grain Curvature/Jun.24 Ferrite/Jun.24 ForCurv_centroid.dream3d','/VoxelDataContainer/FIELD_DATA/NeighborList'));
+triangle_area_raw = roundn(h5read('/Volumes/RESEARCH/Grain Curvature/Jun.24 Ferrite/Jun.24 ForCurv_centroid.dream3d','/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas'),-8);
 
 data_raw = [facelabel; curvature_of_triangle.'; triangle_area_raw.'];
 
