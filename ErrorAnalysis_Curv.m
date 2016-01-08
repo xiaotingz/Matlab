@@ -6,8 +6,9 @@
 
 % % -----------------------------------------------------
 % % if resolution is too small and there are NaNs, need to clean NaN first
+clear
 
-tmp = textread('c6_CurvDistri_gmt_1.dat').';
+tmp = textread('c6_a0_CurvDistri_gmt_1.dat').';
 tmp(:,1) = [];
 tmp1 = tmp(1,:);
 tmp2 = tmp(2,:);
@@ -76,10 +77,13 @@ MinValue = min(data(:,2));
 %% curvature data in DREAM3D file
 %     mean1 is using #Triangles
 %     mean2 is using TriangleAreas
+clear
 
-facelabel = double(h5read('/Volumes/RESEARCH/Simple Geometry Jun.21_Aug/Aug.24 r1_v4abs/Aug24_r1_ForCurvDistri.dream3d','/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceLabels'));
-curvature_of_triangle = abs(h5read('/Volumes/RESEARCH/Simple Geometry Jun.21_Aug/Aug.24 r1_v4abs/Aug24_r1_ForCurvDistri.dream3d','/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshMeanCurvatures'));
-triangle_area = roundn(h5read('/Volumes/RESEARCH/Simple Geometry Jun.21_Aug/Aug.24 r1_v4abs/Aug24_r1_ForCurvDistri.dream3d','/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas'),-8);
+file = ('/Volumes/RESEARCH/Simple Geometry/Oct.7 c1-c6/c6/c6_CurvDistri.dream3d');
+
+facelabel = double(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceLabels'));
+curvature_of_triangle = abs(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshMeanCurvatures'));
+triangle_area = roundn(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas'),-8);
 
 data_raw = [facelabel; curvature_of_triangle.'; triangle_area.'];
 tmp1 = data_raw(1,:);
@@ -96,8 +100,8 @@ data_cleared(4,:) = tmp4(boolean);
 
 data_cleared = data_cleared.';
 
-% average according to #Triangles
-mean1 = sum(data_cleared(:,3))/length(data_cleared(:,3));
+% % average according to #Triangles
+% mean1 = sum(data_cleared(:,3))/length(data_cleared(:,3));
 
 % average according to TriArea
 total = 0;

@@ -62,7 +62,7 @@ SD = sqrt(total/length(data))
 %     mean2 is using TriangleAreas
 clear
 
-file = ('/Volumes/RESEARCH/Oct.7 Exyz/Exyz100/Exyz100_ForCurvDistri.dream3d');
+file = ('/Volumes/RESEARCH/Simple Geometry/Oct.7 t1-t10/curvature distributions/t9_CurvDistri.dream3d');
 facelabel = double(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceLabels'));
 curvature_of_triangle = abs(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshMeanCurvatures'));
 triangle_area = roundn(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas'),-5);
