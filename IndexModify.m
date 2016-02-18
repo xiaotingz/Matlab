@@ -38,7 +38,7 @@ gbcd_index = (gbcd_index - 11110).';
     % the index matrix is in the order of graph_gbcd, so the corresponding graph_index is the natural order.
 graph_index = unique(gbcd_index);
 %%
-load('TwoIndex_res9.mat')
+load('TwoIndex_res10.mat')
     % link the two system. Sort as gbcd_index in its natural order, then graph_index can be used to place D3D gbcd data
 d3d_to_graph = [gbcd_index,graph_index];
 d3d_to_graph = sortrows(d3d_to_graph);
