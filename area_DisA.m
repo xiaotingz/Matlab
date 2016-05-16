@@ -85,21 +85,20 @@ data_final(j,3) = disA_use(j);
 %%
 % sort curvatures according to misorientation
 start = 0;
-nstep = 35;
-stepsize = 2;
+nstep = 70;
+stepsize = 1;
 data_grid = zeros(nstep,2);
 totalCurv = 0;
 totalArea = 0;
 for j = 1 : nstep
     for i = 1 : length(data_final)
         % data_final = [#triangles on the face, total curvature on the face, disorientation]
-        if data_final(i,3) > start && data_final(i,3) <= start + stepsize
+        if data_final(i,3) >= start && data_final(i,3) < start + stepsize
             totalArea = totalArea + data_final(i,1);
-            totalCurv = totalCurv + data_final(i,2);
         end
     end
     data_grid(j,1) = start + stepsize/2;
-    data_grid(j,2) = totalCurv/totalArea;
+    data_grid(j,2) = totalArea;
     start = start + stepsize;
     totalCurv = 0;
     totalArea = 0;
@@ -122,24 +121,16 @@ end
 
 
 figure(2)
-scatter(data_grid(:,1), data_grid(:,2),60,'filled','k'); hold on
-    % Austenite, coherent twin
-% scatter(60,0.3,120,'filled','p');
-% text(28,0.31,'coherent twin boundary \rightarrow','FontSize',16);
-    % Ferrite, symmetric tilt
-% scatter(60,0.59,120,'filled','p');
-% text(59.5,0.55,'\uparrow','FontSize',16);
-% text(35,0.5,'symmetric tilt boundary ','FontSize',16);
-
-box on
-set(gca,'fontsize',18)
-xlabel('Disorientation Angle, °','FontSize',20);
-ylabel('Average Curvature, \mum^{-1}','FontSize',20);
+bar(data_grid(:,1), data_grid(:,2),'FaceColor',[0.8500,0.3250,0.0980],'EdgeColor',[1,1,1]); hold on
+% scatter(60,0.3,90,'filled','p');
+% text(36,0.32,'coherent twin boundary \rightarrow','FontSize',12);
+% box on
+set(gca,'fontsize',14)
+xlabel('Disorientation Angle, °','FontSize',17);
+ylabel('Area, \mum^2','FontSize',17);
 % axis([0,70,0,2])
 % disable tick on top and right of the box
-a = gca;set(a,'box','off','color','none');
-% a.YTick = [0:0.4:2];
-b = axes('Position',get(a,'Position'),'box','on','xtick',[],'ytick',[]);
-axes(a)
-linkaxes([a b])
-
+% a = gca;set(a,'box','off','color','none');
+% b = axes('Position',get(a,'Position'),'box','on','xtick',[],'ytick',[]);
+% axes(a)
+% linkaxes([a b])

@@ -38,6 +38,7 @@ gbcd_index = (gbcd_index - 11110).';
     % the index matrix is in the order of graph_gbcd, so the corresponding graph_index is the natural order.
 graph_index = unique(gbcd_index);
 %%
+% load the index file according to the GBCD resolution used
 load('TwoIndex_res10.mat')
     % link the two system. Sort as gbcd_index in its natural order, then graph_index can be used to place D3D gbcd data
 d3d_to_graph = [gbcd_index,graph_index];
@@ -45,7 +46,7 @@ d3d_to_graph = sortrows(d3d_to_graph);
 
 % % Prepare to converget: read GBCD data in D3D.
 % data_read = textread('s4_GBCDRes9.txt');
-GBCD_raw = h5read('/Volumes/RESEARCH/Oct.7 Exyz/Exyz100/Exyz100_CurvDistri.dream3d','/SurfaceMeshDataContainer/ENSEMBLE_DATA/GBCD');
+GBCD_raw = h5read('/Users/xiaotingzhong/Desktop/Datas/setTo0/Jan31_Aca0_CurvDistri_10.dream3d','/SurfaceMeshDataContainer/ENSEMBLE_DATA/GBCD');
 data_read = GBCD_raw(:,1);
 
 data_converted = zeros(length(data_read),1);
@@ -53,7 +54,7 @@ for i = 1:length(data_read)
     data_converted(d3d_to_graph(i,2)) = data_read(i);
 end
 
-fileID = fopen('Oct7_Exyz100Converted.txt','w');
+fileID = fopen('Jan31_A_Curv10.txt','w');
 fprintf(fileID,'%12.8f\n',data_converted);
 fclose(fileID);
 

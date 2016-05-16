@@ -56,27 +56,44 @@ xlabel('poplution','FontSize',14)
 ylabel('curvature','FontSize',14)
 
 %%
-file1 = textread('Jan31_Aa0_curv10_v_energy_TWIP.txt');
-% file2 = textread('Jan31_Fac0_curv10_v_Ferrite_energy.txt');
+% file = textread('Jan31_A_Curv10_v_energy_TWIP.txt');
+file = textread('F_CurvDistri10Ave_v_energy_Ferrite.txt');
 
 cnt = 1;
-
 figure(2)
-for i = 1:length(file1)
-    if file1(i,3) >= 1000
-        scatter(file1(i,1),file1(i,2),50,'filled','k');hold on
-%         product(cnt) = file1(i,1)*file1(i,2);
+for i = 1:length(file)
+    if file(i,3) >= 1000
+        scatter(file(i,1),file(i,2),100,'filled','k');hold on
+        line([file(i,1),file(i,1)],[(file(i,2)-file(i,5)),(file(i,2)+file(i,5))],'color','k');
+        line([file(i,1)-0.003,file(i,1)+0.003],[(file(i,2)-file(i,5)),(file(i,2)-file(i,5))],'color','k')
+        line([file(i,1)-0.003,file(i,1)+0.003],[(file(i,2)+file(i,5)),(file(i,2)+file(i,5))],'color','k')
+        F_energyPlot(cnt,1) = file(i,2);
         cnt = cnt + 1;
     end
 end
-set(gca,'fontsize',14)
-xlabel('Curvature Range, \mum^{-1}','FontSize',17);
-ylabel('Average Energy, a.u.','FontSize',17);
-ax = gca;
-% ax.YTick = [0.75:0.03:0.9];
-ax.YTick = [0.59:0.02:0.69];
-axis([0.45,0.67,0.59,0.69]);
-box on
+set(gca,'fontsize',18)
+
+% AXIS LABEL
+xlabel('Curvature Range, \mum^{-1}','FontSize',20);
+ylabel('Average Energy, a.u.','FontSize',20);
+% xlabel('Population, MRD','FontSize',17);
+
+
+
+% ax = gca;
+% Ferrite, no Errorbar
+% ax.XTick = [0.5:0.1:0.8];
+% axis([0.47,0.8,0.75,1.05]); 
+% Austenite, no Errorbar
+% ax.YTick = [0.59:0.02:0.69];
+% axis([0.45,0.67,0.59,0.69]);
+% box on
+
+% Austenite, Errorbar
+% axis([0.45,0.67,0.46,0.82]);
+% Ferrite, Errorbar
+axis([0.47,0.79,0.57,1.15]);
+
 
 % disable tick on top and right of the box
 a = gca;
@@ -88,22 +105,3 @@ b = axes('Position',get(a,'Position'),'box','on','xtick',[],'ytick',[]);
 axes(a)
     % link axes in case of zooming
 linkaxes([a b])
-
-% % figure(2)
-% for i = 1:length(file2)
-%     if file2(i,3) > 1000
-%         scatter(file2(i,1),file2(i,2),50,'filled','k','s');hold on
-%     end
-% end
-% hold off
-% set(gca,'fontsize',14)
-% xlabel('Energy Range, a.u.','FontSize',17);
-% ylabel('Average Mean Curvature, \mum^{-1}','FontSize',17);
-% box on
-% 
-% % scatter(file1(:,1),file1(:,2),50,'filled','k');hold on
-% % scatter(file2(:,1),file2(:,2),50,'filled','k','s');
-% 
-% Legend = legend('TWIP','Ferrite');
-% set(Legend,'box','off','FontSize',12,'position',[0.7,0.78,0.1,0.1]);
-

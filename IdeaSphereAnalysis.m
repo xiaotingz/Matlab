@@ -1,6 +1,6 @@
 %% distribution data in .dat file: mean value and SD
 clear
-gbcd_graph = textread('ts110_a0CurvDistri_gmt_1.dat');
+gbcd_graph = textread('ts9_CurvDistri2_gmt_1.dat');
 
 % delete the first line and lines of MRD=nan
 gbcd_graph(1,:) = [];
@@ -16,7 +16,7 @@ for i = 1 : length(MRDs)
 end
 MRD_SD = sqrt(total_MRD/length(MRDs))
 
-num_NaN = length(gbcd_graph) - length(MRDs)
+% num_NaN = length(gbcd_graph) - length(MRDs)
 Max = max(gbcd_graph(:,3));
 Min = min(gbcd_graph(:,3));
 
@@ -24,7 +24,7 @@ Min = min(gbcd_graph(:,3));
 clear
 
 % % version4
-CurvDistri = h5read('/Volumes/RESEARCH/Simple Geometry/Oct.7 No1-10/No10/No10_CurvDistri.dream3d','/SurfaceMeshDataContainer/ENSEMBLE_DATA/GBCD');
+CurvDistri = h5read('/Users/xiaotingzhong/Desktop/ts6/ts9_curvDistri2.dream3d','/SurfaceMeshDataContainer/ENSEMBLE_DATA/GBCD');
 % % version6
 % CurvDistri = h5read('/Volumes/RESEARCH/Oct.7 No1-10/No1/No1_CurvDistri.dream3d','/DataContainers/TriangleDataContainer/FaceEnsembleData/GBCD');
 
@@ -38,7 +38,7 @@ for i = 1 : length(CurvDistri)
     end
 end
 
-mean = sum(data(:,2))/length(data);
+mean = sum(data(:,2))/length(data)
 total = 0;
 for i = 1 : length(data)
     total = total + (mean - data(i,2))^2;
@@ -56,8 +56,8 @@ SD = sqrt(total/length(data))
 clear
 
 % INPUT: file & sphereID
-file = ('/Volumes/RESEARCH/Dec.4 TripleLineSpheres/ts19/ts19_meshStats3.dream3d');
-sphereID = 7;
+file = ('/Users/xiaotingzhong/Desktop/Datas/Mar18 tripleLineSphereCheck/ts9/ts9_curvRing3.dream3d');
+sphereID = 9;
 facelabel = double(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceLabels'));
 curvature_of_triangle = abs(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshMeanCurvatures'));
 triangle_area = roundn(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas'),-5);
@@ -118,7 +118,7 @@ laplacian4 = xlsread(file, sheet, laplacian4_range);
 SD2 = xlsread(file, sheet, SD2_range);
 % xAxis = [0.8,2:10];
 % xAxis = [2.3,2.66,3.01,3.33,3.66,3.99,4.32,4.66,4.99,5.32];
-xAxis_range = 'C67:L67'
+xAxis_range = 'C65:L65'
 xAxis = xlsread(file, sheet, xAxis_range);
 
 figure
@@ -187,14 +187,14 @@ scatter3 = errorbar(xAxis,laplacian2,SD2,'.','marker','d','markersize',9,'color'
 scatter4 = errorbar(xAxis,laplacian2,SD2,'.','marker','^','markersize',9,'color',[0,0,1],'markerfacecolor',[0,0,1],'markeredgecolor',[0,0,1],'linewidth',1.2);
 
 
-Legend = legend('ideal curvature','smoothing 1','smoothing 2','smoothing 3','smoothing 4');
+Legend = legend('ideal curvature','smoothing I','smoothing II','smoothing III','smoothing IV');
 set(Legend,'box','off','FontSize',12,'position',[0.7,0.65,0.1,0.25]);
 
 
 axis([0.3,10.5,-0.4,1.4]);
 ax = gca;
 ax.XTick = xAxis;
-ax.XTickLabel = {'S1','S2','S3','S4','S5','S6','S7','S8','S9','S10',''};
+ax.XTickLabel = {'S4','S6','S9','S13','S19','S28','S41','S60','S88','S129',''};
 set(gca,'fontsize',14)
 xlabel('SphereID','FontSize',17);
 ylabel('Average Measured Curvature, \mum^{-1}','FontSize',17);

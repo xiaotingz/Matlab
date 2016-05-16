@@ -9,7 +9,7 @@ width = 1;
 step = 40;
 data_grid = zeros(step,6);
 s_cur = 0;
-s_faces = 0;
+Numfaces = 0;
 cnt = 0;
 s_sqdiff = 0;
 
@@ -18,13 +18,13 @@ for i = 1:step
     for j = 1:length(data_grain)
         if data_grain(j,3) >= start && data_grain(j,3) < start+width
             s_cur = s_cur + data_grain(j,4);
-            s_faces = s_faces + data_grain(j,3);
+            Numfaces = Numfaces + data_grain(j,3);
             cnt = cnt + 1;
         end
     end
     data_grid(i,1) = start;
     data_grid(i,2) = start + width;
-    data_grid(i,3) = s_faces/cnt;
+    data_grid(i,3) = Numfaces/cnt;
     data_grid(i,4) = s_cur/cnt;
     data_grid(i,5) = cnt;
 % standard mean deviation
@@ -38,7 +38,7 @@ for i = 1:step
     start = start + width;
     cnt = 0;
     s_cur = 0;
-    s_faces = 0;
+    Numfaces = 0;
     s_sqdiff = 0;
 end
 
@@ -47,16 +47,16 @@ considered = double(sum(data_grid(:,5))/length(data_grain));
 
 %% Plot 
 % plot average curvature of bin
-scatter(data_grid(:,3),data_grid(:,4),30,'filled');
+scatter(data_grid(:,3),data_grid(:,4),30,'filled','o','r');
 set(gca,'fontsize',13)
-xlabel('#Face of Grains','FontSize',15);
-ylabel('Integral Mean Curvature, \mu^{-1}','FontSize',15);
+xlabel('Grain Faces (F)','FontSize',15);
+ylabel('Integral Mean Curvature (M), \mum','FontSize',15);
 % plot standard Standard Deviation
 range = zeros(length(data_grid),2);
 for i = 1:length(data_grid)
     range(i,1) = data_grid(i,4) + data_grid(i,6); % up value
     range(i,2) = data_grid(i,4) - data_grid(i,6); % down value
-    line([data_grid(i,3),data_grid(i,3)],[range(i,1),range(i,2)]);
+    line([data_grid(i,3),data_grid(i,3)],[range(i,1),range(i,2)],'color','r');
     hold on
 end
 

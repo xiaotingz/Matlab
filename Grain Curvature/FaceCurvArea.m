@@ -30,11 +30,10 @@ clear tmp1 tmp2 tmp3 tmp4 boolean1 data_raw data_cleared
 
 % calculate face curvature
 tmp5 = unique(data_sorted(:,1:2),'rows');
-data_final = zeros(length(tmp5),4);
+data_final = zeros(length(tmp5),3);
 j = 0;
 k = 1;
 counter = 2;
-s_area = data_sorted(j+counter-1,4);
 s_cur = data_sorted(j+counter-1,3)*data_sorted(j+counter-1,4);
 
 for i = 2:length(data_sorted)
@@ -42,27 +41,23 @@ for i = 2:length(data_sorted)
 %   next trianlge still in the same face
     if data_sorted(j+counter-1,1) == data_sorted(j+counter,1) && data_sorted(j+counter-1,2) == data_sorted(j+counter,2)
        s_cur = s_cur + data_sorted(j+counter,3)*data_sorted(j+counter,4);
-       s_area = s_area + data_sorted(j+counter,4);
        counter = counter + 1;
        
 %   next trianlge in another face: record former one and restart counting
     else
         data_final(k,1) = data_sorted(j+counter-1,1);
         data_final(k,2) = data_sorted(j+counter-1,2);
-        data_final(k,3) = s_area;
-        data_final(k,4) = s_cur/s_area;
+        data_final(k,3) = s_cur;
         k = k+1;   % check k = length(x)
         j = j + counter -1;
         counter = 2;
-        s_area = data_sorted(j+counter-1,4);
         s_cur = data_sorted(j+counter-1,3)*data_sorted(j+counter-1,4);
     end
 end
 % looped all but no comparison to execute else for the last face ==> write manually
 data_final(k,1) = data_sorted(j+counter-1,1);
 data_final(k,2) = data_sorted(j+counter-1,2);
-data_final(k,3) = s_area;
-data_final(k,4) = s_cur/s_area;
+data_final(k,3) = s_cur;
 
 % % figure('name','closer look') %change axis value to look closer
 % % scatter(data_final(:,3), data_final(:,4),2,'filled');

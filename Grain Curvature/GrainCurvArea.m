@@ -1,3 +1,5 @@
+%% "Grain curvature" is considered as Curvature*Area, not actually curvature
+
 %% get delete_ID(index for grains to remove) --- remove a outer grain if they small number of faces
 % important data:
     % data_grain [grainId, grainDiameter, #Faces, grainCurvature]
@@ -36,7 +38,7 @@ aveD_raw = sum(grain_diameter_raw) / length(grain_diameter_raw);
 
 % Austenite --- X=434*0.15; Y=267*0.15; Z=100*0.2;
 % Ferrite   --- X=234*0.15; Y=267*0.15; Z=68*0.2;
-X=201*0.15; Y=335*0.15; Z=108*0.2;
+X=234*0.15; Y=267*0.15; Z=68*0.2;
 
 delete_bool = ones(length(centroids),1);
 for i = 1:length(centroids)
@@ -59,28 +61,22 @@ grain_ForCal = [ID_ForCal,D_ForCal,NNeigh_ForCal];
 
 % calculate grain curvature
 s_curv = 0;
-s_area = 0;
-tmp4 = zeros(length(grain_ForCal),4);
+tmp4 = zeros(length(grain_ForCal),2);
 
 for i = 1:length(tmp4)
     for j = 1:length(data_final)
         if data_final(j,1) == grain_ForCal(i,1)
-            s_area = s_area + data_final(j,3);
-            s_curv = s_curv - data_final(j,3)*data_final(j,4);
+            s_curv = s_curv - data_final(j,3);
         elseif data_final(j,2) == grain_ForCal(i,1)
-            s_area = s_area + data_final(j,3);
-            s_curv = s_curv + data_final(j,3)*data_final(j,4);
+            s_curv = s_curv + data_final(j,3);
         end
     end
     
     tmp4(i,1) = grain_ForCal(i,1);
-    tmp4(i,2) = s_area;
-    tmp4(i,3) = s_curv;
-    tmp4(i,4) = s_curv/s_area;
+    tmp4(i,2) = s_curv;
     
     s_curv = 0;
-    s_area = 0;
 end
 
 % final grain data: [grainId, grainDiameter, #Faces, grainCurvature]
-data_grain = [grain_ForCal,tmp4(:,4)];
+data_grain = [grain_ForCal,tmp4(:,2)];

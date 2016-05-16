@@ -14,7 +14,7 @@
 %% Rewrite .dream3d file --- set triArea=0 for triangles on free surface
 
 clear
-file = '/Volumes/RESEARCH/Grain Curvature/prebuild/setTo_a0/Nov4_F_a0.dream3d';
+file = '/Users/xiaotingzhong/Desktop/ts6/ts6_stats2setTo0.dream3d';
 
 facelabel = double(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceLabels')).';
 % curvature_of_triangle = abs(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshMeanCurvatures'));
