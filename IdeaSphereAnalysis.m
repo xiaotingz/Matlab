@@ -1,6 +1,6 @@
 %% distribution data in .dat file: mean value and SD
 clear
-gbcd_graph = textread('ts9_CurvDistri2_gmt_1.dat');
+gbcd_graph = textread('/Users/xiaotingzhong/Desktop/Datas/Mar18 tripleLineSphereCheck/ts9/ts9_curvDistri2_gmt_1.dat');
 
 % delete the first line and lines of MRD=nan
 gbcd_graph(1,:) = [];
@@ -56,7 +56,7 @@ SD = sqrt(total/length(data))
 clear
 
 % INPUT: file & sphereID
-file = ('/Users/xiaotingzhong/Desktop/Datas/Mar18 tripleLineSphereCheck/ts9/ts9_curvRing3.dream3d');
+file = ('/Users/xiaotingzhong/Desktop/Datas/Mar18 tripleLineSphereCheck/ts9/ts9_stats4.dream3d');
 sphereID = 9;
 facelabel = double(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceLabels'));
 curvature_of_triangle = abs(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshMeanCurvatures'));
@@ -116,31 +116,32 @@ laplacian2 = xlsread(file, sheet, laplacian2_range);
 laplacian3 = xlsread(file, sheet, laplacian3_range);
 laplacian4 = xlsread(file, sheet, laplacian4_range);
 SD2 = xlsread(file, sheet, SD2_range);
-% xAxis = [0.8,2:10];
+xAxis = [0.8,2:10];
 % xAxis = [2.3,2.66,3.01,3.33,3.66,3.99,4.32,4.66,4.99,5.32];
-xAxis_range = 'C65:L65'
-xAxis = xlsread(file, sheet, xAxis_range);
+% xAxis_range = 'C65:L65'
+% xAxis = xlsread(file, sheet, xAxis_range);
 
 figure
 plot(xAxis,ideaCurv,'--','Color',[0.5 0.5 0.5]);
 hold on
-scatter1 = scatter(xAxis,laplacian1,150,[1,0,0],'s','filled');
-errorbar(xAxis,laplacian2,SD2,'.','marker','o','markersize',12,'color',[0,0,0],'markerfacecolor',[0,0,0],'markeredgecolor',[0,0,0],'linewidth',1.2);
-scatter3 = scatter(xAxis,laplacian3,150,[0,1,0],'d','filled');
-scatter4 = scatter(xAxis,laplacian4,150,[0,0,1],'^','filled');
+scatter1 = scatter(xAxis,laplacian1,200,[1,0,0],'s','filled');
+errorbar(xAxis,laplacian2,SD2,'.','marker','o','markersize',14,'color',[0,0,0],'markerfacecolor',[0,0,0],'markeredgecolor',[0,0,0],'linewidth',1.2);
+scatter3 = scatter(xAxis,laplacian3,200,[0,1,0],'d','filled');
+scatter4 = scatter(xAxis,laplacian4,200,[0,0,1],'^','filled');
 
-% Legend, axis, ect...
-Legend = legend('idea curvature','smoothing 1','smoothing 2','smoothing 3','smoothing 4');
-set(Legend,'FontSize',12);
+% Legend elsewhere
 
+% Axes setting axis, ect...
+
+axis([0.3,10.5,-0.4,1.4]);
 ax = gca;
-ax.XTick = [5.3:0.8:7.7,8.4:0.8:10,10.7:0.8:12.3];
-ax.XTickLabel = {'2.4','3.0','3.5','4.0','4.5','5.0','5.5','6.0','6.5','7.0',''};
-% ax.XTickLabel = {'5.3','6.1','6.9','7.7','8.4','9.2','10.0','10.7','11.5','12.3'};
+ax.XTick = xAxis;
+% ax.XTickLabel = {'2.4','3.0','3.5','4.0','4.5','5.0','5.5','6.0','6.5','7.0',''};
+ax.XTickLabel = {'4','6','9','13','19','28','41','60','88','129',''};
 
-set(gca,'fontsize',14)
-xlabel('Resolution as Log(#pixels)','FontSize',17);
-ylabel('Average Triangle Curvature, \mum^{-1}','FontSize',17);
+set(gca,'fontsize',19)
+xlabel('Sphere Radius (voxels)','FontSize',21);
+ylabel('Symmetry Averaged Curvature (\mum^{-1})','FontSize',21);
 
 % % Resolution Range: Austenite maxSize=9.3706; Ferrite maxSize=12.9730
 % maxRes = log10((4/3*pi*((1/0.05)^3)/(0.15*0.15*0.2)));
@@ -153,13 +154,12 @@ a = gca;
     % set box property to off and remove background color
 set(a,'box','off','color','none')
     % create new, empty axes with box but without ticks
-b = axes('Position',get(a,'Position'),'box','on','xtick',[5.3:0.8:7.7,8.4:0.8:10,10.7:0.8:12.3],'XTickLabel','','ytick',[]);
+b = axes('Position',get(a,'Position'),'box','on','xtick',xAxis,'XTickLabel','','ytick',[]);
     % set original axes as active
 axes(a)
     % link axes in case of zooming
 linkaxes([a b])
 
-axis([4.9,12.7,-0.4,1.4]);
 
 %% Axis for plot --- laplacian comparison
 file = 'Dec5.xlsx';
@@ -181,23 +181,23 @@ xAxis = [0.8,2:10];
 figure
 plot(xAxis,ideaCurv,'--','Color',[0.5 0.5 0.5]);
 hold on
-scatter1 = errorbar(xAxis,laplacian2,SD2,'.','marker','s','markersize',9,'color',[1,0,0],'markerfacecolor',[1,0,0],'markeredgecolor',[1,0,0],'linewidth',1.2);
-scatter2 = errorbar(xAxis,laplacian2,SD2,'.','marker','o','markersize',9,'color',[0,0,0],'markerfacecolor',[0,0,0],'markeredgecolor',[0,0,0],'linewidth',1.2);
-scatter3 = errorbar(xAxis,laplacian2,SD2,'.','marker','d','markersize',9,'color',[0,1,0],'markerfacecolor',[0,1,0],'markeredgecolor',[0,1,0],'linewidth',1.2);
-scatter4 = errorbar(xAxis,laplacian2,SD2,'.','marker','^','markersize',9,'color',[0,0,1],'markerfacecolor',[0,0,1],'markeredgecolor',[0,0,1],'linewidth',1.2);
+scatter1 = errorbar(xAxis,laplacian2,SD2,'.','marker','s','markersize',13,'color',[1,0,0],'markerfacecolor',[1,0,0],'markeredgecolor',[1,0,0],'linewidth',1.2);
+scatter2 = errorbar(xAxis,laplacian2,SD2,'.','marker','o','markersize',13,'color',[0,0,0],'markerfacecolor',[0,0,0],'markeredgecolor',[0,0,0],'linewidth',1.2);
+scatter3 = errorbar(xAxis,laplacian2,SD2,'.','marker','d','markersize',13,'color',[0,1,0],'markerfacecolor',[0,1,0],'markeredgecolor',[0,1,0],'linewidth',1.2);
+scatter4 = errorbar(xAxis,laplacian2,SD2,'.','marker','^','markersize',13,'color',[0,0,1],'markerfacecolor',[0,0,1],'markeredgecolor',[0,0,1],'linewidth',1.2);
 
 
 Legend = legend('ideal curvature','smoothing I','smoothing II','smoothing III','smoothing IV');
-set(Legend,'box','off','FontSize',12,'position',[0.7,0.65,0.1,0.25]);
+set(Legend,'box','off','FontSize',16,'position',[0.7,0.62,0.1,0.27]);
 
 
 axis([0.3,10.5,-0.4,1.4]);
 ax = gca;
 ax.XTick = xAxis;
 ax.XTickLabel = {'S4','S6','S9','S13','S19','S28','S41','S60','S88','S129',''};
-set(gca,'fontsize',14)
-xlabel('SphereID','FontSize',17);
-ylabel('Average Measured Curvature, \mum^{-1}','FontSize',17);
+set(gca,'fontsize',19)
+xlabel('SphereID','FontSize',21);
+ylabel('Average Measured Curvature (\mum^{-1})','FontSize',21);
 
 % disable tick on top and right of the box
     % get handle to current axes
@@ -227,19 +227,19 @@ gmt = xlsread(file, sheet, gmt_Rang);
 xAxis = [0.8,2:10];
 
 plot(xAxis,ideaCurv,'--','Color',[0.5 0.5 0.5]); hold on;
-errorbar(xAxis,laplacian2,SD2,'.','marker','s','markersize',10,'color',[0,0,0],'markerfacecolor',[0,0,0],'markeredgecolor',[0,0,0],'linewidth',1.2);
-errorbar(xAxis,gmt(1,:),gmt(2,:),'.','marker','o','markersize',10,'color','r','markerfacecolor','r','markeredgecolor','r','linewidth',1.2);
-set(gca,'fontsize',14)
-xlabel('Resolution as Log(#pixels)','FontSize',17);
-ylabel('Average Curvature, \mum^{-1}','FontSize',17);
+errorbar(xAxis,laplacian2,SD2,'.','marker','o','markersize',14,'color','k','markerfacecolor','k','markeredgecolor','k','linewidth',1.2);
+errorbar(xAxis,gmt(1,:),gmt(2,:),'.','marker','o','markersize',14,'color','r','markerfacecolor','r','markeredgecolor','r','linewidth',1.2);
+set(gca,'fontsize',19)
+xlabel('Log(Number of Voxels per Sphere)','FontSize',21);
+ylabel('Symmetry Averaged Curvature (\mum^{-1})','FontSize',21);
 axis([0.3,10.5,-0.4,1.4]);
 ax = gca;
 ax.XTick = xAxis;
 ax.XTickLabel = {'2.4','3.0','3.5','4.0','4.5','5.0','5.5','6.0','6.5','7.0'};
 % ax.XTickLabel = {'S1','S2','S3','S4','S5','S6','S7','S8','S9','S10'};
 
-Legend = legend('ideal curvature','triangle curvature','symmetry averaged curvature');
-set(Legend,'box','off','FontSize',12,'position',[0.65,0.73,0.1,0.15]);
+Legend = legend('ideal curvature','triangle curvature',['symmetry averaged' char(10) 'curvature']);
+set(Legend,'box','off','FontSize',16,'position',[0.65,0.69,0.1,0.2]);
 
 
 % disable tick on top and right of the box

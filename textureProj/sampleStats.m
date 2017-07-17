@@ -9,7 +9,7 @@ ax.XTick = [0:30:180];
 xlabel('Dihedral Angle, °','FontSize',20);
 ylabel('Frequency','FontSize',20);
 set(gca,'fontsize',18)
-title('Dihedral Angle Distritbution, Ferrite','FontSize',18);
+title('Dihedral Angle Distritbution, Nickel','FontSize',18);
 
 
 

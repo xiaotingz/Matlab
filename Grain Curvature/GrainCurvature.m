@@ -1,8 +1,7 @@
 %% get delete_ID(index for grains to remove) --- remove a outer grain if they small number of faces
 % important data:
     % data_grain [grainId, grainDiameter, #Faces, grainCurvature]
-grain_diameter_raw = roundn(h5read(file,'/VoxelDataContainer/FIELD_DATA/EquivalentDiameters'),-5);
-
+    
 % get the Ids of Grains contacting the outer surface: by triangle label
 tmp1 = facelabel(1,:);
 tmp2 = facelabel(2,:);
@@ -30,13 +29,7 @@ end
 delete_bool = logical(delete_bool);
 
 %% get delete_ID(index for grains to remove) --- remove a outer grain if its centroid is falls within 2<R> from outer frame  
-centroids = roundn(h5read(file,'/VoxelDataContainer/FIELD_DATA/Centroids'),-5).';
-grain_diameter_raw = roundn(h5read(file,'/VoxelDataContainer/FIELD_DATA/EquivalentDiameters'),-5);
 aveD_raw = sum(grain_diameter_raw) / length(grain_diameter_raw);
-
-% Austenite --- X=434*0.15; Y=267*0.15; Z=100*0.2;
-% Ferrite   --- X=234*0.15; Y=267*0.15; Z=68*0.2;
-X=201*0.15; Y=335*0.15; Z=108*0.2;
 
 delete_bool = ones(length(centroids),1);
 for i = 1:length(centroids)
@@ -83,4 +76,4 @@ for i = 1:length(tmp4)
 end
 
 % final grain data: [grainId, grainDiameter, #Faces, grainCurvature]
-data_grain = [grain_ForCal,tmp4(:,4)];
+data_grain = [grain_ForCal,tmp4(:,3)];

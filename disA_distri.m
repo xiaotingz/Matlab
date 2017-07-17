@@ -1,11 +1,12 @@
 % load data
-file = ('/Users/xiaotingzhong/Desktop/Datas/setTo0/Jan31_A_setTo0.dream3d');
+clear
+file = ('/Users/xiaotingzhong/Desktop/Datas/Ferrite/Ferrite_Run4/processing/Jan31_F_Run4_surfDA.dream3d');
 
 num_of_neigh = double(h5read(file,'/VoxelDataContainer/FIELD_DATA/NumNeighbors'));
 neighborList = double(h5read(file,'/VoxelDataContainer/FIELD_DATA/NeighborList'));
 DisAngle = double(h5read(file,'/VoxelDataContainer/FIELD_DATA/MisorientationList'));
-% triangle_area_raw = roundn(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas'),-8);
 facelabel = double(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceLabels'));
+    % notice use the ABS(triCurv)
 triCurv = abs(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshMeanCurvatures'));
 triangle_area_raw = roundn(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas'),-8);
 data_raw = [facelabel; triCurv.';triangle_area_raw.'];
@@ -58,28 +59,28 @@ clear data_raw boolean1 data_cleared file tmp1 tmp2 tmp3 A
     % data_final = [TotalArea of triangles, total curvature on the face, disorientation]
 data_final = zeros(length(labelList_use),3);
 j = 1;  % j -- jth faces
-totalC = 0;   % total --- total curvature
-totalA = 0;   % totalArea
+totalCA = 0;   % total --- curvature*area
+totalA = 0;   % total --- area
 for i = 1:length(data_sorted)-1
         % compare if label of kth triangle equals (k+1)th, if yes, sum curvature
     if data_sorted(i,1) == data_sorted(i+1,1) && data_sorted(i,2) == data_sorted(i+1,2)
-        totalC = totalC + data_sorted(i,3)*data_sorted(i,4);
+        totalCA = totalCA + data_sorted(i,3)*data_sorted(i,4);
         totalA = totalA + data_sorted(i,4);
         
         % if not, sum kth into this face, start a new face
     else 
-        totalC = totalC + data_sorted(i,3)*data_sorted(i,4);
+        totalCA = totalCA + data_sorted(i,3)*data_sorted(i,4);
         totalA = totalA + data_sorted(i,4);
         data_final(j,1) = totalA;
-        data_final(j,2) = totalC;
+        data_final(j,2) = totalCA;
         data_final(j,3) = disA_use(j);
         j = j + 1;
-        totalC = 0;
+        totalCA = 0;
         totalA = 0;
     end
 end
 data_final(j,1) = totalA + data_sorted(i+1,4);
-data_final(j,2) = totalC + data_sorted(i+1,3)*data_sorted(i+1,4);
+data_final(j,2) = totalCA + data_sorted(i+1,3)*data_sorted(i+1,4);
 data_final(j,3) = disA_use(j);
 
 %%
@@ -88,22 +89,31 @@ start = 0;
 nstep = 35;
 stepsize = 2;
 data_grid = zeros(nstep,2);
-totalCurv = 0;
+totalCAproduct = 0;
 totalArea = 0;
 for j = 1 : nstep
     for i = 1 : length(data_final)
         % data_final = [#triangles on the face, total curvature on the face, disorientation]
         if data_final(i,3) > start && data_final(i,3) <= start + stepsize
             totalArea = totalArea + data_final(i,1);
-            totalCurv = totalCurv + data_final(i,2);
+            totalCAproduct = totalCAproduct + data_final(i,2);
         end
     end
     data_grid(j,1) = start + stepsize/2;
-    data_grid(j,2) = totalCurv/totalArea;
+    data_grid(j,2) = totalCAproduct;
+    data_grid(j,3) = totalArea;
+    data_grid(j,4) = totalCAproduct/totalArea;
     start = start + stepsize;
-    totalCurv = 0;
+    totalCAproduct = 0;
     totalArea = 0;
 end
+
+%% Combine the two volumes of Ferrite
+data_grid = zeros(35,4);
+data_grid(:,1) = sub1(:,1);
+data_grid(:,2:3) = sub1(:,2:3) + sub2(:,2:3);
+data_grid(:,4) = data_grid(:,2)./data_grid(:,3);
+data_grid(:,5) = sub1(:,5) + sub2(:,5);
 
 %% 
 % figure(1)
@@ -120,26 +130,53 @@ end
 % axes(a)
 % linkaxes([a b])
 
+% 
+% figure(2)
+% scatterFig = scatter(data_grid(:,1), data_grid(:,4),60,'filled','k'); 
+%     % Austenite, coherent twin
+% % scatter(60,0.3,120,'filled','p');
+% % text(25,0.31,'coherent twin boundary \rightarrow','FontSize',18);
+% % text(62,1.84,'(a)','FontSize',25)
+% % axis([0,70,0.2,2]);
+%     % Ferrite, symmetric tilt
+% % scatter(60,0.59,120,'filled','p');
+% % text(59.5,0.54,'\uparrow','FontSize',18);
+% % text(35,0.48,'symmetric tilt boundary ','FontSize',18);
+% % text(62,1.12,'(b)','FontSize',25)
+% % axis([0,70,0.3,1.2])
+% xlim([0,70])
+% 
+% box on
+% set(gca,'fontsize',19)
+% xlabel('Disorientation Angle (°)','FontSize',21);
+% ylabel('Average Curvature (\mum^{-1})','FontSize',21);
+% 
+% % axis([0,70,0,2])
+% % disable tick on top and right of the box
+% a = gca;set(a,'box','off','color','none');
+% % a.YTick = [0:0.4:2];
+% b = axes('Position',get(a,'Position'),'box','on','xtick',[],'ytick',[]);
+% axes(a)
+% linkaxes([a b])
 
-figure(2)
-scatter(data_grid(:,1), data_grid(:,2),60,'filled','k'); hold on
-    % Austenite, coherent twin
-% scatter(60,0.3,120,'filled','p');
-% text(28,0.31,'coherent twin boundary \rightarrow','FontSize',16);
-    % Ferrite, symmetric tilt
-% scatter(60,0.59,120,'filled','p');
-% text(59.5,0.55,'\uparrow','FontSize',16);
-% text(35,0.5,'symmetric tilt boundary ','FontSize',16);
+%%
+figure(4)
+ax2 = axes('Position',[0.1300 0.1100 0.7750 0.8150]);
+ax1 = axes('Position',[0.1300 0.1100 0.7750 0.8150]);
 
-box on
-set(gca,'fontsize',18)
-xlabel('Disorientation Angle, °','FontSize',20);
-ylabel('Average Curvature, \mum^{-1}','FontSize',20);
-% axis([0,70,0,2])
-% disable tick on top and right of the box
-a = gca;set(a,'box','off','color','none');
-% a.YTick = [0:0.4:2];
-b = axes('Position',get(a,'Position'),'box','on','xtick',[],'ytick',[]);
-axes(a)
-linkaxes([a b])
-
+% yyaxis right
+bar(ax2, data_grid(:,1), data_grid(:,3)/sum(data_grid(:,3)),'FaceColor',[1 1 1],'EdgeColor',[0.5 0.5 0.5],'LineWidth',0.5); 
+scatter(ax1,data_grid(:,1), data_grid(:,4),60,'filled','k'); 
+set(ax1,'fontsize',19)
+set(ax2,'fontsize',19)
+ylabel(ax1,'Average Curvature (\mum^{-1})','FontSize',21);
+ylabel(ax2,'Area Fraction','FontSize',21);
+ax2.YAxisLocation = 'right';
+box(ax1,'off')
+box(ax2,'off')
+% line(ax1,[0 70],[0.6,0.6],'Color','k','LineWidth',1)
+xlim(ax1,[0,70])
+xlim(ax2,[0,70])
+xlabel('Disorientation Angle (°)','FontSize',21);
+set(gca, 'Color', 'None')
+% ylim([0.15,0.55])

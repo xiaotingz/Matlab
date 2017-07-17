@@ -1,7 +1,8 @@
 %% average --- CurvDistri file 
 % load data
-Ferrite_1 = ('/Users/xiaotingzhong/Desktop/Datas/setTo0/Jan31_Fca0_curDistri10.dream3d');
-Run4_2 = ('/Users/xiaotingzhong/Desktop/Datas/Ferrite/Ferrite_Run4/setTo0/Jan31_F_Run4_CurvDistri10.dream3d');
+clear
+Ferrite_1 = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/070617_V4_misA3ReconsAgrain/070617_sub1_A0_GBCurvD.dream3d');
+Run4_2 = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/070617_V4_misA3ReconsAgrain/070617_sub2_A0_GBCurvD.dream3d');
 
 CurvDistri1 = h5read(Ferrite_1,'/SurfaceMeshDataContainer/ENSEMBLE_DATA/GBCD');
 Counter1 = h5read(Ferrite_1,'/SurfaceMeshDataContainer/ENSEMBLE_DATA/GBCDCounters');
@@ -24,17 +25,18 @@ data_converted = zeros(length(data_read),1);
 for i = 1:length(data_read)
     data_converted(d3d_to_graph(i,2)) = data_read(i);
 end
-% 
-% fileID = fopen('F_CurvDistri10Ave.txt','w');
-% fprintf(fileID,'%12.8f\n',data_converted);
-% fclose(fileID);
+
+fileID = fopen('STO1470_combinedGBCurvD.txt','w');
+fprintf(fileID,'%12.8f\n',data_converted);
+fclose(fileID);
 
 
-calculated = textread('F_CurvDistri10Ave.txt');
+% calculated = textread('F_CurvDistri10Ave.txt');
 
 %% average --- GBCD file
-Ferrite_1 = ('/Users/xiaotingzhong/Desktop/Datas/setTo0/Jan31_Fca0_gbcd10.dream3d');
-Run4_2 = ('/Users/xiaotingzhong/Desktop/Datas/Ferrite/Ferrite_Run4/setTo0/Jan31_F_Run4_GBCD10.dream3d');
+clear
+Ferrite_1 = ('/Users/xiaotingzhong/Desktop/Datas/091616_STO_1470/101116_V4_misA3/sub1_misA3_recons_A0_GBCD.dream3d');
+Run4_2 = ('/Users/xiaotingzhong/Desktop/Datas/091616_STO_1470/101116_V4_misA3/sub2_misA3_recons1Again2_A0_GBCD.dream3d');
 
 GBCD1 = h5read(Ferrite_1,'/SurfaceMeshDataContainer/ENSEMBLE_DATA/GBCD');
 GBCD2 = h5read(Run4_2,'/SurfaceMeshDataContainer/ENSEMBLE_DATA/GBCD');
@@ -61,9 +63,9 @@ for i = 1:length(data_read)
     data_converted(d3d_to_graph(i,2)) = data_read(i);
 end
 
-% fileID = fopen('F_gbcd10Ave.txt','w');
-% fprintf(fileID,'%12.8f\n',data_converted);
-% fclose(fileID);
+fileID = fopen('STO1470_combinedGBCDres10.txt','w');
+fprintf(fileID,'%12.8f\n',data_converted);
+fclose(fileID);
 
 %% Stick data in DREAM3D file 
 % start with (Jan.31 Ferrite) data, stick Run4's data at the end of each list then let D3D compute

@@ -4,11 +4,11 @@
 
 %% get data_grid 
 % Plot GrainCurvature vs GrainDiameter 
-start = 1.0; % notice, Austenite & Ferrite Sample start with 0.9 
+start = 0; % notice, Austenite & Ferrite Sample start with 0.9; STO1470 start with 0.8
 width = 0.2;
 %  notice
     % step=100 for fullsize ; Austenite&Ferrite=35, Mg=44,
-step = 25;
+step = ceil((max(data_grain(:,2)) - start)/width);
 data_grid = zeros(step,6);
 s_cur = 0;
 s_diameter = 0;
@@ -49,22 +49,28 @@ considered = sum(data_grid(:,5))/length(data_grain);
 
 %% Plot
 % plot point: average curvature of bin
-scatter(data_grid(:,3),data_grid(:,4),30,'filled');
-set(gca,'fontsize',13)
-xlabel('Diameter of Grains, \mu','FontSize',15);
-ylabel('Integral Mean Curvature, \mu^{-1}','FontSize',15);
+scatter(data_grid(:,3),data_grid(:,4),50,'filled','o','k');
+ax = gca;
+% ax.XTick = [0:5:40];
 
-% axis([1,14,-0.4,1.2]);
+
+set(ax,'fontsize',19)
+xlabel('D (\mum)','FontSize',21);
+ylabel('M_{S} (\mum)','FontSize',21);
+% xlim([0.7,6]);
 % plot line: standard mean deviation
 range = zeros(length(data_grid),2);
 for i = 1:length(data_grid)
     range(i,1) = data_grid(i,4) + data_grid(i,6); % up value
     range(i,2) = data_grid(i,4) - data_grid(i,6); % down value
-    line([data_grid(i,3),data_grid(i,3)],[range(i,1),range(i,2)]);
+    line([data_grid(i,3),data_grid(i,3)],[range(i,1),range(i,2)],'color','k');
     hold on
 end
+xlim([0,max(data_grain(:,2))+0.2]);
+line([0,max(data_grain(:,2))+0.2],[0,0],'LineStyle','--', 'Color',[0.5 0.5 0.5])
 
-line([1,6],[0,0],'LineStyle','--', 'Color',[0.5 0.5 0.5])
+
+
 
 % disable tick on top and right of the box
     % get handle to current axes

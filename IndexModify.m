@@ -46,7 +46,7 @@ d3d_to_graph = sortrows(d3d_to_graph);
 
 % % Prepare to converget: read GBCD data in D3D.
 % data_read = textread('s4_GBCDRes9.txt');
-GBCD_raw = h5read('/Users/xiaotingzhong/Desktop/Datas/setTo0/Jan31_Aca0_CurvDistri_10.dream3d','/SurfaceMeshDataContainer/ENSEMBLE_DATA/GBCD');
+GBCD_raw = h5read('/Users/xiaotingzhong/Desktop/Datas/setTo0/Jan31_Aa0_gbcd10.dream3d','/SurfaceMeshDataContainer/ENSEMBLE_DATA/GBCD');
 data_read = GBCD_raw(:,1);
 
 data_converted = zeros(length(data_read),1);
@@ -54,7 +54,7 @@ for i = 1:length(data_read)
     data_converted(d3d_to_graph(i,2)) = data_read(i);
 end
 
-fileID = fopen('Jan31_A_Curv10.txt','w');
+fileID = fopen('Jan31_A_gbcd10.txt','w');
 fprintf(fileID,'%12.8f\n',data_converted);
 fclose(fileID);
 

@@ -14,8 +14,9 @@
 %% Rewrite .dream3d file --- set triArea=0 for triangles on free surface
 
 clear
-file = '/Users/xiaotingzhong/Desktop/ts6/ts6_stats2setTo0.dream3d';
+file = '/Users/xiaotingzhong/Desktop/Datas/STO_1470/070617_V4_misA3ReconsAgrain/070617_sub2_reconsAgain_statsA0.dream3d';
 
+% facelabel = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
 facelabel = double(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceLabels')).';
 % curvature_of_triangle = abs(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshMeanCurvatures'));
 triangle_area = roundn(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas'),-5);
@@ -28,6 +29,94 @@ end
 
 % h5write(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures',curvature_of_triangle);
 h5write(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas',triangle_area);
+
+%% Rewrite .dream3d file --- seperate BB/BS/SS
+% STO_1470, first calculate the average grain size for combining subset1
+% and subset2
+
+Size_sub1 = h5read('/Users/xiaotingzhong/Desktop/STO_1470/Modified/BB_BS_SS_GBCurvD_area0/subset1_BB_A0.dream3d','/VoxelDataContainer/FIELD_DATA/EquivalentDiameters');
+Size_sub2 = h5read('/Users/xiaotingzhong/Desktop/STO_1470/Modified/BB_BS_SS_GBCurvD_area0/subset1_BB_A0.dream3d','/VoxelDataContainer/FIELD_DATA/EquivalentDiameters');
+
+aveSize = (sum(Size_sub1) + sum(Size_sub2))/(length(Size_sub1) + length(Size_sub2));
+% aveSize = 774.6
+%% only for Big-Big grains
+clear
+readFile = '/Users/xiaotingzhong/Desktop/STO_1470/Modified/BB_BS_SS_GBCurvD_area0/subset2_BB_A0.dream3d';
+
+facelabel = double(h5read(readFile,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceLabels')).';
+% curvature_of_triangle = abs(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshMeanCurvatures'));
+areas = roundn(h5read(readFile,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas'),-5);
+Size = h5read(readFile,'/VoxelDataContainer/FIELD_DATA/NumCells');
+
+Size(1,:) = [];
+aveSize = 775;
+
+areas_filtered = zeros(size(areas));
+for i = 1:length(facelabel)
+    if facelabel(i,1) > 0 && facelabel(i,2) > 0
+        if Size(facelabel(i,1)) > aveSize && Size(facelabel(i,2)) > aveSize
+            areas_filtered(i) = areas(i);
+        end
+    end
+end
+
+h5write(readFile,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas',areas_filtered);
+
+%% Rewrite .dream3d file --- set triArea!=0 only for Big-Small grains
+clear
+readFile = '/Users/xiaotingzhong/Desktop/STO_1470/Modified/BB_BS_SS_GBCurvD_area0/subset2_BS_A0.dream3d';
+
+facelabel = double(h5read(readFile,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceLabels')).';
+% curvature_of_triangle = abs(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshMeanCurvatures'));
+areas = roundn(h5read(readFile,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas'),-5);
+Size = h5read(readFile,'/VoxelDataContainer/FIELD_DATA/NumCells');
+
+Size(1,:) = [];
+aveSize = 775;
+
+areas_filtered = zeros(size(areas));
+for i = 1:length(facelabel)
+    if facelabel(i,1) > 0 && facelabel(i,2) > 0
+        if Size(facelabel(i,1)) > aveSize && Size(facelabel(i,2)) <= aveSize
+            areas_filtered(i) = areas(i);
+        elseif Size(facelabel(i,1)) <= aveSize && Size(facelabel(i,2)) > aveSize
+            areas_filtered(i) = areas(i);
+        end
+    end
+end
+
+h5write(readFile,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas',areas_filtered);
+
+
+
+
+
+%% Rewrite .dream3d file --- set triArea!=0 only for Small-Small grains
+
+clear
+readFile = '/Users/xiaotingzhong/Desktop/STO_1470/Modified/BB_BS_SS_GBCurvD_area0/subset2_SS_A0.dream3d';
+
+facelabel = double(h5read(readFile,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceLabels')).';
+% curvature_of_triangle = abs(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshMeanCurvatures'));
+areas = roundn(h5read(readFile,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas'),-5);
+Size = h5read(readFile,'/VoxelDataContainer/FIELD_DATA/NumCells');
+
+Size(1,:) = [];
+aveSize = 775;
+
+areas_filtered = zeros(size(areas));
+for i = 1:length(facelabel)
+    if facelabel(i,1) > 0 && facelabel(i,2) > 0
+        if Size(facelabel(i,1)) <= aveSize && Size(facelabel(i,2)) <= aveSize
+            areas_filtered(i) = areas(i);
+        end
+    end
+end
+
+h5write(readFile,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas',areas_filtered);
+
+%% END of BB/BS/SS
+
 
 
 %% Rewrite .dream3d file --- set triArea=0 for triangles on TripleLines

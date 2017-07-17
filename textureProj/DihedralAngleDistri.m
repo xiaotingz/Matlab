@@ -1,16 +1,22 @@
 % 1. Read in data
-% % Austenite
-% tri_full = textread('/Users/xiaotingzhong/Desktop/DAdistri data/Jan31_A_triangle.txt');
-% node_full = textread('/Users/xiaotingzhong/Desktop/DAdistri data/Jan31_A_node.txt');
-% normal_full = roundn(h5read('/Users/xiaotingzhong/Desktop/DAdistri data/Jan31_A_stats.dream3d','/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceNormals'),-5);
+% Austenite
+% tri_full = textread('/Users/xiaotingzhong/Desktop/Datas/Jan.31 Austenite/Jan31_A_triangle.txt');
+% node_full = textread('/Users/xiaotingzhong/Desktop/Datas/Jan.31 Austenite/Jan31_A_node.txt');
+% normal_full = roundn(h5read('/Users/xiaotingzhong/Desktop/Datas/Jan.31 Austenite/Jan31_A_stats.dream3d','/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceNormals'),-5);
 % % Ferrite
-tri_full = textread('/Users/xiaotingzhong/Desktop/DAdistri data/Jan31_F_triangle.txt');
-node_full = textread('/Users/xiaotingzhong/Desktop/DAdistri data/Jan31_F_node.txt');
-normal_full = roundn(h5read('/Users/xiaotingzhong/Desktop/DAdistri data/Jan31_Fc_stats.dream3d','/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceNormals'),-5);
+% tri_full = textread('/Users/xiaotingzhong/Desktop/DAdistri data/Jan31_F_triangle.txt');
+% node_full = textread('/Users/xiaotingzhong/Desktop/DAdistri data/Jan31_F_node.txt');
+% normal_full = roundn(h5read('/Users/xiaotingzhong/Desktop/DAdistri data/Jan31_Fc_stats.dream3d','/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceNormals'),-5);
 % Cropped
 % tri_full = textread('/Users/xiaotingzhong/Desktop/DAdistri data/Jan31_A_croptriangle.txt');
 % node_full = textread('/Users/xiaotingzhong/Desktop/DAdistri data/Jan31_A_cropnode.txt');
 % normal_full = roundn(h5read('/Users/xiaotingzhong/Desktop/DAdistri data/Jan31_A_cropstats.dream3d','/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceNormals'),-5);
+% % Nickel
+% tri_full = textread('/Users/xiaotingzhong/Desktop/Datas/051616 Nickel/051616_N_triangle.txt');
+% node_full = textread('/Users/xiaotingzhong/Desktop/Datas/051616 Nickel/051616_N_node.txt');
+% normal_full = roundn(h5read('/Users/xiaotingzhong/Desktop/Datas/051616 Nickel/Nickel_stats.dream3d','/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceNormals'),-5);
+
+
 
     % adjust count starting from 0 to 1
 node_full(1,:) = [];
@@ -21,7 +27,7 @@ tri_full(:,5:7) = [];
 normal_full = normal_full.';
 
 % 2. Find the triangles on tripleline
-    % first clean surface triangles, deal normal list at the same time
+    % first clean surface triangles
 tmp1 = tri_full(:,1); tmp2 = tri_full(:,2); tmp3 = tri_full(:,3); 
 tmp4 = tri_full(:,4); tmp5 = tri_full(:,5); tmp6 = tri_full(:,6);
 bool1 = (tri_full(:,5) > 0 & tri_full(:,6) > 0);
@@ -72,7 +78,7 @@ end
 TLnodelist = sort(TLnodelist,2);
 TLnodelist = [TLtri(:,1),zeros(length(TLtri),1),TLnodelist];
 TLnodelist = sortrows(TLnodelist,3);
-    % if the group contain more than 3 triangles, ignore
+    % if the group contain more or less than 3 triangles, ignore
 bool_groupof3 = zeros(length(TLnodelist),1);
 cnt = 1;
 for i = 1:(length(TLnodelist)-1)
@@ -109,13 +115,48 @@ for i = 1:numGroup
     third = TLtri_group((i-1)*3 + 3);
     
         % acos doesn't work well for small angles
-        % use atan2(norm(cross(u,v)),dot(u,v))
+        % use atan2d(norm(cross(u,v)),dot(u,v))
     DihedralAngle(3*(i-1)+1) = atan2d(norm(cross(normal_full(second,:),normal_full(third,:))),dot(normal_full(second,:),normal_full(third,:)));
     DihedralAngle(3*(i-1)+2) = atan2d(norm(cross(normal_full(first,:),normal_full(third,:))),dot(normal_full(first,:),normal_full(third,:)));
     DihedralAngle(3*(i-1)+3) = atan2d(norm(cross(normal_full(first,:),normal_full(second,:))),dot(normal_full(first,:),normal_full(second,:)));
     
 end
     
-    
+
+%% write txt file for D3D
+numTLtri = length(TLtri_group);
+TLtri_groupwrite = TLtri_group - 1;
+
+fileID = fopen('DAlist_A.txt','w');
+fprintf(fileID,'%d\n', numTLtri);
+for i = 1:numTLtri
+    fprintf(fileID,'%d   %6.2f\n', TLtri_groupwrite(i), DihedralAngle(i));
+end
+fclose(fileID);
+
+
+
+
+%% Checkings
+    % Within one group, check if angle between <n1,n2>, <n2,n3>, <n1,n3> sum to 360
+sumGroupAngle = zeros(length(numGroup),1);
+for i = 1:numGroup
+    sumGroupAngle(i) = sum(DihedralAngle(((i-1)*3+1):((i-1)*3+3)));
+end
+    % check if n1, n2, n3 are coplanar
+i = 923;
+
+first = TLtri_group((i-1)*3 + 1);
+second = TLtri_group((i-1)*3 + 2);
+third = TLtri_group((i-1)*3 + 3);
+
+n1 = normal_full(first,:);
+n2 = normal_full(second,:);
+n3 = normal_full(third,:);
+
+tmp = cross(n1,n2);
+dotproduct = dot(tmp,n3)
+
+
     
     

@@ -6,7 +6,7 @@
 %% get data_grid 
 start = 0;
 width = 1;
-step = 40;
+step = max(data_grain(:,3))+1;
 data_grid = zeros(step,6);
 s_cur = 0;
 Numfaces = 0;
@@ -47,21 +47,25 @@ considered = double(sum(data_grid(:,5))/length(data_grain));
 
 %% Plot 
 % plot average curvature of bin
-scatter(data_grid(:,3),data_grid(:,4),30,'filled','o','r');
-set(gca,'fontsize',13)
-xlabel('Grain Faces (F)','FontSize',15);
-ylabel('Integral Mean Curvature (M), \mum','FontSize',15);
+scatter(data_grid(:,3),data_grid(:,4),50,'filled','o','k');
+ax = gca;
+% ax.XTick = [0:5:40];
+
+
+set(ax,'fontsize',19)
+xlabel('F','FontSize',21);
+ylabel('M_{S} (\mum)','FontSize',21);
 % plot standard Standard Deviation
 range = zeros(length(data_grid),2);
 for i = 1:length(data_grid)
     range(i,1) = data_grid(i,4) + data_grid(i,6); % up value
     range(i,2) = data_grid(i,4) - data_grid(i,6); % down value
-    line([data_grid(i,3),data_grid(i,3)],[range(i,1),range(i,2)],'color','r');
+    line([data_grid(i,3),data_grid(i,3)],[range(i,1),range(i,2)],'color','k');
     hold on
 end
 
 
-line([0,40],[0,0],'LineStyle','--', 'Color',[0.5 0.5 0.5])
+line([0,max(data_grain(:,3))],[0,0],'LineStyle','--', 'Color',[0.5 0.5 0.5])
 
 % disable tick on top and right of the box
     % get handle to current axes
@@ -74,3 +78,14 @@ b = axes('Position',get(a,'Position'),'box','on','xtick',[],'ytick',[]);
 axes(a)
     % link axes in case of zooming
 linkaxes([a b])
+%% for Legend
+% one = [1:1:15];
+% two = [2:1:16];
+% SD = zeros(15,1).';
+% scatter1 = errorbar(one,one,SD,'.','marker','s','markersize',6,'color','k','markerfacecolor','k','markeredgecolor','k','linewidth',1.2);
+% hold on
+% scatter2 = errorbar(one,two,SD,'.','marker','o','markersize',6,'color','r','markerfacecolor','r','markeredgecolor','r','linewidth',1.2);
+% 
+% 
+% Legend = legend('Ferrite','Austenite');
+% set(Legend,'box','off','FontSize',16,'position',[0.7,0.4,0.1,0.15]);

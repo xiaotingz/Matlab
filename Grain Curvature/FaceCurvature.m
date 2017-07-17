@@ -1,8 +1,26 @@
 % important data:
     % data_final [LabelA, LabelB, FaceArea, FaceCurvature]
+clear
+% subset1
+% file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/070617_V4_misA3ReconsAgrain/070617_sub1_stats.dream3d');
+% centro_file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/070617_V4_misA3ReconsAgrain/070617_sub1_stats.dream3d');
+% X=232*0.3; Y=129*0.3; Z=36*0.3;
+% subset2
+file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/070617_V4_misA3ReconsAgrain/070617_sub2_reconsAgain_stats.dream3d');
+centro_file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/070617_V4_misA3ReconsAgrain/070617_sub2_reconsAgain_stats.dream3d');
+% X=232*0.3; Y=129*0.3; Z=36*0.3;
+X=434*0.15; Y=267*0.15; Z=100*0.2;
 
-file = ('/Users/xiaotingzhong/Desktop/Datas/setTo0/Jan31_A_setTo0.dream3d');
+% centroids
+% Austenite --- X=434*0.15; Y=267*0.15; Z=100*0.2;
+% Ferrite   --- X=234*0.15; Y=267*0.15; Z=68*0.2;
+% STO_1470_sub1 --- X=232*0.3; Y=129*0.3; Z=36*0.3;
+% STO_1470_sub2 --- X=213*0.3; Y=297*0.3; Z=40*0.3;
+
+
 % load data
+centroids = roundn(h5read(centro_file,'/VoxelDataContainer/FIELD_DATA/Centroids'),-5).';
+grain_diameter_raw = roundn(h5read(centro_file,'/VoxelDataContainer/FIELD_DATA/EquivalentDiameters'),-5);
 facelabel = double(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceLabels'));
 curvature_of_triangle = h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshMeanCurvatures');
 num_of_neigh = double(h5read(file,'/VoxelDataContainer/FIELD_DATA/NumNeighbors'));
