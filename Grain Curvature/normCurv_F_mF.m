@@ -7,10 +7,19 @@
 
 
 %get delete_ID(index for grains to remove) --- remove a outer grain if its centroid is falls within 2<R> from outer frame  
+% V4
 centroids(1,:) = [];
 grain_diameter_raw(1) = [];
 num_of_neigh(1) = [];
 aveD_raw = sum(grain_diameter_raw) / length(grain_diameter_raw);
+%V6
+% centroids(1,:) = [];
+% grain_diameter_raw(1) = [];
+% grain_diameter_raw = grain_diameter_raw.';
+% num_of_neigh(1) = [];
+% num_of_neigh = num_of_neigh.';
+% aveD_raw = sum(grain_diameter_raw) / length(grain_diameter_raw);
+
 
 total = 0;
 delete_id = ones(length(centroids),1);
@@ -77,6 +86,9 @@ for i = 1 : length(ID_ForCal)
     F_mF_diff(i) = num_of_neigh(grainID) - total/num_of_neigh(grainID);
 end
 
+%%
+grain_diameter_raw = grain_diameter_raw.';
+num_of_neigh = num_of_neigh.';
 D_ForCal = grain_diameter_raw(delete_bool);
 NFaces_ForCal = num_of_neigh(delete_bool);
 grain_ForCal = [ID_ForCal,D_ForCal,NFaces_ForCal];
@@ -138,10 +150,14 @@ scatter(data_grid(:,1),data_grid(:,2),50,[1,0,0],'s','filled')
 % axis([-40,30,-1,2]);
 set(gca,'fontsize',13)
 xlabel('Number of Faces Difference (F - mF)','FontSize',15);
-ylabel('Normalized Grain Curvature (   )','FontSize',15);
+ylabel('Normalized Grain Curvature','FontSize',15);
 box on
 % disable tick on top and right of the box
 a = gca;set(a,'box','off','color','none');
 b = axes('Position',get(a,'Position'),'box','on','xtick',[],'ytick',[]);
 axes(a)
 linkaxes([a b])
+
+line([-40,50],[0,0],'LineStyle','--', 'Color','k')
+line([0,0],[-30,30],'LineStyle','--', 'Color','k')
+

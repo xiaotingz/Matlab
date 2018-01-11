@@ -4,7 +4,7 @@ clear
     % moved GBs
 load('MGB_indexes');
     % The GBs in current map
-FID=fopen('/Users/xiaotingzhong/Desktop/SEMs/053117_Cu/053117_hole/053117_bottom.txt');
+FID=fopen('/Users/xiaotingzhong/Desktop/SEMs/081717_Cu/081717_EBSD/bottomRight_top.txt');
 datacell = textscan(FID, '%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f', 'HeaderLines', 11, 'Delimiter',',');
 fclose(FID);
 IDs = 1:length(datacell{1});
@@ -13,7 +13,7 @@ GBInMap = [IDs.', datacell{7}, datacell{8},datacell{9},datacell{10},datacell{14}
 GBInMap = sortrows(GBInMap,2);
     % Get rid of the many sigma3s and the artificial duplicates 
 i = 1;
-while i <= length(GBInMap)-1
+while i <= size(GBInMap,1)-1
     angle = GBInMap(i,2);
     axis = abs(GBInMap(i,3:5)/norm(GBInMap(i,3:5)));
     IsSigma3 = (angle - 60)<3 && norm(axis - [1,1,1]/norm([1,1,1]))<0.05;
@@ -37,8 +37,8 @@ O = CrysSym;
 cnt = 1;
 
 box_ind_full = zeros(length(GBInMap), 24*24);
-
-for i = 1:length(GBInMap)
+GB_matchBool = zeros(size(GBInMap,1));
+for i = 1:size(GBInMap,1)
     angle = GBInMap(i,2);
     axis = GBInMap(i,3:5)/norm(GBInMap(i,3:5));
     delg = AAToG(angle, axis);    
@@ -71,6 +71,7 @@ for i = 1:length(GBInMap)
                 if ismember(box_ind, MGB_indexes(:,1))
                     matched_full(cnt,1) = GBInMap(i,1);
                     matched_full(cnt,2) = box_ind;
+                    GB_matchBool(i) = 1;
                     cnt = cnt+1;
                 end
                 
@@ -78,9 +79,10 @@ for i = 1:length(GBInMap)
         end
     end
 end
+GB_matchBool = boolean(GB_matchBool);
+
+% Get the matched GBs
 matched = unique(matched_full,'rows');                
 matchedGB_ind = unique(matched(:,1));
-
-length(datacell{7})
-length(GBInMap)
-length(matchedGB_ind)
+GBInMap(:,2) = rad2deg(GBInMap(:,2));
+matchedGB = GBInMap(GB_matchBool,:);

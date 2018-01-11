@@ -6,19 +6,20 @@ clear
 % centro_file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/070617_V4_misA3ReconsAgrain/070617_sub1_stats.dream3d');
 % X=232*0.3; Y=129*0.3; Z=36*0.3;
 % subset2
-file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/070617_V4_misA3ReconsAgrain/070617_sub2_reconsAgain_stats.dream3d');
-centro_file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/070617_V4_misA3ReconsAgrain/070617_sub2_reconsAgain_stats.dream3d');
-% X=232*0.3; Y=129*0.3; Z=36*0.3;
-X=434*0.15; Y=267*0.15; Z=100*0.2;
+file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/101116_V4_misA3/sub2_misA3_recons1Again2_curv.dream3d');
+centro_file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/101116_V4_misA3/sub2_misA3_recons1Again2_centroid.dream3d');
+X=213*0.3; Y=297*0.3; Z=40*0.3;
 
 % centroids
 % Austenite --- X=434*0.15; Y=267*0.15; Z=100*0.2;
 % Ferrite   --- X=234*0.15; Y=267*0.15; Z=68*0.2;
 % STO_1470_sub1 --- X=232*0.3; Y=129*0.3; Z=36*0.3;
 % STO_1470_sub2 --- X=213*0.3; Y=297*0.3; Z=40*0.3;
+% Mg_undeform --- X=167*0.15; Y=133*0.15; Z=73*0.15;
+% Mg_small --- X=167*0.15; Y=133*0.15; Z=17*0.15;
+% MNK_Ti --- X=431*0.5; Y=109*0.5; Z=104*0.3;
 
-
-% load data
+% load data_v4
 centroids = roundn(h5read(centro_file,'/VoxelDataContainer/FIELD_DATA/Centroids'),-5).';
 grain_diameter_raw = roundn(h5read(centro_file,'/VoxelDataContainer/FIELD_DATA/EquivalentDiameters'),-5);
 facelabel = double(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceLabels'));
@@ -26,8 +27,19 @@ curvature_of_triangle = h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/Surface
 num_of_neigh = double(h5read(file,'/VoxelDataContainer/FIELD_DATA/NumNeighbors'));
 neighborList = double(h5read(file,'/VoxelDataContainer/FIELD_DATA/NeighborList'));
 triangle_area_raw = roundn(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas'),-8);
-
 data_raw = [facelabel; curvature_of_triangle.'; triangle_area_raw.'];
+
+% load data_v6
+% centroids = abs(roundn(h5read(centro_file,'/DataContainers/ImageDataContainer/CellFeatureData/Centroids'),-5).');
+% grain_diameter_raw = roundn(h5read(centro_file,'/DataContainers/ImageDataContainer/CellFeatureData/EquivalentDiameters'),-5);
+% num_of_neigh = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors'));
+% neighborList = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NeighborList'));
+% facelabel = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels'));
+% curvature_of_triangle = h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures');
+% triangle_area_raw = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'),-8);
+% data_raw = [facelabel; curvature_of_triangle; triangle_area_raw];
+
+
 
 tmp1 = data_raw(1,:);
 tmp2 = data_raw(2,:);

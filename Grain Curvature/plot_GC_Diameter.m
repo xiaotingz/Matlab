@@ -55,8 +55,8 @@ ax = gca;
 
 
 set(ax,'fontsize',19)
-xlabel('D (\mum)','FontSize',21);
-ylabel('M_{S} (\mum)','FontSize',21);
+xlabel('D, micrometers','FontSize',21);
+ylabel('M_{S}, micrometers','FontSize',21);
 % xlim([0.7,6]);
 % plot line: standard mean deviation
 range = zeros(length(data_grid),2);
@@ -66,10 +66,14 @@ for i = 1:length(data_grid)
     line([data_grid(i,3),data_grid(i,3)],[range(i,1),range(i,2)],'color','k');
     hold on
 end
-xlim([0,max(data_grain(:,2))+0.2]);
-line([0,max(data_grain(:,2))+0.2],[0,0],'LineStyle','--', 'Color',[0.5 0.5 0.5])
+xlim([0.4,3.6]);
+ylim([-30,5]);
+text(0.55,-26,'(a)','FontWeight','bold','FontSize',30)
+% line([0,max(data_grain(:,2))+0.2],[0,0],'LineStyle','--', 'Color',[0.5 0.5 0.5])
 
+line([0,12],[0,0],'LineStyle','--', 'Color',[0.5 0.5 0.5])
 
+set(gca,'FontWeight','bold','linewidth',2)
 
 
 % disable tick on top and right of the box
@@ -78,7 +82,7 @@ a = gca;
     % set box property to off and remove background color
 set(a,'box','off','color','none')
     % create new, empty axes with box but without ticks
-b = axes('Position',get(a,'Position'),'box','on','xtick',[],'ytick',[]);
+b = axes('Position',get(a,'Position'),'box','on','xtick',[],'ytick',[],'FontWeight','bold','linewidth',2);
     % set original axes as active
 axes(a)
     % link axes in case of zooming

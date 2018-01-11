@@ -50,5 +50,5 @@ for j = 38:78
     end
 
 end
-
+fclose('all')
 

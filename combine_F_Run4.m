@@ -1,8 +1,8 @@
 %% average --- CurvDistri file 
 % load data
 clear
-Ferrite_1 = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/070617_V4_misA3ReconsAgrain/070617_sub1_A0_GBCurvD.dream3d');
-Run4_2 = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/070617_V4_misA3ReconsAgrain/070617_sub2_A0_GBCurvD.dream3d');
+Ferrite_1 = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/101116_V4_misA3/sub1_misA3_recons_A0_GBCurvD.dream3d');
+Run4_2 = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/101116_V4_misA3/sub2_misA3_recons1Again2_A0_GBCurvD.dream3d');
 
 CurvDistri1 = h5read(Ferrite_1,'/SurfaceMeshDataContainer/ENSEMBLE_DATA/GBCD');
 Counter1 = h5read(Ferrite_1,'/SurfaceMeshDataContainer/ENSEMBLE_DATA/GBCDCounters');
@@ -19,16 +19,16 @@ d3d_to_graph = [gbcd_index,graph_index];
 d3d_to_graph = sortrows(d3d_to_graph);
 
 % % Prepare to converget: read GBCD data in D3D.
-data_read = aveCurvDistri;
+data_read = CurvDistri1(:,1);
 
 data_converted = zeros(length(data_read),1);
 for i = 1:length(data_read)
     data_converted(d3d_to_graph(i,2)) = data_read(i);
 end
 
-fileID = fopen('STO1470_combinedGBCurvD.txt','w');
-fprintf(fileID,'%12.8f\n',data_converted);
-fclose(fileID);
+% fileID = fopen('STO1470_combinedGBCurvD.txt','w');
+% fprintf(fileID,'%12.8f\n',data_converted);
+% fclose(fileID);
 
 
 % calculated = textread('F_CurvDistri10Ave.txt');

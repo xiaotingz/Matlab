@@ -53,8 +53,8 @@ ax = gca;
 
 
 set(ax,'fontsize',19)
-xlabel('F','FontSize',21);
-ylabel('M_{S} (\mum)','FontSize',21);
+xlabel('F','Fon2tSize',21);
+ylabel('M_{S}, micrometers','FontSize',21);
 % plot standard Standard Deviation
 range = zeros(length(data_grid),2);
 for i = 1:length(data_grid)
@@ -65,7 +65,11 @@ for i = 1:length(data_grid)
 end
 
 
-line([0,max(data_grain(:,3))],[0,0],'LineStyle','--', 'Color',[0.5 0.5 0.5])
+line([0,max(data_grain(:,3))+0.2],[0,0],'LineStyle','--', 'Color',[0.5 0.5 0.5],'linewidth',2)
+set(gca,'FontWeight','bold','linewidth',2)
+xlim([0,40])
+ylim([-25,5])
+text(1.5,-22,'(b)','FontWeight','bold','FontSize',30)
 
 % disable tick on top and right of the box
     % get handle to current axes
@@ -73,7 +77,7 @@ a = gca;
     % set box property to off and remove background color
 set(a,'box','off','color','none')
     % create new, empty axes with box but without ticks
-b = axes('Position',get(a,'Position'),'box','on','xtick',[],'ytick',[]);
+b = axes('Position',get(a,'Position'),'box','on','xtick',[],'ytick',[],'FontWeight','bold','linewidth',2);
     % set original axes as active
 axes(a)
     % link axes in case of zooming

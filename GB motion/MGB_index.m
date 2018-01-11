@@ -1,7 +1,7 @@
 clear
 
 CD = 9;
-MGB = xlsread('/Users/xiaotingzhong/Desktop/Cu_moved GB.xlsx','A2:D19');
+MGB = xlsread('/Users/xiaotingzhong/Dropbox/Paper\ \&\ Documentation/Documentations/Cu_moved\ GB.xlsx','A2:D19');
 MGB(:,1) = deg2rad(MGB(:,1));
 
 O = CrysSym;
