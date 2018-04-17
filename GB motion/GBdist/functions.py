@@ -134,6 +134,7 @@ def diffMisorientations(dg1, dg2):
             disA = misA
     return disA
     
+
 def AAtoG(phi, n):
     """
     Input: (phi, n), the orientation as axis-angle pair 
@@ -156,3 +157,30 @@ def AAtoG(phi, n):
     dg[2,1] = n[1]*n[2]*(1.0-np.cos(phi))+n[0]*np.sin(phi)
     dg[2,2] = np.cos(phi)+(1.0-np.cos(phi))*(n[2]**2)
     return dg
+
+
+def AnglestoV(theta, psi):
+    v = np.zeros(3)
+    theta = np.radians(theta)
+    psi = np.radians(psi)
+    v[0] = np.sin(psi)*np.cos(theta)
+    v[1] = np.sin(psi)*np.sin(theta)
+    v[2] = np.cos(psi)
+    return v
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
