@@ -12,7 +12,7 @@ O = CrysSym();
 file = '/Users/xiaotingzhong/Desktop/Datas/SteelFinal_setTo0/Jan31_Ac_setTo0.dream3d';
 thresMisA = 3;
 thresRFvec = 0.001;
-objMisO = [10, 1, 0, 0];
+objMisO = [80, 3, 1, 0];
 materialName = 'Austenite ';
 currentMisO = [num2str(objMisO(1)), '°@[', sprintf('%d', objMisO(2:4)),'], thres=', num2str(thresRFvec)];
 g1 = eye(3);
