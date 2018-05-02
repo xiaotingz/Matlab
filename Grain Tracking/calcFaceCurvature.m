@@ -2,10 +2,17 @@ function data_face = calcFaceCurvature(data_raw)
 % -- calc integral curvature for each face
 % -- get rid of bad datas
     % 1.facelabel <= 0; 2.extreme curvature value; 3.NaN(sometimes)
-bool1 = data_raw(1,:) > 0 & data_raw(2,:) > 0 & ~isnan(data_raw(3,:)) & data_raw(3,:) < 100 & data_raw(3,:) > -100;
-data_cleared  = data_raw(:,bool1);
+% ----------------------- load debug data -----------------------
+% file = file_An4;
+% FL = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
+% triCurves =  roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5).';
+% triAreas = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'),-5).';
+% data_raw = [FL.'; triCurves.'; triAreas.'];
+% ---------------------------------------------------------------
 
 % -- prepare for face curvature calculation: sort the data by facelabel
+bool1 = data_raw(1,:) > 0 & data_raw(2,:) > 0 & ~isnan(data_raw(3,:)) & data_raw(3,:) < 100 & data_raw(3,:) > -100;
+data_cleared  = data_raw(:,bool1);
 data_sorted = sortrows(data_cleared.');
 clear bool1 data_raw data_cleared
 

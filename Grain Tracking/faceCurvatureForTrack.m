@@ -6,12 +6,15 @@ function faceCurves = faceCurvatureForTrack(file, faces)
 %     - faceCurvs = [N,2] = [integralArea, integralCurvature]
 %         the data was in the same order as faces so the correspodence 
 %         returned by 'TrackFace' can be applied directly. 
+% * NOTE
+%     - integralCurvature = sum(triArea * abs(triCurvature)), direction can't be told without the grain of interest.
 % ##########################################################################
 % ----------------------- load debug data -----------------------
-
+% file = file_An4;
+% faces = faces_An4;
 % ---------------------------------------------------------------
     FL = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
-    triCurves =  roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5).';
+    triCurves =  abs(roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5)).';
     triAreas = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'),-5).';
     
     data_raw = [FL.'; triCurves.'; triAreas.'];
@@ -31,15 +34,19 @@ function faceCurves = faceCurvatureForTrack(file, faces)
     % ### reorder the face labels to make find unique faces easier ###
     data_face(:,2:3) = sort(data_face(:,2:3),2);
     data_face = sortrows(data_face, [2,3]);
-
+    
     % ### note the sign of triangle curvature was decided by winding, can't add the half faces directly ###
     % ### choose the first grain as reference frame to calc face curvature, calc for all faces so there will be a duplicate  ###
     for i = 1:2:length(data_face)
+        tmp_area = data_face(i, 4);
         data_face(i, 4) = data_face(i, 4) + data_face(i+1, 4);
+        data_face(i, 5) = tmp_area*data_face(i, 5) + data_face(i+1, 4)*data_face(i+1, 5);
         data_face(i+1, 4) = data_face(i, 4);
-        data_face(i, 5) = data_face(i, 4)*data_face(i, 5) - data_face(i+1, 4)*data_face(i+1, 5);
         data_face(i+1, 5) = data_face(i, 5);
     end
+    
+    
+
     data_face = sortrows(data_face, 1);
 
     % ### Note that due to the step of reorder labels (13 lines above), the faceLabel won't match faces. ###
