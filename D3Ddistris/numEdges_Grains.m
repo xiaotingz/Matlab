@@ -8,11 +8,14 @@
 % - compute sum(#intersection of NL and all NLNs) and #grain edges is half this summation
 % ############################################################################
 clear
-file = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_mesh.dream3d';
+file = '/Users/xiaotingzhong/Desktop/Datas/synthetic/180502_CubicSingleEquiaxedOut.dream3d';
 % file = ('/Users/xiaotingzhong/Desktop/Datas/Jan.31 Austenite/180402_austenite_recons.dream3d');
 % --------------------------- V6 structure ---------------------------
-numNeigh = h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors2');
-NeighborList = h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NeighborList2');
+% numNeigh = h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors2');
+% NeighborList = h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NeighborList2');
+% --------------------------- synthetic structure ---------------------------
+numNeigh = double(h5read(file,'/DataContainers/SyntheticVolumeDataContainer/CellFeatureData/NumNeighbors'));
+NeighborList = double(h5read(file,'/DataContainers/SyntheticVolumeDataContainer/CellFeatureData/NeighborList'));
 % --------------------------- V4 structure ---------------------------
 % numNeigh = h5read(file, '/VoxelDataContainer/FIELD_DATA/NumNeighbors');
 % NeighborList = h5read(file, '/VoxelDataContainer/FIELD_DATA/NeighborList');

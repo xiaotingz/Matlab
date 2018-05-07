@@ -31,7 +31,7 @@ data_select_b = data(mask_b,:);
 faceA = sum(data_select_a(:,4)) + sum(data_select_b(:,4))
 faceIC = sum(data_select_a(:,3).*data_select_a(:,4)) + sum(data_select_b(:,3).*data_select_b(:,4))
 
-faceCurves_An4(idx_face,:)
+FCurvs_An4(idx_face,:)
 
 
 

@@ -2,7 +2,7 @@
 % NOTES
 % - assuming the non-function 0 at the first element of numNeighbors has been deleted.
 % ############################################################################
-file = '/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311/180311_sub1Crop.dream3d';
+file = '/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311/Hsmooth/180311_STO1470sub1_reconsHsmooth.dream3d';
 
 numNeigh = h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors');
 NeighborList = h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NeighborList');

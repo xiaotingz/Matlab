@@ -1,18 +1,24 @@
 % ############################################################################
-% Topology constraint for the entire sample
+% Topology constraint for the entire sample (section 1?2) & single grains (section 3)
 % NOTES
 % - for 3D structure, - C + F - E + V = 1
+% - run num_Edges_Grains before run this script
 % ############################################################################
 
 
-file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311/180311_STO1470sub2_GBCD.dream3d');
+file = ('/Users/xiaotingzhong/Desktop/Datas/synthetic/180502_CubicSingleEquiaxedOut.dream3d');
 % file = ('/Users/xiaotingzhong/Desktop/Datas/Jan.31 Austenite/180402_austenite_recons.dream3d');
 % triNodes = double(h5read(file,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedVertexList')).';
 nodeTypes = double(h5read(file,'/DataContainers/TriangleDataContainer/VertexData/NodeType'));
 facelabel_raw = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
-numNeigh = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors'));
-NeighborList = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NeighborList'));
-surfGrain = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures'));
+% numNeigh = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors'));
+% NeighborList = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NeighborList'));
+% surfGrain = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures'));
+% -- synthetic data
+numNeigh = double(h5read(file,'/DataContainers/SyntheticVolumeDataContainer/CellFeatureData/NumNeighbors'));
+NeighborList = double(h5read(file,'/DataContainers/SyntheticVolumeDataContainer/CellFeatureData/NeighborList'));
+surfGrain = double(h5read(file,'/DataContainers/SyntheticVolumeDataContainer/CellFeatureData/SurfaceFeatures'));
+
 numNeigh(1) = [];
 surfGrain(1) = [];
 grainIDs = [1:1:length(numNeigh)];
@@ -86,7 +92,7 @@ for i = 1:length(numNeigh_thres)
     for j = 1:numNeigh(keyGrain)
         toLook = keyNeighbors(j);
         list2 = getNeighList(toLook, numNeigh, NeighborList);
-        intersection = Intersect(keyNeighbors, list2);
+        intersection = intersect(keyNeighbors, list2);
         for k = 1:length(intersection)
             if ismember(toLook, innerGrainID) && ismember(intersection(k), innerGrainID)
                 edgeShare3 = vertcat(edgeShare3, intersection(k));
@@ -113,19 +119,31 @@ E_thres = length(edgeShare3)/3 + length(edgeShare2)/2 + length(edgeShare1);
 
 %% 
 % ############################################################################
-% Topology constraint for a single grain
+% Topology constraint for single grains
 % NOTES
+% - run num_Edges_Grains before run this script
 % - for an inside grain, F - E + V = 2
 % - for a grain touching the free surface, F - E + V = 1
 % ############################################################################
-file = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_mesh.dream3d');
-% file = ('/Users/xiaotingzhong/Desktop/Datas/Jan.31 Austenite/180402_austenite_recons.dream3d');
+% file = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_mesh.dream3d');
+% % file = ('/Users/xiaotingzhong/Desktop/Datas/Jan.31 Austenite/180402_austenite_recons.dream3d');
+% nodeTypes = double(h5read(file,'/DataContainers/TriangleDataContainer/VertexData/NodeType'));
+% TriNodes = double(h5read(file,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList')).';
+% facelabel_raw = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
+% numNeigh = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors2'));
+% NeighborList = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NeighborList2'));
+% surfGrain = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures'));
+% -- synthetic data
+file = ('/Users/xiaotingzhong/Desktop/Datas/synthetic/180502_CubicSingleEquiaxedOut.dream3d');
 nodeTypes = double(h5read(file,'/DataContainers/TriangleDataContainer/VertexData/NodeType'));
 TriNodes = double(h5read(file,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList')).';
 facelabel_raw = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
-numNeigh = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors2'));
-NeighborList = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NeighborList2'));
-surfGrain = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures'));
+numNeigh = double(h5read(file,'/DataContainers/SyntheticVolumeDataContainer/CellFeatureData/NumNeighbors'));
+NeighborList = double(h5read(file,'/DataContainers/SyntheticVolumeDataContainer/CellFeatureData/NeighborList'));
+surfGrain = double(h5read(file,'/DataContainers/SyntheticVolumeDataContainer/CellFeatureData/SurfaceFeatures'));
+
+
+
 numNeigh(1) = [];
 surfGrain(1) = [];
 grainIDs = [1:1:length(numNeigh)];
@@ -147,17 +165,17 @@ for i = 1:length(innerGrainID)
     V = length(unique(objGrainTrisNodes(mask2)));
     F = numNeigh(objGrain);
     E = numEdges(objGrain);
-    TopologyInfo = vertcat(TopologyInfo, [objGrain, V, E, F]);
+    TopologyInfo = vertcat(TopologyInfo, [objGrain, V, E, F, V-E+F]);
 end
 
 tmp = numNeigh(~logical(surfGrain));
 getNeighList(objGrain, numNeigh, NeighborList)
 
-NNinfo = [grainIDs(TopologyInfo(:,1)).', numNeigh(TopologyInfo(:,1)).', TopologyInfo(:,2) - TopologyInfo(:,3) + TopologyInfo(:,4)];
+NNinfo = [grainIDs(TopologyInfo(:,1)).', numNeigh(TopologyInfo(:,1)).', TopologyInfo(:,5)];
 
 
 histogram(NNinfo(:,3));
-title('Topology of Inner Grains, Ni\_An4','FontSize',21)
+title('Euler Characteristic of the Inner Grains','FontSize',21)
 xlabel('V - E + F','FontSize',21);
 ylabel('# Grains','FontSize',21);
 ax = gca;
