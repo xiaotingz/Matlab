@@ -19,33 +19,11 @@ numNeigh_An4(1) = [];
 numCells_An5(1) = [];
 numNeigh_An5(1) = [];
 
-% ##### Find Face Correspondence #####
-%	--- make a look up list that converts ID_An5 to ID_An4. ---
-%	---	if no correspondence, assign NaN ---
-lookUp = sortrows(lookUp, 2);  %  somehow the look up table is not really sorted well 
-lookUp_5to4 = zeros(max(lookUp(:,2)),2);
-%   --- implicitly, grainSizeDiff is for the grains in state_An5 ---
-idx = 1;
-for i = 1 : max(lookUp(:,2))
-    if lookUp(idx,2) == i
-        lookUp_5to4(i,1) = lookUp(idx,1);
-        lookUp_5to4(i,2) = lookUp(idx,2);
-        idx = idx + 1;
-    else
-        lookUp_5to4(i,1) = NaN;
-        lookUp_5to4(i,2) = i;
-    end
-end
-%   --- double check that ID_An5 is implicit correctly  --- 
-if sum(lookUp_5to4(:,2) == [1:length(numNeigh_An5)].') == length(numNeigh_An5)
-    lookUp_5to4(:,2) = [];
-end
-
 
 % ##### get the faceLabels and their correpondence ##### 
-[faces_An4, faces_An5, faceCorresp] = TrackFace(numNeigh_An4, neighList_An4, numNeigh_An5, neighList_An5, lookUp_5to4);
+[faces_An4, faces_An5, faceCorresp] = TrackFace(numNeigh_An4, neighList_An4, numNeigh_An5, neighList_An5, lookUp);
 
-
+%%
 % ##### calc integral face curvature ##### 
 %   --- faceCurvs = [integralArea, integralCurvature] ---
 %   --- data is the order of faces_An but contain just the valid faces ---
