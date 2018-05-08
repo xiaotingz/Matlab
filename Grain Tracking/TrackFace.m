@@ -44,55 +44,19 @@ function [faces_1_raw, faces_2_raw, corresp] = TrackFace(numNeigh_1, neighList_1
         neighbors = getNeighList(i, numNeigh_1, neighList_1);
         faces_1_raw = [faces_1_raw; [i*ones(size(neighbors)), neighbors]];
     end
-%     --- half list ---
-%     faces_1 = sort(faces_1_raw,2);
-%     faces_1 = [(1:length(faces_1)).', faces_1];
-%     --- full list ---
     faces_1 = [(1:length(faces_1_raw)).', faces_1_raw];
-%     ------------------
     faces_1 = sortrows(faces_1,[2,3]);
+    
     faces_2_raw = [];
     for i = 1:length(numNeigh_2)
         neighbors = getNeighList(i, numNeigh_2, neighList_2);
         faces_2_raw = [faces_2_raw; [i*ones(size(neighbors)), neighbors]];
     end
-%     --- half list ---
-%     faces_2_inID1 = sort(lookUp_2to1(faces_2_raw),2);
-%     faces_2_inID1 = [(1:length(faces_2_inID1)).', faces_2_inID1];
-%     --- full list ---
+    
     faces_2_inID1 = [(1:length(faces_2_raw)).', lookUp_2to1(faces_2_raw)];
-%     ------------------
     mask = ~(any(isnan(faces_2_inID1),2));
     faces_2_inID1 = faces_2_inID1(mask,:);
     faces_2_inID1 = sortrows(faces_2_inID1,[2,3]);
-
-
-    % --- compare the common element thus track the faces, when HALF list ---
-%     % ###  +2 because there is a duplicate of each face  ##
-%     length_1 = length(faces_1);
-%     length_2 = length(faces_2_inID1);
-%     i = 1;
-%     j = 1;
-%     corresp = [];
-%     while j < length_1 && i < length_2
-%         if faces_2_inID1(i,2) == faces_1(j,2)
-%             if faces_2_inID1(i,3) == faces_1(j,3)
-%                 corresp = vertcat(corresp, [faces_1(j,1), faces_2_inID1(i,1)]);
-%                 i = i + 2;
-%                 j = j + 2;
-%             elseif faces_2_inID1(i,3) > faces_1(j,3)
-%                 j = j + 2;
-%             else
-%                 i = i + 2;
-%             end
-%         elseif faces_2_inID1(i,2) > faces_1(j,2)
-%             j = j + 2;
-%         else
-%             i = i + 2;
-%         end
-%     end
-%     corresp = sortrows(corresp, 2);
-
 
 % --- compare the common element thus track the faces, when FULL list ---
     length_1 = length(faces_1);

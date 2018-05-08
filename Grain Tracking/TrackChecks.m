@@ -51,7 +51,26 @@ faceCentroid_test = sum(faceCoords)/length(faceCoords)
 faceCentroids(idx_face, :)
 
 
+%% ##### check TrackUniqueFace #####
+UFcorresp = TrackUniqueFace(UFlabels_An4, UFlabels_An5, lookUp);
+GIDMap_4to5 = containers.Map(lookUp(:,1), num2cell(lookUp(:,2)));
 
+% --- check the last element and some random elements ---
+for i = 1:5
+    if i == 1
+        idx = length(UFcorresp);
+    else
+        idx = randi(length(UFcorresp));
+    end
+    idx_An4 = UFcorresp(idx,1);
+    idx_An5 = UFcorresp(idx,2);
+    label_An4 = UFlabels_An4(idx_An4, :);
+    label_An4in5 = [GIDMap_4to5(label_An4(1)), GIDMap_4to5(label_An4(2))]
+    label_An5 = UFlabels_An5(idx_An5, :)
+    if ~ ((label_An4in5(1) == label_An5(1) && label_An4in5(2) == label_An5(2)) || (label_An4in5(1) == label_An5(2) && label_An4in5(2) == label_An5(1)))
+        warning(['NOT matching at face=', num2str(idx)])
+    end
+end
 
 
 

@@ -19,7 +19,6 @@ numNeigh_An4(1) = [];
 numCells_An5(1) = [];
 numNeigh_An5(1) = [];
 
-
 % ##### get the faceLabels and their correpondence ##### 
 [faces_An4, faces_An5, faceCorresp] = TrackFace(numNeigh_An4, neighList_An4, numNeigh_An5, neighList_An5, lookUp);
 
