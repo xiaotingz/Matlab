@@ -47,21 +47,19 @@ NCoords_An5 = double(h5read(file_An5,'/DataContainers/TriangleDataContainer/_SIM
 mask_An4 = ((FL_An4(:,1) == label_An4(1) & FL_An4(:,2) == label_An4(2)) | (FL_An4(:,1) == label_An4(2) & FL_An4(:,2) == label_An4(1)));
 mask_An5 = ((FL_An5(:,1) == label_An5(1) & FL_An5(:,2) == label_An5(2)) | (FL_An5(:,1) == label_An5(2) & FL_An5(:,2) == label_An5(1)));
 
-thisFaceNodes_An4 = triNodes_An4(mask_An4,:);
-thisFaceNodes_An5 = triNodes_An5(mask_An5,:);
-thisFaceNodes_An4 = reshape(thisFaceNodes_An4, [], 1);
-thisFaceNodes_An5 = reshape(thisFaceNodes_An5, [], 1);
-triNodeCoords_An4 = NCoords_An4(thisFaceNodes_An4,:);
-triNodeCoords_An5 = NCoords_An5(thisFaceNodes_An5,:);
+triNodes_An4 = triNodes_An4(mask_An4,:);
+triNodes_An5 = triNodes_An5(mask_An5,:);
+triNodes_An4 = reshape(triNodes_An4, [], 1);
+triNodes_An5 = reshape(triNodes_An5, [], 1);
+triNodeCoords_An4 = NCoords_An4(triNodes_An4,:);
+triNodeCoords_An5 = NCoords_An5(triNodes_An5,:);
+
 
 tmpNodes_An4 = triNodes_An4(mask_An4,:);
-tmpNodes_An5 = triNodes_An5(mask_An5,:);
-%%
-trisurf( tmpNodes_An4, NCoords_An4(:,1), NCoords_An4(:,2), NCoords_An4(:,3) );
-rotate3d on
-hold on
-trisurf( tmpNodes_An5, NCoords_An5(:,1), NCoords_An5(:,2), NCoords_An5(:,3),'Facecolor',[218/255 168/255 32/255] );
-rotate3d on
+tmpCoords_An4 = NCoords_An4(mask_An4,:);
+tmp_An5 = FL_An5(mask_An5,:);
+
+trisurf( trisub, xsmooth_1(1,:), xsmooth_1(2,:), xsmooth_1(3,:) );
 
 
 
