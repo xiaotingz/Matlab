@@ -29,17 +29,19 @@ tri_2( f_2, : ) = [];
 % xsmooth_2 = HierarchicalSmooth( xdat_2, tri_2, fl_2, ntype_2 );
 
 
-% xdat = load( '/Users/xiaotingzhong/Desktop/programs/HierarchicalSmooth_matlab/examples/ex0/SharedVertexList.txt' );
-% xdat = xdat';
-% tri = int32(1 + load( '/Users/xiaotingzhong/Desktop/programs/HierarchicalSmooth_matlab/examples/ex0/SharedTriList.txt' ));
-% fl = int32(load( '/Users/xiaotingzhong/Desktop/programs/HierarchicalSmooth_matlab/examples/ex0/FaceLabels.txt' ));
-% f = find( any( fl==-1 | fl==0, 2 ) );
-% fl( f, : ) = [];
-% tri( f, : ) = [];
-% ntype = int32(load( '/Users/xiaotingzhong/Desktop/programs/HierarchicalSmooth_matlab/examples/ex0/NodeType.txt' ));
-% HierarchicalSmoothFrontEnd(tri, xdat, fl, ntype) 
+%% ##### extract data of a single grain #####
+file_1 = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311/180311_STO1470sub1_recons.dream3d');
+xdat_1 = double(h5read(file_1, '/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedVertexList'));
+tri_1 = 1 + double(h5read(file_1, '/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList')).';
+fl_1 = double(h5read(file_1, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels'))';
+ntype_1 = double(h5read(file_1, '/DataContainers/TriangleDataContainer/VertexData/NodeType'))';
 
+ID = 407;
+mask = find( any( fl_1 ==ID, 2) );
+fl = fl_1( mask, : );
+tri = tri_1( mask, : );
+xdat = xdat_1;
+ntype = ntype_1;
 
-% 
-% save('180311_STO1470sub1_xsmooth', 'xsmooth_1');
-% save('180311_STO1470sub2_xsmooth', 'xsmooth_2');
+% trisurf( tri, xdat(1,:), xdat(2,:), xdat(3,:) );
+% rotate3d on
