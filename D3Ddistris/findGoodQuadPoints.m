@@ -1,11 +1,12 @@
-file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311/180311_STO1470sub1_recons.dream3d');
+file = ('/Users/xiaotingzhong/Desktop/Datas/synthetic/180502_CubicSingleEquiaxedOut.dream3d');
 ntype = double(h5read(file,'/DataContainers/TriangleDataContainer/VertexData/NodeType'));
 tri = 1 + double(h5read(file,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList')).';
 fl = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
-numNeigh = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors'));
-NeighborList = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NeighborList'));
+numNeigh = double(h5read(file,'/DataContainers/SyntheticVolumeDataContainer/CellFeatureData/NumNeighbors'));
+NeighborList = double(h5read(file,'/DataContainers/SyntheticVolumeDataContainer/CellFeatureData/NeighborList'));
+numNeigh(1) = [];
 
-centerGrain = 407;
+centerGrain = 22;
 
 % ###### correct quad points #####
 mask = (any(fl==centerGrain, 2) & all(fl>0, 2));
@@ -21,7 +22,8 @@ labelGs = zeros(length(Quads), 4);
 for i = 1:length(Quads)
     mask = any(tri == Quads(i), 2);
     labels = fl(mask, :);
-    mask_centerGF = any(labels == centerGrain, 2);
+%     mask_centerGF = any(labels == centerGrain, 2);
+    mask_centerGF = any(labels == 23, 2);
     tmp = labels(mask_centerGF,:);
     if length(unique(tmp)) < 4
         labelGs(i,:) = [unique(tmp)',0];
