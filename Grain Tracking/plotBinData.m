@@ -6,14 +6,14 @@ function plotBinData(x, y, xrange, yrange, stepsize, label_x, label_y, backgroun
 % #########################################################################
 % ------------------ load data for debug --------------------
 % clear
-% x = FItgCurvs_An4(faceCorresp(:,1),2);
-% y  = abs(faceMob_dV);
-% xrange = [-200, 200];
-% yrange = [-1e4, 1e4];
-% stepsize = 5;
-% label_x = 'Face Integral Curvature Difference';
+% x = plotData_6(:,1);
+% y  = plotData_6(:,2);
+% xrange = [-30, 20];
+% % yrange = [-1e4, 1e4];
+% stepsize = 1;
+% label_x = 'Face #Edges Difference';
 % label_y = 'Face Area Difference';
-% STDoption = true;
+% STDoption = false;
 % backgroundOption = true;
 % showCnt = backgroundOption;
 % showSTD = STDoption;
@@ -40,11 +40,11 @@ mask = ((x > xrange(1) & x < xrange(2)) & (y > yrange(1) & y < yrange(2)));
 x = x(mask);
 y = y(mask);
 
-if xrange(1) < 0
-    xPlot = [-flip(0:stepsize:xrange(2)),stepsize:stepsize:xrange(2)];
-else
-    xPlot = [xrange(1):stepsize:xrange(2)];
-end
+% if xrange(1) < 0
+%     xPlot = [-flip(0:stepsize:xrange(2)),stepsize:stepsize:xrange(2)];
+% else
+xPlot = [xrange(1):stepsize:xrange(2)];
+% end
 
 data_grid = zeros(length(xPlot), 5);
 data_grid(:,1) = xPlot;
@@ -70,15 +70,16 @@ mask_nodata = (data_grid(:,3) == 0);
 data_grid(mask_nodata,:) = [];
 scatter(data_grid(:,2), data_grid(:,3), 'filled', 'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k');
 line([xrange(1), xrange(2)], [0,0], 'LineStyle', '--', 'Color', [0.5, 0.5, 0.5]);
+% line([0,0], [-1500, 3000], 'LineStyle', '--', 'Color', [0.5, 0.5, 0.5]);
 xlabel(label_x);
 ylabel(label_y);
-% ylim([-500,200]);
+% ylim([-4000,6000]);
 box on
 
 if showCnt
     yyaxis right
 %     histogram('BinEdges', [data_grid(1,1)-stepsize; data_grid(:,1)], 'BinCounts',data_grid(:,4))
-    bar(data_grid(:,2), data_grid(:,4),'Barwidth', 1,'FaceColor', [0.5,0.5,0.5], 'EdgeColor', [0.5,0.5,0.5], 'FaceAlpha', 0.3, 'EdgeAlpha', 0.3);
+    bar(data_grid(:,2), data_grid(:,4),'Barwidth', 1.1,'FaceColor', [0.5,0.5,0.5], 'EdgeColor', [0.5,0.5,0.5], 'FaceAlpha', 0.3, 'EdgeAlpha', 0.3);
 %     ylabel('Counts')
     ylabel('#Faces in Bin')
     ax = gca;
