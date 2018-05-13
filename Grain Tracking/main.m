@@ -6,21 +6,15 @@ load('lookUpTable_An4_An5.mat')
 
 % centroids_An4 = roundn(h5read(file_An4,'/DataContainers/ImageDataContainer/CellFeatureData/Centroids'),-5).';
 numCells_An4 = h5read(file_An4,'/DataContainers/ImageDataContainer/CellFeatureData/NumElements').';
-numNeigh_An4 = double(h5read(file_An4,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors')).';
-neighList_An4 = double(h5read(file_An4,'/DataContainers/ImageDataContainer/CellFeatureData/NeighborList'));
 % centroids_An5 = roundn(h5read(file_An5,'/DataContainers/ImageDataContainer/CellFeatureData/Centroids'),-5).';
 numCells_An5 = h5read(file_An5,'/DataContainers/ImageDataContainer/CellFeatureData/NumElements').';
-numNeigh_An5 = double(h5read(file_An5,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors')).';
-neighList_An5 = double(h5read(file_An5,'/DataContainers/ImageDataContainer/CellFeatureData/NeighborList'));
 % centroids_An4(1,:) = [];
 numCells_An4(1) = [];
-numNeigh_An4(1) = [];
 % centroids_An5(1,:) = [];
 numCells_An5(1) = [];
-numNeigh_An5(1) = [];
 
 % ##### get the faceLabels and their correpondence ##### 
-[faces_An4, faces_An5, faceCorresp] = TrackFace(numNeigh_An4, neighList_An4, numNeigh_An5, neighList_An5, lookUp);
+[faces_An4, faces_An5, faceCorresp] = TrackFace(file_An4, file_An5, lookUp, true);
 
 %%
 % ##### calc integral |face curvature| ##### 

@@ -1,4 +1,4 @@
-function [faces_1_raw, faces_2_raw, corresp] = TrackFace(file_1, file_2,lookUp, useCompleteFaces)
+% function [faces_1_raw, faces_2_raw, corresp] = TrackFace(file_1, file_2,lookUp, useCompleteFaces)
 % ###########################################################################
 % * Input
 %     - lookUp = [N,2] = [ID_s1, ID_s2] 
@@ -9,16 +9,16 @@ function [faces_1_raw, faces_2_raw, corresp] = TrackFace(file_1, file_2,lookUp, 
 % * Note the facesList is duplicated by [A,B] and [B,A]. This code only gives half correspondence. 
 % ###########################################################################
 % ------------------ load data for debug --------------------
-% file_1 = file_An4;
-% file_2 = file_An5;
-% useCompleteFaces = true;
+file_1 = file_An4;
+file_2 = file_An5;
+useCompleteFaces = true;
 % -----------------------------------------------------------
     numNeigh_1 = double(h5read(file_1,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors')).';
     neighList_1 = double(h5read(file_1,'/DataContainers/ImageDataContainer/CellFeatureData/NeighborList'));
     numNeigh_2 = double(h5read(file_2,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors')).';
     neighList_2 = double(h5read(file_2,'/DataContainers/ImageDataContainer/CellFeatureData/NeighborList'));
     numNeigh_1(1) = [];
-    numNeigh_2(1) = [];
+    numNeigh_1(1) = [];
     if useCompleteFaces
         SG_1 = h5read(file_1,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
         SG_2 = h5read(file_2,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
@@ -64,21 +64,18 @@ function [faces_1_raw, faces_2_raw, corresp] = TrackFace(file_1, file_2,lookUp, 
         faces_2_raw = [faces_2_raw; [i*ones(size(neighbors)), neighbors]];
     end
     
-    % ##### get rid of the incomplete faces #####
+% ##### get rid of the incomplete faces
     if useCompleteFaces
-        mask_truncatedFaces1 = all(SG_1(faces_1_raw) == 1, 2);
-        mask_truncatedFaces2 = all(SG_2(faces_2_raw) == 1, 2);
-        faces_1_raw = faces_1_raw(mask_truncatedFaces1, :);
-        faces_2_raw = faces_2_raw(mask_truncatedFaces2, :);
-    end
+        mask_faces1 = any
+        mask_faces2
+        
     
-    % ##### sort faces_state2 into ID of state1 #####
     faces_2_inID1 = [(1:length(faces_2_raw)).', lookUp_2to1(faces_2_raw)];
     mask = ~(any(isnan(faces_2_inID1),2));
     faces_2_inID1 = faces_2_inID1(mask,:);
     faces_2_inID1 = sortrows(faces_2_inID1,[2,3]);
 
-    % ##### compare the common element thus track the faces, when FULL list #####
+% ##### compare the common element thus track the faces, when FULL list #####
     length_1 = length(faces_1);
     length_2 = length(faces_2_inID1);
     i = 1;
@@ -102,4 +99,4 @@ function [faces_1_raw, faces_2_raw, corresp] = TrackFace(file_1, file_2,lookUp, 
         end
     end
     corresp = sortrows(corresp, 2);
-end
+% end
