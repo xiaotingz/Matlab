@@ -1,4 +1,4 @@
-function [faces_1_raw, faces_2_raw, corresp] = TrackFace(file_1, file_2,lookUp, useCompleteFaces)
+function [allFaces_1, allFaces_2, corresp] = TrackFace(file_1, file_2,lookUp, useCompleteFaces)
 % ###########################################################################
 % * Input
 %     - lookUp = [N,2] = [ID_s1, ID_s2] 
@@ -55,6 +55,7 @@ function [faces_1_raw, faces_2_raw, corresp] = TrackFace(file_1, file_2,lookUp, 
         neighbors = getNeighList(i, numNeigh_1, neighList_1);
         faces_1_raw = [faces_1_raw; [i*ones(size(neighbors)), neighbors]];
     end
+    allFaces_1 = faces_1_raw;
     faces_1 = [(1:length(faces_1_raw)).', faces_1_raw];
     faces_1 = sortrows(faces_1,[2,3]);
     
@@ -63,6 +64,7 @@ function [faces_1_raw, faces_2_raw, corresp] = TrackFace(file_1, file_2,lookUp, 
         neighbors = getNeighList(i, numNeigh_2, neighList_2);
         faces_2_raw = [faces_2_raw; [i*ones(size(neighbors)), neighbors]];
     end
+    allFaces_2 = faces_2_raw;
     
     % ##### get rid of the incomplete faces #####
     if useCompleteFaces
