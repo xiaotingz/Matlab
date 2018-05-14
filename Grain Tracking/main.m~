@@ -166,12 +166,12 @@ subplot(2,2,1)
 plotScatter(abs(FItgCurv_diff), FCentrs_diff, 'abs(Integral |Face Curvature| Difference), \mum', 'norm(Face Centorid Difference), \mum');
 title(['ylim of binning = [', num2str(ylim_bin), ']'])
 subplot(2,2,2)
-plotBinData(abs(FItgCurv_diff), FCentrs_diff, [0, 500], ylim_bin, 5, 'abs(Integral |Face Curvature| Difference), \mum', 'norm(Face Centorid Difference), \mum',true,true)
+plotBinData(abs(FItgCurv_diff), FCentrs_diff, [0, 500], ylim_bin, 5, 'abs(Integral |Face Curvature| Difference), \mum', 'norm(Face Centorid Difference), \mum')
 subplot(2,2,3)
-plotBinData(abs(FItgCurv_diff), FCentrs_diff, [0, 200], ylim_bin, 2, 'abs(Integral |Face Curvature| Difference), \mum', 'norm(Face Centorid Difference), \mum',true, true)
+plotBinData(abs(FItgCurv_diff), FCentrs_diff, [0, 200], ylim_bin, 2, 'abs(Integral |Face Curvature| Difference), \mum', 'norm(Face Centorid Difference), \mum')
 subplot(2,2,4)
-plotBinData(abs(FItgCurv_diff), FCentrs_diff, [0, 200], ylim_bin, 2, 'abs(Integral |Face Curvature| Difference), \mum', 'norm(Face Centorid Difference), \mum', true, false)
-% ylim([450,750])
+plotBinData(abs(FItgCurv_diff), FCentrs_diff, [0, 200], ylim_bin, 2, 'abs(Integral |Face Curvature| Difference), \mum', 'norm(Face Centorid Difference), \mum', false, false)
+ylim([450,750])
 print('FItgCurvDiff_CentrDiff', '-dpng','-r300')
 %%
 

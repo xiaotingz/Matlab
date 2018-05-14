@@ -1,4 +1,4 @@
-function [allFaces_1, allFaces_2, corresp] = TrackFace(file_1, file_2,lookUp, useCompleteFaces)
+function [faces_1_raw, faces_2_raw, corresp] = TrackFace(file_1, file_2,lookUp, useCompleteFaces)
 % ###########################################################################
 % * Input
 %     - lookUp = [N,2] = [ID_s1, ID_s2] 
@@ -55,7 +55,6 @@ function [allFaces_1, allFaces_2, corresp] = TrackFace(file_1, file_2,lookUp, us
         neighbors = getNeighList(i, numNeigh_1, neighList_1);
         faces_1_raw = [faces_1_raw; [i*ones(size(neighbors)), neighbors]];
     end
-    allFaces_1 = faces_1_raw;
     faces_1 = [(1:length(faces_1_raw)).', faces_1_raw];
     faces_1 = sortrows(faces_1,[2,3]);
     
@@ -64,18 +63,17 @@ function [allFaces_1, allFaces_2, corresp] = TrackFace(file_1, file_2,lookUp, us
         neighbors = getNeighList(i, numNeigh_2, neighList_2);
         faces_2_raw = [faces_2_raw; [i*ones(size(neighbors)), neighbors]];
     end
-    allFaces_2 = faces_2_raw;
+    faces_2_inID1 = [(1:length(faces_2_raw)).', lookUp_2to1(faces_2_raw)];
     
     % ##### get rid of the incomplete faces #####
     if useCompleteFaces
         mask_truncatedFaces1 = all(SG_1(faces_1_raw) == 1, 2);
         mask_truncatedFaces2 = all(SG_2(faces_2_raw) == 1, 2);
-        faces_1_raw = faces_1_raw(mask_truncatedFaces1, :);
-        faces_2_raw = faces_2_raw(mask_truncatedFaces2, :);
+        faces_1 = faces_1(mask_truncatedFaces1, :);
+        faces_2_inID1 = faces_2_inID1(mask_truncatedFaces2, :);
     end
     
     % ##### sort faces_state2 into ID of state1 #####
-    faces_2_inID1 = [(1:length(faces_2_raw)).', lookUp_2to1(faces_2_raw)];
     mask = ~(any(isnan(faces_2_inID1),2));
     faces_2_inID1 = faces_2_inID1(mask,:);
     faces_2_inID1 = sortrows(faces_2_inID1,[2,3]);
