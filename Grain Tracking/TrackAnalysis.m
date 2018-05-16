@@ -4,6 +4,16 @@ data = sortrows(data, [4, 3]);
 faceMap_An4 = containers.Map(faceCorresp(:,1), num2cell(faces_An4(faceCorresp(:,1),:),2));
 faceMap_An5 = containers.Map(faceCorresp(:,2), num2cell(faces_An5(faceCorresp(:,2),:),2));
 
+%% ##### The Complete Tracked Grains #####
+SG_An4 = h5read(file_An4,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
+SG_An5 = h5read(file_An5,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
+SG_An4(1) = [];
+SG_An5(1) = [];
+
+mask_lookUp = logical([SG_An4(lookUp(:,1)), SG_An5(lookUp(:,2))]);
+lookUp_CG = lookUp(all(~mask_lookUp, 2), :);
+
+
 %% ##### Plot Triangle Curvature Distribution #####
 set(0,'defaultAxesLabelFontSize',1.1)
 set(0,'defaultAxesFontSize',19)

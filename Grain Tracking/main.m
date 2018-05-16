@@ -119,7 +119,7 @@ ylim_bin = [-1e4, 1e4];
 subplot(2,2,1)
 plotScatter(FAvgCurv_diff, FA_diff, 'Average Face Curvature Difference, \mum^{-1}', 'Face Area Difference, \mum^{2}');
 title(['ylim of binning = [', num2str(ylim_bin), ']'])
-xlim([-50, 50])
+% xlim([-50, 50])
 subplot(2,2,2)
 plotBinData(FAvgCurv_diff, FA_diff, [-20, 20], ylim_bin, 0.5, 'Average Face Curvature Difference, \mum^{-1}', 'Face Area Difference, \mum^{2}', true, true)
 subplot(2,2,3)

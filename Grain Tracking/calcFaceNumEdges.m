@@ -25,21 +25,35 @@ for i = 1:length(faces)
     mask_face = ((FL(:,1) == GA & FL(:,2) ==GB ) | (FL(:,1) == GB & FL(:,2) ==GA ));
     faceNodes = triNodes(mask_face, :);
     mask_quads = (Ntypes(faceNodes) == 4);
-    faceQuads = unique(faceNodes(mask_quads));
-    % ----- always use GA as the grain of interest. !!! MAY BE WRONG !!! -----
+    
+    % ----- count quads twice with G_obj as A&B. use the larger number as #quads !!! MAY BE WRONG !!! -----
+    faceQuads_A = unique(faceNodes(mask_quads));
+    faceQuads_B = faceQuads_A;
     j = 1;
-    while j <= length(faceQuads)
-        mask_thisQuad = any(triNodes == faceQuads(j), 2);
+    while j <= length(faceQuads_A)
+        mask_thisQuad = any(triNodes == faceQuads_A(j), 2);
         labels = FL(mask_thisQuad, :);
         mask_centerGF = any(labels == GA, 2);
         tmp = labels(mask_centerGF,:);
         if length(unique(tmp)) == 4
             j = j +1;
         else
-            faceQuads(j) = [];
+            faceQuads_A(j) = [];
         end
     end
-    numEdges(i) = length(faceQuads); 
+    j = 1;
+    while j <= length(faceQuads_B)
+        mask_thisQuad = any(triNodes == faceQuads_B(j), 2);
+        labels = FL(mask_thisQuad, :);
+        mask_centerGF = any(labels == GB, 2);
+        tmp = labels(mask_centerGF,:);
+        if length(unique(tmp)) == 4
+            j = j +1;
+        else
+            faceQuads_B(j) = [];
+        end
+    end
+    numEdges(i) = max(length(faceQuads_A), length(faceQuads_B)); 
 end
 
 end
