@@ -67,10 +67,10 @@ function [faces_1_raw, faces_2_raw, corresp] = TrackFace(file_1, file_2,lookUp, 
     
     % ##### get rid of the incomplete faces #####
     if useCompleteFaces
-        mask_truncatedFaces1 = all(SG_1(faces_1_raw) == 1, 2);
-        mask_truncatedFaces2 = all(SG_2(faces_2_raw) == 1, 2);
-        faces_1 = faces_1(~mask_truncatedFaces1, :);
-        faces_2_inID1 = faces_2_inID1(~mask_truncatedFaces2, :);
+        mask_completeFaces1 = any(SG_1(faces_1_raw) == 0, 2);
+        mask_completeFaces2 = any(SG_2(faces_2_raw) == 0, 2);
+        faces_1 = faces_1(mask_completeFaces1, :);
+        faces_2_inID1 = faces_2_inID1(mask_completeFaces2, :);
     end
     
     % ##### sort faces_state2 into ID of state1 #####

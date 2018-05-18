@@ -14,6 +14,26 @@ mask_lookUp = logical([SG_An4(lookUp(:,1)), SG_An5(lookUp(:,2))]);
 lookUp_CG = lookUp(all(~mask_lookUp, 2), :);
 
 
+%% ##### The Grains that growed from being inner to touch surface #####
+[faces_An4, faces_An5, faceCorresp_AllF] = TrackFace(file_An4, file_An5, lookUp, false);
+faceInfo_all = [faces_An4(faceCorresp_AllF(:,1),:), faces_An5(faceCorresp_AllF(:,2),:)];
+
+SG_An4 = h5read(file_An4,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
+SG_An5 = h5read(file_An5,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
+SG_An4(1) = [];
+SG_An5(1) = [];
+SGinfo_all = [SG_An4(faceInfo_all(:,1:2)), SG_An5(faceInfo_all(:,3:4))];
+
+% tmp1 = (SGinfo_all(:,1)==1 & SGinfo_all(:,2)==1 & SGinfo_all(:,3)==0 & SGinfo_all(:,4)==0);
+tmp2 = (SGinfo_all(:,1)==0 & SGinfo_all(:,2)==0 & SGinfo_all(:,3)==1 & SGinfo_all(:,4)==1);
+mask_growToSurf = tmp2;
+
+% FItgCurvs_An4 = faceCurvatureForTrack(file_An4, faces_An4);
+% FItgCurvs_An5 = faceCurvatureForTrack(file_An5, faces_An5);
+diff_tmp = FItgCurvs_An5(faceCorresp_AllF(:,2),:) - FItgCurvs_An4(faceCorresp_AllF(:,1),:);
+FA_diff = diff_tmp(mask_growToSurf,1);
+
+
 %% ##### Plot Triangle Curvature Distribution #####
 set(0,'defaultAxesLabelFontSize',1.1)
 set(0,'defaultAxesFontSize',19)
@@ -74,6 +94,21 @@ trisurf( tmpNodes_An5, NCoords_An5(:,1), NCoords_An5(:,2), NCoords_An5(:,3),'Fac
 rotate3d on
 
 
+
+
+%% ##### Find the faceID of a face between two grains #####
+[~, ~, faceCorresp_CF] = TrackFace(file_An4, file_An5, lookUp, true);
+
+faceInfo_CF = [C_An4, faces_An4(faceCorresp_CF(:,1),:)];
+faceInfo_CF = sortrows(faceInfo_CF);
+
+faceIDs = h5read(file_An4, '/DataContainers/TriangleDataContainer/FaceData/FeatureFaceId')';
+FL = h5read(file_An4, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
+
+GA = faceInfo_CF(68,2)
+GB = faceInfo_CF(68,3)
+mask = ((FL(:,1) == GA & FL(:,2) == GB) | (FL(:,1) == GB & FL(:,2) == GA));
+unique(faceIDs(mask))
 
 
 

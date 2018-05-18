@@ -107,7 +107,7 @@ print('FItgCurvsAn4_|faceMob_dV|_2', '-dpng','-r300')
 %% ##### |Integral Face Curvature Difference| v.s. Face Centroid Position Difference  #####
 plotData_5 = [FItgCurv_diff, FCentrs_diff];
 plotData_5 = filterExtremeData(plotData_5, 1);
-plotBinData(plotData_5(:,1), plotData_5(:,2), [-300, 300], ylim_bin, 10, '$\Delta |\mathcal{H}|^{F}, \mu m$', '$||\Delta Centroid^{F}||_{2}, \mu m$', true, true)
+plotBinData(plotData_5(:,1), plotData_5(:,2), [-300, 300], ylim_bin, 10, '$\Delta |\mathcal{H}|^{F}, \mu m$', '$||\Delta Centroid^{F}||_{2}, \mu m$', true, ture)
 print('|FItgCurv_diff|_FCentrs_diff_1', '-dpng','-r300')
 
 
@@ -132,14 +132,14 @@ print('CDiff_|faceMob_dV|_1', '-dpng','-r300')
 %% #####  #(Face Corners) in An4 v.s. Face Centroid Position Difference #####
 plotData_8 = [C_An4, FA_diff];
 plotData_8 = filterExtremeData(plotData_8, 1);
-plotBinData(plotData_8(:,1), plotData_8(:,2), [-1, 35], ylim_bin, 1, '$C^{F}_{An4}$', '$\Delta \mathcal{A}^{F}, \mu m^{2}$', true, true)
-print('CAn4_FAdiff_1', '-dpng','-r300')
+plotBinData(plotData_8(:,1), plotData_8(:,2), [0, 20], ylim_bin, 1, '$C^{F}_{An4}$', '$\Delta \mathcal{A}^{F}, \mu m^{2}$', true, false)
+print('CAn4_FAdiff_2', '-dpng','-r300')
 
 
 
 %% ##### #(Face Corners) Difference v.s. Face Centroid Position Difference #####
 plotData_8 = [C_diff, FCentrs_diff];
 plotData_8 = filterExtremeData(plotData_8, 1);
-plotBinData(plotData_8(:,1), plotData_8(:,2), [-10, 10], ylim_bin, 1, '$\Delta C^{F}$', '$||\Delta Centroid^{F}||_{2}, \mu m$', true, false)
+plotBinData(plotData_8(:,1), plotData_8(:,2), [-10, 10], ylim_bin, 1, '$\Delta C^{F}$', '$||\Delta Centroid||^{F}_{2}, \mu m$', true, false)
 print('CDiff_FCentrs_diff_2', '-dpng','-r300')
 

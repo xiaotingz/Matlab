@@ -22,8 +22,23 @@ set(gca,'fontsize',19)
 box on 
 
 
+%%  calculate average SD
+% --- STD of y is the 5th column of the .txt data
+% --- variable names are changed during reading in of data
 
+thres = 36*3;
+mask = (observation > thres);
+% 
+% scale_use = ones(size(scale));
+% for i = 1:length(scale)
+%     if ~isempty(scale{i})
+%         tmp = str2num(scale{i});
+%         scale_use(i) = 10^(-tmp);
+%     end
+% end
+% STD = STD .* scale_use;
 
+aveSTD = sum(STD(mask)) / sum(mask);
 
 %% All data, SD
 % file = textread('Jan31_A_Curv10_v_energy_TWIP.txt');

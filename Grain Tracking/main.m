@@ -30,19 +30,28 @@ clear diff_tmp
 
 
 % ##### get the sizeChange of the two grains that defines the face #####
-tmp1 = numCells_An4(faces_An4(faceCorresp(:,1),:));
-tmp2 = numCells_An5(faces_An5(faceCorresp(:,2),:));
-tmp3 = tmp1 - tmp2;
+trackedFL_An4 = faces_An4(faceCorresp(:,1),:);
+trackedFL_An5 = faces_An5(faceCorresp(:,2),:);
+map_5from4 = containers.Map(lookUp(:,1), lookUp(:,2));
+for i = 1:length(trackedFL_An4)
+    if trackedFL_An5(i,1) ~= map_5from4(trackedFL_An4(i,1))
+        trackedFL_An5(i,:) = flip(trackedFL_An5(i,:));
+    end
+end
+tmp1 = numCells_An4(trackedFL_An4);
+tmp2 = numCells_An5(trackedFL_An5);
+tmp3 = tmp2 - tmp1;
 %   --- The face mobility should be associated with delta_G1 - delta_G2, ---
 %   --- because a face moves the most when onegrain grow one grain shrink ---
-faceMob_dV = tmp3(:,1) - tmp3(:,2);
+% cellVolume = 2.8125*2.8125*4;
+faceMob_dV = abs(tmp3(:,1) - tmp3(:,2));
 clear tmp1 tmp2 tmp3
 
 
 % ##### get the face coordinates #####
 FCentrs_An4 = findFaceCentorids(file_An4, faces_An4);
 FCentrs_An5 = findFaceCentorids(file_An5, faces_An5);
-FCentrs_diff = FCentrs_An4(faceCorresp(:,1),:) - FCentrs_An5(faceCorresp(:,2),:);
+FCentrs_diff = FCentrs_An5(faceCorresp(:,2),:) - FCentrs_An4(faceCorresp(:,1),:);
 FCentrs_diff = sqrt(sum(FCentrs_diff .* FCentrs_diff, 2));
 
 
@@ -148,15 +157,15 @@ print('FItgCurv_FItgCurvDiff', '-dpng','-r300')
 figure('rend','painters','pos',[10 10 1300 1100])
 ylim_bin = [0, 14e4];
 subplot(2,2,1)
-plotScatter(FItgCurvs_An4(faceCorresp(:,1),2), abs(faceMob_dV), 'Integral |Face Curvature| in An4, \mum', 'The Associated Volume Change, \mum^{3}');
+plotScatter(FItgCurvs_An4(faceCorresp(:,1),2), faceMob_dV, 'Integral |Face Curvature| in An4, \mum', 'The Associated Volume Change, \mum^{3}');
 title(['ylim of binning = [', num2str(ylim_bin), ']'])
 subplot(2,2,2)
-plotBinData(FItgCurvs_An4(faceCorresp(:,1),2), abs(faceMob_dV), [0, 1000], ylim_bin, 10, 'Integral |Face Curvature| in An4, \mum', 'The Associated Volume Change, \mum^{3}', true, false)
+plotBinData(FItgCurvs_An4(faceCorresp(:,1),2), faceMob_dV, [0, 1000], ylim_bin, 5, 'Integral |Face Curvature| in An4, \mum', 'The Associated Volume Change, \mum^{3}', true, false)
 subplot(2,2,3)
-plotBinData(FItgCurvs_An4(faceCorresp(:,1),2), abs(faceMob_dV), [0, 150], ylim_bin, 5, 'Integral |Face Curvature| in An4, \mum', 'The Associated Volume Change, \mum^{3}', true, false)
+plotBinData(FItgCurvs_An4(faceCorresp(:,1),2), faceMob_dV, [0, 200], ylim_bin, 10, 'Integral |Face Curvature| in An4, \mum', 'The Associated Volume Change, \mum^{3}', true, false)
 print('FItgCurv_An4_Vdiff', '-dpng','-r300')
 subplot(2,2,4)
-plotBinData(FItgCurvs_An4(faceCorresp(:,1),2), abs(faceMob_dV), [0, 150], ylim_bin, 5, 'Integral |Face Curvature| in An4, \mum', 'The Associated Volume Change, \mum^{3}', true, true)
+plotBinData(FItgCurvs_An4(faceCorresp(:,1),2), faceMob_dV, [0, 150], ylim_bin, 5, 'Integral |Face Curvature| in An4, \mum', 'The Associated Volume Change, \mum^{3}', true, true)
 print('FItgCurv_An4_Vdiff', '-dpng','-r300')
 
 %% ##### |Integral Face Curvature Difference| v.s. Face Centroid Position Difference #####
