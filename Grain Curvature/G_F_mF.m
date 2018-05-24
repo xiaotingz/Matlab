@@ -76,8 +76,7 @@ data_face = calcFaceCurvature(data_raw);
 grain_ForCal = filterGrains(criterion, facelabel, num_of_neigh, neighborList, X,Y,Z, centroids, grain_diameter_raw);
 data_grain = calcGrainCurvature(data_face, grain_ForCal);
 
-
-
+%%
 ID_ForCal = data_grain(:,1);
 F_mF_diff = zeros(size(ID_ForCal));
 for i = 1 : length(ID_ForCal)

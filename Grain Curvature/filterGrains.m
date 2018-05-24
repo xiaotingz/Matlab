@@ -83,7 +83,7 @@ try
             end
         end
     end
-    if (~(strcmp(criterion,'numFaces') || strcmp(criterion,'centroidPos') || ...
+    if (~(strcmp(criterion,'numFaces') || strcmp(criterion,'centroidPos') || strcmp(criterion,'touchingFS') || ...
         strcmp(criterion,'NN_centoridPos') || strcmp(criterion,'NN_centoridPos') || strcmp(criterion,'NN_touchingFS')))
         warning('Wrong input criterion. Using all grains!');
     end
