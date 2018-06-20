@@ -1,11 +1,11 @@
-% function TLs = findTripleLines(file)
+function TLs = findTripleLines(file)
 % ############################################################################
 % - tripleLines = [n, 3], n is the number of triple lines in the volume, 3
 %       stands for the threeGrainIDs encapsulating the triple line.
 % ############################################################################
 % ----------------------- load debug data -----------------------
 % clear
-file = '/Users/xiaotingzhong/Desktop/Datas/synthetic/180502_CubicSingleEquiaxedOut.dream3d';
+% file = '/Users/xiaotingzhong/Desktop/Datas/synthetic/180502_CubicSingleEquiaxedOut.dream3d';
 % ---------------------------------------------------------------
 
 % ##### Read in data ##### 
@@ -91,6 +91,8 @@ for i = 1:length(TLtri_FLs)/3
 end
 TLs = sort(TLs, 2);
 TLs = unique(TLs, 'rows');
+
+end
 
 
 
