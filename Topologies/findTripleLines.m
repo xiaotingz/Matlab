@@ -6,6 +6,7 @@ function TLs = findTripleLines(file)
 % ----------------------- load debug data -----------------------
 % clear
 % file = '/Users/xiaotingzhong/Desktop/Datas/synthetic/180502_CubicSingleEquiaxedOut.dream3d';
+% file = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_mesh_mergeTwin.dream3d';
 % ---------------------------------------------------------------
 
 % ##### Read in data ##### 

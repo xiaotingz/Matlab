@@ -30,7 +30,7 @@ if nargin == 3
 % ##### QuadPoints and FCNoints #####
 elseif nargin == 4
     % --- first clear multiplicityQNs ----
-    for i = 1:length(FNmulti)
+    for i = 1:length(FCNs)
         mask_multi = (FCNs(i,1)==QNs |FCNs(i,2)==QNs |FCNs(i,3)==QNs |FCNs(i,4)==QNs |FCNs(i,5)==QNs);
         mask_multi = (sum(mask_multi,2) == 4);
         QNs(mask_multi,:) = [];

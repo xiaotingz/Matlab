@@ -54,13 +54,10 @@ NeighborList = double(h5read(file,'/DataContainers/SyntheticVolumeDataContainer/
 surfG = boolean(h5read(file,'/DataContainers/SyntheticVolumeDataContainer/CellFeatureData/SurfaceFeatures'))';
 surfG(1) = [];
 
-
 F = numNeigh;
-
 E = zeros(size(F));
 V_SQasNormal = zeros(size(F));
 V_SQNlusOne = zeros(size(F));
-
 % QNs = result{1,1};
 % FCNs = result{1,2};
 
@@ -85,9 +82,8 @@ end
 
 eulerChar = [(1:length(F))', F, E, V_SQasNormal, V_SQasNormal-E+F];
 eulerChar = eulerChar(~surfG, :);
-generalQNs = [[QNs, zeros(length(QNs),1)]; FCNs];
 
-%%
+%% ##### For one grain, check the Edges and Corners ##### 
 objGrain = 16;
 neighbors = getNeighList(objGrain, numNeigh, NeighborList)
 % --- generalQNs = [n, c], see function getFaceCharacter for details --- 
@@ -97,7 +93,7 @@ for i = 1:length(neighbors)
     disp(['for [', num2str(objGrain), ', ', num2str(neighbors(i)), ']: numCorners = ', num2str(numCorners), ', numEdges = ', num2str(numEdges)]);
 end
 
-%% --- check the TLs and Quads of a specific grainFace ---
+%% ##### Fone one grain face, check the TLs and Quads #####
 idx = 10;
 specialFace(idx, :)
 A = specialFace(idx, 1);
@@ -106,10 +102,10 @@ mask_TL_A = (TLs == A);
 mask_TL_B = (TLs == B);
 mask_TL_AB = ((sum(mask_TL_A, 2) + sum(mask_TL_B, 2)) == 2);
 TLs(mask_TL_AB, :);
-mask_QN_A = (generalQNs == A);
-mask_QN_B = (generalQNs == B);
+mask_QN_A = (QNs == A);
+mask_QN_B = (QNs == B);
 mask_QN_AB = ((sum(mask_QN_A, 2) + sum(mask_QN_B, 2)) == 2);
-generalQNs(mask_QN_AB, :)
+QNs(mask_QN_AB, :)
 
 
 %% ##### superQuad multiplicity check #####
@@ -140,15 +136,43 @@ unbalanceFace = unbalanceFace(mask_CeqE, :);
 
 mask_specialFace = (unbalanceFace(:,3) - unbalanceFace(:,4) ~= 1);
 specialFace = unbalanceFace(mask_specialFace, :);
-%%
-% ##### clear multiplicityQNs #####
-for i = 1:length(FNmulti)
+
+%% ##### Remove the multiplicityQNs #####
+FCNs = fiveCoordNList;
+for i = 1:length(FCNs)
     mask_multi = (FCNs(i,1)==QNs |FCNs(i,2)==QNs |FCNs(i,3)==QNs |FCNs(i,4)==QNs |FCNs(i,5)==QNs);
     mask_multi = (sum(mask_multi,2) == 4);
     QNs(mask_multi,:) = [];
 end
 
 
+% ###### 3. TWIN involved QNs ######
+QN_TLs = zeros(length(QNs),1);
+C43 = combnk(1:4,3);
+for i = 1:length(QNs)
+    fourTLs_QN = reshape(QNs(i, C43),4,3);
+    QN_TLs(i) = sum(ismember(fourTLs_QN,TLs, 'rows'));
+end
 
-% ###### 3. How many kinds of specialQNs? What's there physical meaning? How to deal with them? ######
+smallQN = [(1:length(QN_TLs))', QN_TLs];
+smallQN = smallQN(QN_TLs~=4, :);
+
+
+
+
+
+%%
+smallQNInfo(10, smallQN, QNs, TLs)
+
+
+
+
+
+
+
+
+
+
+
+
 

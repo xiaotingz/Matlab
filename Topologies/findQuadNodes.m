@@ -1,9 +1,11 @@
-function result = findQuadPoints(file)
+function [result, QNList, fiveCoordNList] = findQuadNodes(file)
 % ############################################################################
 % - QNs = [n, 4] = [G1, G2, G3, G4]
 %     G1-G4 are the four grains encapsulating the point
 % - QNpos = [n, 3] = [x, y, z]
 %     x, y, z are the QuadPoint positions, max(x) = numVoxel_x + 1
+% - QNID = [n, 5] = [NodeID, G1, G2, G3, G4]
+%     [x, y, z] = ind2sub([xDim_N, yDim_N, zDim_N], nodeID);
 % - The algorithm is inspired from D3D's quick mesh.
 %     - I care only the inner volume QuadPoints. 
 %     - Every voxel has 6 neighbors, or 6 faces, each face have 4 nodes.
@@ -16,18 +18,16 @@ function result = findQuadPoints(file)
 % file = '/Users/xiaotingzhong/Desktop/Datas/synthetic/180502_CubicSingleEquiaxedOut.dream3d';
 % file = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_mesh.dream3d');
 % ---------------------------------------------------------------
-% dims = double(h5read(file, '/DataContainers/SyntheticVolumeDataContainer/_SIMPL_GEOMETRY/DIMENSIONS'));
-% grainIds = squeeze(h5read(file, '/DataContainers/SyntheticVolumeDataContainer/CellData/FeatureIds'));
-dims = double(h5read(file, '/DataContainers/ImageDataContainer/_SIMPL_GEOMETRY/DIMENSIONS'));
-grainIds = squeeze(h5read(file, '/DataContainers/ImageDataContainer/CellData/FeatureIds'));
-surfG = boolean(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures'))';
-surfG(1) = [];
+dims = double(h5read(file, '/DataContainers/SyntheticVolumeDataContainer/_SIMPL_GEOMETRY/DIMENSIONS'));
+grainIds = squeeze(h5read(file, '/DataContainers/SyntheticVolumeDataContainer/CellData/FeatureIds'));
+
+% dims = double(h5read(file, '/DataContainers/ImageDataContainer/_SIMPL_GEOMETRY/DIMENSIONS'));
+% grainIds = squeeze(h5read(file, '/DataContainers/ImageDataContainer/CellData/FeatureIds'));
 
 % --- dims are the dimension of voxels, dimension of nodes is (dims + 1) ---
 xDim_N = dims(1) + 1;
 yDim_N = dims(2) + 1;
 zDim_N = dims(3) + 1;
-layerSize_N = xDim_N * yDim_N;
 ownerList = cell(xDim_N*yDim_N*zDim_N, 1);
 for i = 2 : (dims(1) - 1)
     for j = 2 : (dims(2) - 1)
@@ -168,8 +168,8 @@ end
 QNs = unique(QNList(:,2:5), 'rows');
 % --- if one of the ID=0, the voxel is on freeSurface, thus doesn't give a quad --- 
 QNs = QNs(~any(QNs == 0, 2), :);
-% --- if all the 4 grains are surface grains, the voxel doesn't give a quad --- 
-QNs = QNs(sum(surfG(uint8(QNs)),2) ~= 4, :);
+% --- Note even for HEDM data, if all the 4 grains are surface grains, the voxel is still a quad ---
+% --- because as long as surface, G=0 will be included in the IDs. --- 
 
 % --- same process applies to the superQuads, note 0 can only show once in the first digit --- 
 fiveCoordNs = []; sixCoordNs = []; sevenCoordNs = []; eightCoordNs = [];
@@ -178,28 +178,24 @@ if ~isempty(fiveCoordNList)
     mask_QNinFN = any(fiveCoordNs == 0, 2);
     QNs = [QNs; fiveCoordNs(mask_QNinFN, 2:5)];
     fiveCoordNs = fiveCoordNs(~mask_QNinFN, :);
-    fiveCoordNs = fiveCoordNs(sum(surfG(uint8(fiveCoordNs)),2) ~= 5, :);
 end
 if ~isempty(sixCoordNList)
     sixCoordNs = unique(sixCoordNList(:,2:7), 'rows');
     mask_FNinSixN = any(sixCoordNs == 0, 2);
     fiveCoordNs = [fiveCoordNs; sixCoordNs(mask_FNinSixN, 2:6)];
     sixCoordNs = sixCoordNs(~mask_FNinSixN, :);
-    sixCoordNs = sixCoordNs(sum(surfG(uint8(sixCoordNs)),2) ~= 6, :);
 end
 if ~isempty(sevenCoordNList)
     sevenCoordNs = unique(sevenCoordNList(:,2:8), 'rows');
     mask_sixNinSevenN = any(sevenCoordNs == 0, 2);
     sixCoordNs = [sixCoordNs; sevenCoordNs(mask_sixNinSevenN, 2:7)];
     sevenCoordNs = sevenCoordNs(~mask_sixNinSevenN, :);
-    sevenCoordNs = sevenCoordNs(sum(surfG(uint8(sevenCoordNs)),2) ~= 7, :);
 end
 if ~isempty(eightCoordNList)
     eightCoordNs = unique(eightCoordNList(:,2:9), 'rows');
     mask_sevenNinEN = any(eightCoordNs == 0, 2);
     sevenCoordNs = [sevenCoordNs; eightCoordNs(mask_sevenNinEN, 2:8)];
     eightCoordNs = eightCoordNs(~mask_sevenNinEN, :);
-    eightCoordNs = eightCoordNs(sum(surfG(uint8(eightCoordNs)),2) ~= 8, :);
 end
 result = {QNs, fiveCoordNs, sixCoordNs, sevenCoordNs, eightCoordNs};
 

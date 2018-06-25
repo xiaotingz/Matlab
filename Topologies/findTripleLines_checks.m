@@ -119,8 +119,8 @@ end
 % FLs(idx_tmp,:);
 % objTris = triNodes(idx_tmp,:);
 
-trisurf( objTris, xdat(1,:), xdat(2,:), xdat(3,:) );
-rotate3d on
+% trisurf( objTris, xdat(1,:), xdat(2,:), xdat(3,:) );
+% rotate3d on
 
 %%
 % ##### number fraction Checks #####
