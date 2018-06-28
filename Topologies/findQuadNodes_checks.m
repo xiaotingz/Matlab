@@ -12,20 +12,20 @@
 %     - How many kinds of specialQNs? What's there physical meaning? How to deal with them? 
 % ############################################################################
 %% --------------------------- Data preparation ----------------------------
-load('180625_NiTopologyResult.mat');
-file = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_mesh_mergeTwin.dream3d';
-fiveCoordNList = fiveCoordNList_An4;
-QNList = QNList_An4;
-result = result_An4;
-sixCoordNList = sixCoordNList_An4;
-TLs = TLs_An4;
+load('180625_Ni_TopologyResult.mat');
+% file = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_mesh_mergeTwin.dream3d';
+% fiveCoordNList = fiveCoordNList_An4;
+% QNList = QNList_An4;
+% result = result_An4;
+% sixCoordNList = sixCoordNList_An4;
+% TLs = TLs_An4;
 
-% file = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_mesh_mergeTwin.dream3d';
-% fiveCoordNList = fiveCoordNList_An5;
-% QNList = QNList_An5;
-% result = result_An5;
-% sixCoordNList = sixCoordNList_An5;
-% TLs = TLs_An5;
+file = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_mesh_mergeTwin.dream3d';
+fiveCoordNList = fiveCoordNList_An5;
+QNList = QNList_An5;
+result = result_An5;
+sixCoordNList = sixCoordNList_An5;
+TLs = TLs_An5;
 
 clearvars -except file fiveCoordNList QNList result sixCoordNList TLs
 %  --------------------------------------------------------------------------
@@ -156,7 +156,7 @@ mask_QN_B = (QNs == B);
 mask_QN_AB = ((sum(mask_QN_A, 2) + sum(mask_QN_B, 2)) == 2);
 QNs(mask_QN_AB, :)
 
-%% ##### 3. Remove the multiplicity QNs from FCNs, then find #TLs and #GBs at the nodes #####
+%% ##### 3.1. Remove the multiplicity QNs from FCNs, then find #TLs and #GBs at the nodes #####
 % """
 % - Each FCN defines a five-grain set, which probably stemed from insufficient experimental resolution.
 % - Then within each five-grain set, there should be 2 and only 2 QNs. But that's not the case, 
@@ -166,6 +166,7 @@ QNs(mask_QN_AB, :)
 % """
 
 % FCNs = fiveCoordNList;
+
 QNs = result{1,1};
 FCNs = result{1,2};
 FCN_multi = zeros(length(FCNs),1);
@@ -174,6 +175,15 @@ for i = 1:length(FCNs)
     mask_multi = (sum(mask_multi,2) == 4);
     FCN_multi(i) = sum(mask_multi);
     QNs(mask_multi,:) = [];
+end
+
+SixCNs = result{1,3};
+SixCN_multiFour = zeros(length(SixCNs),1);
+for i = 1:length(SixCNs)
+    mask_multiFour = (SixCNs(i,1)==QNs |SixCNs(i,2)==QNs |SixCNs(i,3)==QNs |SixCNs(i,4)==QNs |SixCNs(i,5)==QNs |SixCNs(i,6)==QNs);
+    mask_multiFour = (sum(mask_multiFour,2) == 4);
+    SixCN_multiFour(i) = sum(mask_multiFour);
+    QNs(mask_multiFour,:) = [];
 end
 
 % ------ #TLs and #GBs -----
@@ -189,13 +199,29 @@ fewGB_QN = fewGB_QN(numGBs_QN~=6, :);
 fewTL_QN = [(1:length(numTLs_QN))', numTLs_QN];
 fewTL_QN = fewTL_QN(numTLs_QN~=4, :);
 
-[numGBs_FCN, numTLs_FCN] = nodeInfo('FCNs', file, TLs, QNs, FCNs, SixCNs);
+QNs_An5= QNs;
+fewGB_QN_An5 = fewGB_QN;
+fewTL_QN_An5 = fewTL_QN;
+save('An5_QN.mat', 'QNs_An5','fewGB_QN_An5','fewTL_QN_An5');
 
-[numGBs_SixCN, numTLs_SixCN] = nodeInfo('SixCNs', file, TLs, QNs, FCNs, SixCNs);
+% [numGBs_FCN, numTLs_FCN] = nodeInfo('FCNs', file, TLs, QNs, FCNs, SixCNs);
+% 
+% [numGBs_SixCN, numTLs_SixCN] = nodeInfo('SixCNs', file, TLs, QNs, FCNs, SixCNs);
 
-
-
-
+%% ##### 3.2.  SixCN multiplicity from non-cleared QNs #####
+QNs = result{1,1};
+FCNs = result{1,2};
+SixCNs = result{1,3};
+SixCN_multiFour = zeros(length(SixCNs),1);
+SixCN_multiFive = zeros(length(SixCNs),1);
+for i = 1:length(SixCNs)
+    mask_multiFour = (SixCNs(i,1)==QNs |SixCNs(i,2)==QNs |SixCNs(i,3)==QNs |SixCNs(i,4)==QNs |SixCNs(i,5)==QNs |SixCNs(i,6)==QNs);
+    mask_multiFour = (sum(mask_multiFour,2) == 4);
+    SixCN_multiFour(i) = sum(mask_multiFour);
+    mask_multiFive = (SixCNs(i,1)==FCNs |SixCNs(i,2)==FCNs |SixCNs(i,3)==FCNs |SixCNs(i,4)==FCNs |SixCNs(i,5)==FCNs |SixCNs(i,6)==FCNs);
+    mask_multiFive = (sum(mask_multiFive,2) == 5);
+    SixCN_multiFive(i) = sum(mask_multiFive);  
+end
 
 
 
