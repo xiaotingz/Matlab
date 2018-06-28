@@ -3,9 +3,35 @@
 % also related to findTripleLines.m
 %  1. #QNs, is it the same as that found by D3D?
 %  2. Does the synthetic microstructure satisfy Euler characteristic now?
+%     - Grain balance check
+%     - Grain face balance check: faces of one grain & general faces
+%  3. What info should be used to define a good QNs?
+%     - #Grains at the QN == 4?
+%     - #TLs at the QN == 4?
+%     - #GBs at the QN == 6?
+%     - How many kinds of specialQNs? What's there physical meaning? How to deal with them? 
 % ############################################################################
+%% --------------------------- Data preparation ----------------------------
+load('180625_NiTopologyResult.mat');
+file = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_mesh_mergeTwin.dream3d';
+fiveCoordNList = fiveCoordNList_An4;
+QNList = QNList_An4;
+result = result_An4;
+sixCoordNList = sixCoordNList_An4;
+TLs = TLs_An4;
 
-% %% ###### 1. #QNs, is it the same as that found by D3D? ######
+% file = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_mesh_mergeTwin.dream3d';
+% fiveCoordNList = fiveCoordNList_An5;
+% QNList = QNList_An5;
+% result = result_An5;
+% sixCoordNList = sixCoordNList_An5;
+% TLs = TLs_An5;
+
+clearvars -except file fiveCoordNList QNList result sixCoordNList TLs
+%  --------------------------------------------------------------------------
+
+
+%% ###### 1. #QNs, is it the same as that found by D3D? ######
 file = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_mesh.dream3d');
 dims = double(h5read(file, '/DataContainers/ImageDataContainer/_SIMPL_GEOMETRY/DIMENSIONS'));
 xDim_N = dims(1) + 1;
@@ -42,10 +68,9 @@ if sum(QNID == QNID_D3D) ~= length(QNID)
     end
 end
 
-% ###### 2. How many kinds of specialQNs? What's there physical meaning? How to deal with them? ######
 
 
-%% ###### 3. Does the synthetic microstructure satisfy Euler characteristic now? ######
+%% ###### 2.1. Grain Balance Check: Euler Characteristic ######
 file = '/Users/xiaotingzhong/Desktop/Datas/synthetic/180502_CubicSingleEquiaxedOut.dream3d';
 
 numNeigh = double(h5read(file,'/DataContainers/SyntheticVolumeDataContainer/CellFeatureData/NumNeighbors'))';
@@ -83,41 +108,21 @@ end
 eulerChar = [(1:length(F))', F, E, V_SQasNormal, V_SQasNormal-E+F];
 eulerChar = eulerChar(~surfG, :);
 
-%% ##### For one grain, check the Edges and Corners ##### 
-objGrain = 16;
-neighbors = getNeighList(objGrain, numNeigh, NeighborList)
-% --- generalQNs = [n, c], see function getFaceCharacter for details --- 
 
+% ----- For one grain: balance of its faces -----
+objGrain = 16;
+neighbors = getNeighList(objGrain, numNeigh, NeighborList);
+
+% """
+% getFaceCharacter(labels, TLs, QNs, FCNs). The FCNs input can be empty.
+% """
 for i = 1:length(neighbors)
-    [numCorners, numEdges] = getFaceCharacter([objGrain, neighbors(i)], TLs, generalQNs);
+    [numCorners, numEdges] = getFaceCharacter([objGrain, neighbors(i)], TLs, QNs, FCNs);
     disp(['for [', num2str(objGrain), ', ', num2str(neighbors(i)), ']: numCorners = ', num2str(numCorners), ', numEdges = ', num2str(numEdges)]);
 end
 
-%% ##### Fone one grain face, check the TLs and Quads #####
-idx = 10;
-specialFace(idx, :)
-A = specialFace(idx, 1);
-B = specialFace(idx, 2);
-mask_TL_A = (TLs == A);
-mask_TL_B = (TLs == B);
-mask_TL_AB = ((sum(mask_TL_A, 2) + sum(mask_TL_B, 2)) == 2);
-TLs(mask_TL_AB, :);
-mask_QN_A = (QNs == A);
-mask_QN_B = (QNs == B);
-mask_QN_AB = ((sum(mask_QN_A, 2) + sum(mask_QN_B, 2)) == 2);
-QNs(mask_QN_AB, :)
 
-
-%% ##### superQuad multiplicity check #####
-% --- If a FiveCoordNode always corresponds to two quads, 
-% --- then to get the correct #Quads, one can simply ignore the FiveCoordNodes
-% labels = [zeros(length(NeighborList),1), NeighborList];
-% cnt = 0;
-% for i = 1:length(numNeigh)
-%     labels(cnt+1 : cnt+numNeigh(i), 1) = ones(numNeigh(i),1)*i;
-%     cnt = cnt + numNeigh(i);
-% end
-
+%% ##### 2.2. Face Balance Check: Corner & Edge  #####
 innerGs = [(1:length(numNeigh))', numNeigh];
 innerGs = innerGs(~surfG,:);
 labels = zeros(sum(innerGs(:,2)),2);
@@ -137,34 +142,56 @@ unbalanceFace = unbalanceFace(mask_CeqE, :);
 mask_specialFace = (unbalanceFace(:,3) - unbalanceFace(:,4) ~= 1);
 specialFace = unbalanceFace(mask_specialFace, :);
 
-%% ##### Remove the multiplicityQNs #####
+%  ----- Fone one grain face, get the TLs and Quads -----
+idx = 10;
+specialFace(idx, :)
+A = specialFace(idx, 1);
+B = specialFace(idx, 2);
+mask_TL_A = (TLs == A);
+mask_TL_B = (TLs == B);
+mask_TL_AB = ((sum(mask_TL_A, 2) + sum(mask_TL_B, 2)) == 2);
+TLs(mask_TL_AB, :);
+mask_QN_A = (QNs == A);
+mask_QN_B = (QNs == B);
+mask_QN_AB = ((sum(mask_QN_A, 2) + sum(mask_QN_B, 2)) == 2);
+QNs(mask_QN_AB, :)
+
+%% ##### 3. Remove the multiplicity QNs from FCNs, then find #TLs and #GBs at the nodes #####
+% """
+% - Each FCN defines a five-grain set, which probably stemed from insufficient experimental resolution.
+% - Then within each five-grain set, there should be 2 and only 2 QNs. But that's not the case, 
+%       probably because of artifact from reconstruction & voxelizaiton
+% - Decided to first remove all QNs stemmed from FCNs (muliplicities). 
+% - Then do calculations from the non-multiple-QNs & FCNs. 
+% """
+
 % FCNs = fiveCoordNList;
 QNs = result{1,1};
 FCNs = result{1,2};
-multiplicity = zeros(length(FCNs),1);
+FCN_multi = zeros(length(FCNs),1);
 for i = 1:length(FCNs)
     mask_multi = (FCNs(i,1)==QNs |FCNs(i,2)==QNs |FCNs(i,3)==QNs |FCNs(i,4)==QNs |FCNs(i,5)==QNs);
     mask_multi = (sum(mask_multi,2) == 4);
-    multiplicity(i) = sum(mask_multi);
+    FCN_multi(i) = sum(mask_multi);
     QNs(mask_multi,:) = [];
 end
 
-% ###### 3. TWIN involved QNs ######
-QN_TLs = zeros(length(QNs),1);
-C43 = combnk(1:4,3);
-for i = 1:length(QNs)
-    fourTLs_QN = reshape(QNs(i, C43),4,3);
-    QN_TLs(i) = sum(ismember(fourTLs_QN,TLs, 'rows'));
-end
+% ------ #TLs and #GBs -----
+% """
+% objType = 'QNs' | 'FCNs' | 'SixCNs'
+% """
+SixCNs = result{1,3};
 
-smallQN = [(1:length(QN_TLs))', QN_TLs];
-smallQN = smallQN(QN_TLs~=4, :);
+[numGBs_QN, numTLs_QN] = nodeInfo('QNs', file, TLs, QNs, FCNs, SixCNs);
 
+fewGB_QN = [(1:length(numGBs_QN))', numGBs_QN];
+fewGB_QN = fewGB_QN(numGBs_QN~=6, :);
+fewTL_QN = [(1:length(numTLs_QN))', numTLs_QN];
+fewTL_QN = fewTL_QN(numTLs_QN~=4, :);
 
+[numGBs_FCN, numTLs_FCN] = nodeInfo('FCNs', file, TLs, QNs, FCNs, SixCNs);
 
-%%
-smallQNInfo(1, smallQN, QNs, TLs)
-
+[numGBs_SixCN, numTLs_SixCN] = nodeInfo('SixCNs', file, TLs, QNs, FCNs, SixCNs);
 
 
 

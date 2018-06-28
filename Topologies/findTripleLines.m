@@ -93,6 +93,10 @@ end
 TLs = sort(TLs, 2);
 TLs = unique(TLs, 'rows');
 
+% --- clean the data --- 
+mask_surfTL = any(TLs==0, 2);
+TLs = TLs(~mask_surfTL, :);
+
 end
 
 

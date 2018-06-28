@@ -197,6 +197,13 @@ if ~isempty(eightCoordNList)
     sevenCoordNs = [sevenCoordNs; eightCoordNs(mask_sevenNinEN, 2:8)];
     eightCoordNs = eightCoordNs(~mask_sevenNinEN, :);
 end
+% --- after deleting the extra zeros, clean the data again --- 
+QNs = unique(QNs, 'rows');
+fiveCoordNs = unique(fiveCoordNs, 'rows');
+sixCoordNs = unique(sixCoordNs, 'rows');
+sevenCoordNs = unique(sevenCoordNs, 'rows');
+eightCoordNs = unique(eightCoordNs, 'rows');
+
 result = {QNs, fiveCoordNs, sixCoordNs, sevenCoordNs, eightCoordNs};
 
 % QNs = unique(QNList(:,2:5), 'rows');
