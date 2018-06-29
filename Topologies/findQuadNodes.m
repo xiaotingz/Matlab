@@ -1,4 +1,4 @@
-function [result, QNList, fiveCoordNList] = findQuadNodes(file)
+function [result, QNList, fiveCoordNList, sixCoordNList] = findQuadNodes(file)
 % ############################################################################
 % - QNs = [n, 4] = [G1, G2, G3, G4]
 %     G1-G4 are the four grains encapsulating the point
