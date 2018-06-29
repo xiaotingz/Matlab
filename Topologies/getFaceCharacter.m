@@ -29,13 +29,6 @@ if nargin == 3
     end
 % ##### QuadPoints and FCNoints #####
 elseif nargin == 4
-    % --- first clear multiplicityQNs ----
-    for i = 1:length(FCNs)
-        mask_multi = (FCNs(i,1)==QNs |FCNs(i,2)==QNs |FCNs(i,3)==QNs |FCNs(i,4)==QNs |FCNs(i,5)==QNs);
-        mask_multi = (sum(mask_multi,2) == 4);
-        QNs(mask_multi,:) = [];
-    end
-    
     for i = 1:size(labels, 1)
         A = labels(i, 1);
         B = labels(i, 2);

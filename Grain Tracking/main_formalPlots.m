@@ -116,11 +116,11 @@ print('|FItgCurv_diff|_FCentrs_diff_1', '-dpng','-r300')
 C_diff = C_An5(faceCorresp(:,2)) - C_An4(faceCorresp(:,1));
 C_An4 = C_An4(faceCorresp(:,1));
 C_An5 = C_An5(faceCorresp(:,2));
-%% ##### #(Face Corners) Difference v.s. Integral Face Curvature Difference #####
+%% ##### #(Face Corners) Difference v.s. Face Area Difference #####
 plotData_6 = [C_diff, FA_diff];
 plotData_6 = filterExtremeData(plotData_6, 1);
-plotBinData(plotData_6(:,1), plotData_6(:,2), [-25, 20], ylim_bin, 1, '$\Delta C^{F}$', '$\Delta \mathcal{A}^{F}, \mu m^{2}$', true, true) 
-print('CDiff_FADiff_1', '-dpng','-r300')
+plotBinData(plotData_6(:,1), plotData_6(:,2), [-10, 10], ylim_bin, 1, '$\Delta C^{F}$', '$\Delta \mathcal{A}^{F}, \mu m^{2}$', true, false) 
+print('CDiff_FADiff_2', '-dpng','-r300')
 
 %% ##### #(Face Corners) Difference v.s. Associated Volume Difference #####
 plotData_7 = [C_diff, abs(faceMob_dV)];

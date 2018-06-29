@@ -126,20 +126,6 @@ eulerChar_FCNplus1 = eulerChar_FCNplus1(~surfG, :);
 %     disp(['for [', num2str(objGrain), ', ', num2str(neighbors(i)), ']: numCorners = ', num2str(numCorners), ', numEdges = ', num2str(numEdges)]);
 % end
 
-%% ##### 2.1. Plot ##### 
-% ----- EC = [(1:length(F))', F, E, V, V-E+F] ----- 
-histogram(EC_An4(:,5),'Normalization','probability')
-hold on
-histogram(EC_An5(:,5),'Normalization','probability')
-xlim([-5, 15])
-legend('An4','An5','Location','NW');
-
-xlabel('V - E + F');
-ylabel('Count');
-title('using cleanedGoodQuads only')
-
-print('EulerCharacteristics', '-dpng','-r300')
-
 
 %% ##### 2.2. Face Balance Check: Corner & Edge  #####
 innerGs = [(1:length(numNeigh))', numNeigh];
@@ -246,31 +232,18 @@ end
 
 
 %% ##### 3.2.  #Corners for Ni data #####
-% """
-% First, get faces_An4 and faces_An5 from the first section in /Grain Tracking/main
-% """
 % ---- Now use all general Quads -----
 QNs_An4 = result_An4{1,1};
 QNs_An5 = result_An5{1,1};
 
-C_An4 = zeros(length(faces_An4), 1);
 for i = 1:length(faces_An4)
     A = faces_An4(i,1);
     B = faces_An4(i,2);
-    mask_QN_A = (QNs_An4 == A);
-    mask_QN_B = (QNs_An4 == B);
-    mask_QN_AB = ((sum(mask_QN_A, 2) + sum(mask_QN_B, 2)) == 2);
-    C_An4(i) = sum(mask_QN_AB);
-end
-C_An5 = zeros(length(faces_An5), 1);
-for i = 1:length(faces_An5)
-    A = faces_An5(i,1);
-    B = faces_An5(i,2);
-    mask_QN_A = (QNs_An5 == A);
-    mask_QN_B = (QNs_An5 == B);
-    mask_QN_AB = ((sum(mask_QN_A, 2) + sum(mask_QN_B, 2)) == 2);
-    C_An5(i) = sum(mask_QN_AB);
-end
+        mask_QN_A = (QNs == A);
+        mask_QN_B = (QNs == B);
+        mask_QN_AB = ((sum(mask_QN_A, 2) + sum(mask_QN_B, 2)) == 2);
+        numCorners(i) = sum(mask_QN_AB);
+
 
 
 
