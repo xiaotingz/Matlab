@@ -12,14 +12,15 @@
 %     - How many kinds of specialQNs? What's there physical meaning? How to deal with them? 
 % ############################################################################
 %% --------------------------- Data preparation ----------------------------
-load('180625_Ni_TopologyResult.mat');
+% load('180625_Ni_TopologyResult.mat');
 % file = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_mesh_mergeTwin.dream3d';
 % fiveCoordNList = fiveCoordNList_An4;
 % QNList = QNList_An4;
 % result = result_An4;
 % sixCoordNList = sixCoordNList_An4;
 % TLs = TLs_An4;
-
+% % 
+load('180625_Ni_TopologyResult.mat');
 file = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_mesh_mergeTwin.dream3d';
 fiveCoordNList = fiveCoordNList_An5;
 QNList = QNList_An5;
@@ -32,7 +33,7 @@ clearvars -except file fiveCoordNList QNList result sixCoordNList TLs
 
 
 %% ###### 1. #QNs, is it the same as that found by D3D? ######
-file = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_mesh.dream3d');
+% file = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_mesh.dream3d');
 dims = double(h5read(file, '/DataContainers/ImageDataContainer/_SIMPL_GEOMETRY/DIMENSIONS'));
 xDim_N = dims(1) + 1;
 yDim_N = dims(2) + 1;
@@ -71,18 +72,22 @@ end
 
 
 %% ###### 2.1. Grain Balance Check: Euler Characteristic ######
-file = '/Users/xiaotingzhong/Desktop/Datas/synthetic/180502_CubicSingleEquiaxedOut.dream3d';
-
-numNeigh = double(h5read(file,'/DataContainers/SyntheticVolumeDataContainer/CellFeatureData/NumNeighbors'))';
+% numNeigh = double(h5read(file,'/DataContainers/SyntheticVolumeDataContainer/CellFeatureData/NumNeighbors'))';
+% numNeigh(1) = [];
+% NeighborList = double(h5read(file,'/DataContainers/SyntheticVolumeDataContainer/CellFeatureData/NeighborList'));
+% surfG = boolean(h5read(file,'/DataContainers/SyntheticVolumeDataContainer/CellFeatureData/SurfaceFeatures'))';
+% surfG(1) = [];
+numNeigh = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors'))';
 numNeigh(1) = [];
-NeighborList = double(h5read(file,'/DataContainers/SyntheticVolumeDataContainer/CellFeatureData/NeighborList'));
-surfG = boolean(h5read(file,'/DataContainers/SyntheticVolumeDataContainer/CellFeatureData/SurfaceFeatures'))';
+NeighborList = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NeighborList'));
+surfG = boolean(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures'))';
 surfG(1) = [];
+
 
 F = numNeigh;
 E = zeros(size(F));
 V_SQasNormal = zeros(size(F));
-V_SQNlusOne = zeros(size(F));
+V_SQNplusOne = zeros(size(F));
 % QNs = result{1,1};
 % FCNs = result{1,2};
 
@@ -95,31 +100,31 @@ end
 for i = 1:length(QNs)
     for j = 1:4
         V_SQasNormal(QNs(i,j)) = V_SQasNormal(QNs(i,j)) + 1;
-        V_SQNlusOne(QNs(i,j)) = V_SQNlusOne(QNs(i,j)) + 1;
+        V_SQNplusOne(QNs(i,j)) = V_SQNplusOne(QNs(i,j)) + 1;
     end
 end
 for i = 1:length(FCNs)
     for j = 1:5
         V_SQasNormal(FCNs(i,j)) = V_SQasNormal(FCNs(i,j)) + 1;
-        V_SQNlusOne(FCNs(i,j)) = V_SQNlusOne(FCNs(i,j)) + 2;
+        V_SQNplusOne(FCNs(i,j)) = V_SQNplusOne(FCNs(i,j)) + 2;
     end
 end
 
-eulerChar = [(1:length(F))', F, E, V_SQasNormal, V_SQasNormal-E+F];
-eulerChar = eulerChar(~surfG, :);
+eulerChar_FCNplus1 = [(1:length(F))', F, E, V_SQNplusOne, V_SQNplusOne-E+F];
+eulerChar_FCNplus1 = eulerChar_FCNplus1(~surfG, :);
 
 
-% ----- For one grain: balance of its faces -----
-objGrain = 16;
-neighbors = getNeighList(objGrain, numNeigh, NeighborList);
-
-% """
-% getFaceCharacter(labels, TLs, QNs, FCNs). The FCNs input can be empty.
-% """
-for i = 1:length(neighbors)
-    [numCorners, numEdges] = getFaceCharacter([objGrain, neighbors(i)], TLs, QNs, FCNs);
-    disp(['for [', num2str(objGrain), ', ', num2str(neighbors(i)), ']: numCorners = ', num2str(numCorners), ', numEdges = ', num2str(numEdges)]);
-end
+% % ----- For one grain: balance of its faces -----
+% objGrain = 16;
+% neighbors = getNeighList(objGrain, numNeigh, NeighborList);
+% 
+% % """
+% % getFaceCharacter(labels, TLs, QNs, FCNs). The FCNs input can be empty.
+% % """
+% for i = 1:length(neighbors)
+%     [numCorners, numEdges] = getFaceCharacter([objGrain, neighbors(i)], TLs, QNs, FCNs);
+%     disp(['for [', num2str(objGrain), ', ', num2str(neighbors(i)), ']: numCorners = ', num2str(numCorners), ', numEdges = ', num2str(numEdges)]);
+% end
 
 
 %% ##### 2.2. Face Balance Check: Corner & Edge  #####
@@ -186,7 +191,7 @@ for i = 1:length(SixCNs)
     QNs(mask_multiFour,:) = [];
 end
 
-% ------ #TLs and #GBs -----
+%% ------ #TLs and #GBs -----
 % """
 % objType = 'QNs' | 'FCNs' | 'SixCNs'
 % """
@@ -207,6 +212,7 @@ save('An5_QN.mat', 'QNs_An5','fewGB_QN_An5','fewTL_QN_An5');
 % [numGBs_FCN, numTLs_FCN] = nodeInfo('FCNs', file, TLs, QNs, FCNs, SixCNs);
 % 
 % [numGBs_SixCN, numTLs_SixCN] = nodeInfo('SixCNs', file, TLs, QNs, FCNs, SixCNs);
+
 
 %% ##### 3.2.  SixCN multiplicity from non-cleared QNs #####
 QNs = result{1,1};

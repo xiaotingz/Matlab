@@ -18,11 +18,11 @@ function [result, QNList, fiveCoordNList] = findQuadNodes(file)
 % file = '/Users/xiaotingzhong/Desktop/Datas/synthetic/180502_CubicSingleEquiaxedOut.dream3d';
 % file = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_mesh.dream3d');
 % ---------------------------------------------------------------
-dims = double(h5read(file, '/DataContainers/SyntheticVolumeDataContainer/_SIMPL_GEOMETRY/DIMENSIONS'));
-grainIds = squeeze(h5read(file, '/DataContainers/SyntheticVolumeDataContainer/CellData/FeatureIds'));
+% dims = double(h5read(file, '/DataContainers/SyntheticVolumeDataContainer/_SIMPL_GEOMETRY/DIMENSIONS'));
+% grainIds = squeeze(h5read(file, '/DataContainers/SyntheticVolumeDataContainer/CellData/FeatureIds'));
 
-% dims = double(h5read(file, '/DataContainers/ImageDataContainer/_SIMPL_GEOMETRY/DIMENSIONS'));
-% grainIds = squeeze(h5read(file, '/DataContainers/ImageDataContainer/CellData/FeatureIds'));
+dims = double(h5read(file, '/DataContainers/ImageDataContainer/_SIMPL_GEOMETRY/DIMENSIONS'));
+grainIds = squeeze(h5read(file, '/DataContainers/ImageDataContainer/CellData/FeatureIds'));
 
 % --- dims are the dimension of voxels, dimension of nodes is (dims + 1) ---
 xDim_N = dims(1) + 1;
