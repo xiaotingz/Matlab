@@ -79,7 +79,7 @@ box on
 if showCnt
     yyaxis right
 %     histogram('BinEdges', [data_grid(1,1)-stepsize; data_grid(:,1)], 'BinCounts',data_grid(:,4))
-    bar(data_grid(:,2), data_grid(:,4),'Barwidth', 1,'FaceColor', [0.5,0.5,0.5], 'EdgeColor', [0.5,0.5,0.5], 'FaceAlpha', 0.3, 'EdgeAlpha', 0.3);
+    bar(data_grid(:,2), data_grid(:,4),'Barwidth', 1.1,'FaceColor', [0.5,0.5,0.5], 'EdgeColor', [0.5,0.5,0.5], 'FaceAlpha', 0.3, 'EdgeAlpha', 0.3);
 %     ylabel('Counts')
     ylabel('Counts','Interpreter','latex')
     ax = gca;

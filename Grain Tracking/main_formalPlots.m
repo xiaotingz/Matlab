@@ -35,7 +35,8 @@ plot(grid_D_A5TG(:,1), grid_D_A5TG(:,2),'-^','Color','r','MarkerFaceColor', 'r',
 plot(grid_D_A4TCG(:,1), grid_D_A4TCG(:,2),'--o','Color','k','LineWidth',1.5);
 plot(grid_D_A5TCG(:,1), grid_D_A5TCG(:,2),'--^','Color','r','LineWidth',1.5);
 xlim([-1.5, 2.5]);
-legend('Anneal 4, all tracked grains', 'Anneal 5, all tracked grains', 'Anneal 4, tracked inner grains', 'Anneal 5, tracked inner grains')
+legend('Anneal 4, all tracked grains', 'Anneal 5, all tracked grains', 'Anneal 4, tracked inner grains',...
+    'Anneal 5, tracked inner grains');
 xlabel('log(D/<D>)');
 ylabel('Frequency');
 print('Size log normal distri', '-dpng','-r300')
@@ -61,7 +62,7 @@ hold on
 plot(grid_numNeigh_A5TG(:,1), grid_numNeigh_A5TG(:,2),'Color','r','LineWidth',1.5);
 plot(grid_numNeigh_A4TCG(:,1), grid_numNeigh_A4TCG(:,2),'--','Color','k','LineWidth',1.5);
 plot(grid_numNeigh_A5TCG(:,1), grid_numNeigh_A5TCG(:,2),'--','Color','r','LineWidth',1.5);
-
+xlim([0,40])
 legend('Anneal 4, all tracked grains', 'Anneal 5, all tracked grains', 'Anneal 4, tracked inner grains', 'Anneal 5, tracked inner grains')
 xlabel('F');
 ylabel('Frequency');
@@ -82,7 +83,7 @@ ylim_bin = [-100000, 100000];
 %% ##### Integral Face Curvature in An4 v.s. Face Area Difference #####
 plotData_1 = [FItgCurvs_An4(faceCorresp(:,1),2), FA_diff];
 plotData_1 = filterExtremeData(plotData_1, 1);
-plotBinData(plotData_1(:,1), plotData_1(:,2), [0, 300], ylim_bin, 10, '$|\mathcal{H}|^{F}_{An4}, \mu m$', '$\Delta \mathcal{A}^{F}, \mu m^{2}$', true, false) 
+plotBinData(plotData_1(:,1), plotData_1(:,2), [0, 100], ylim_bin, 10, '$|\mathcal{H}|^{F}_{An4}, \mu m$', '$\Delta \mathcal{A}^{F}, \mu m^{2}$', true, false) 
 print('FItgCurvAn4_FADiff_allFaces_2', '-dpng','-r300')
 
 %% ##### Average Face Curvature Difference v.s. Face Area Difference #####

@@ -28,8 +28,8 @@ clear
 % subset1
 % file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311/180311_STO1470sub2_GBCD.dream3d');
 % centro_file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311/180311_STO1470sub2_GBCD.dream3d');
-file = ('/Users/xiaotingzhong/Desktop/Datas/SteelFinal_setTo0/Jan31_Aa0_gbcd10.dream3d');
-centro_file = ('/Users/xiaotingzhong/Desktop/Datas/SteelFinal_setTo0/Jan31_Aa0_gbcd10.dream3d');
+file = ('/Users/xiaotingzhong/Desktop/Datas/SteelFinal_setTo0/problemData/Jan31_Aa0_CurvDistri10.dream3d');
+centro_file = ('/Users/xiaotingzhong/Desktop/Datas/SteelFinal_setTo0/problemData/Jan31_Aa0_CurvDistri10.dream3d');
 X=434*0.15; Y=267*0.15; Z=100*0.2;
 % subset2
 % file = ('/Users/xiaotingzhong/Desktop/Datas/SteelFinal_setTo0/Jan31_Fca0.dream3d');

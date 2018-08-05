@@ -1,14 +1,30 @@
+function ID_ForCal = filterGrains(criterion, file, X,Y,Z)
 % ###############################################################
 % criterion = 'centroidPos' | 'touchingFS' | 'numFaces' | 'NN_centoridPos' | 'NN_touchingFS'
 % ###############################################################
-function grain_ForCal = filterGrains(criterion, facelabel, num_of_neigh, neighborList, X,Y,Z, centroids, grain_diameter_raw)
+
+% ----- V6 data -----
+FLs = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels'));
+num_of_neigh = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors')).';
+neighborList = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NeighborList'));
+centroids = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/Centroids')).';
+grain_diameter_raw = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/EquivalentDiameters')).';
+num_of_neigh(1) = []; centroids(1, :) = []; grain_diameter_raw(1) = [];
+% ----- V4 data -----
+% facelabel = double(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceLabels'));
+% num_of_neigh = double(h5read(file,'/VoxelDataContainer/FIELD_DATA/NumNeighbors'));
+% neighborList = double(h5read(file,'/VoxelDataContainer/FIELD_DATA/NeighborList'));
+% centroids = double(h5read(file,'/VoxelDataContainer/FIELD_DATA/Centroids'))';
+% grain_diameter_raw = double(h5read(file,'/VoxelDataContainer/FIELD_DATA/EquivalentDiameters'));
+% num_of_neigh(1) = []; centroids(1, :) = []; grain_diameter_raw(1) = [];
+
 
 delete_bool = ones(length(centroids),1);
 try 
     if strcmp(criterion,'numFaces')   
         % get the Ids of Grains contacting the outer surface: by triangle label
-        boolean1 = (facelabel(1,:) <= 0 | facelabel(2,:) <= 0);
-        facelabel_freeSurf = facelabel(:,boolean1);
+        boolean1 = (FLs(1,:) <= 0 | FLs(2,:) <= 0);
+        facelabel_freeSurf = FLs(:,boolean1);
         outer_ind = unique(facelabel_freeSurf);
         outer_ind(outer_ind <= 0) = [];
         % if the grain contacts the outer side and has less than the threshold number of faces, delete
@@ -19,8 +35,8 @@ try
             end
         end
     elseif strcmp(criterion,'touchingFS') 
-        boolean1 = (facelabel(1,:) <= 0 | facelabel(2,:) <= 0);
-        facelabel_freeSurf = facelabel(:,boolean1);
+        boolean1 = (FLs(1,:) <= 0 | FLs(2,:) <= 0);
+        facelabel_freeSurf = FLs(:,boolean1);
         outer_ind = unique(facelabel_freeSurf);
         outer_ind(outer_ind <= 0) = [];
 
@@ -69,8 +85,8 @@ try
             end
         end
     elseif strcmp(criterion,'NN_touchingFS') 
-        boolean1 = (facelabel(1,:) <= 0 | facelabel(2,:) <= 0);
-        facelabel_freeSurf = facelabel(:,boolean1);
+        boolean1 = (FLs(1,:) <= 0 | FLs(2,:) <= 0);
+        facelabel_freeSurf = FLs(:,boolean1);
         outer_ind = unique(facelabel_freeSurf);
         outer_ind(outer_ind <= 0) = [];
 
@@ -98,13 +114,5 @@ delete_bool = logical(delete_bool);
 
 ID_list = (1:length(grain_diameter_raw)).';
 ID_ForCal = ID_list(delete_bool);
-D_ForCal = grain_diameter_raw(delete_bool);
-NNeigh_ForCal = num_of_neigh(delete_bool);
-numEdges = calcNumEdges(num_of_neigh, neighborList);
-numEdges_ForCal = numEdges(delete_bool);
 
-% % V6
-% grain_ForCal = [ID_ForCal,D_ForCal.',NNeigh_ForCal.'];
-% V4
-grain_ForCal = [ID_ForCal, D_ForCal, NNeigh_ForCal, numEdges_ForCal];
 end

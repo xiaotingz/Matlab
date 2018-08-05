@@ -114,7 +114,76 @@ unique(faceIDs(mask))
 
 
 
+clc
 
+
+file_An4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_mesh.dream3d');
+file_An5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_mesh.dream3d');
+
+FL_An4 = h5read(file_An4, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
+FL_An5 = h5read(file_An5, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
+faceId_An4 = h5read(file_An4, '/DataContainers/TriangleDataContainer/FaceData/FeatureFaceId')';
+faceId_An5 = h5read(file_An5, '/DataContainers/TriangleDataContainer/FaceData/FeatureFaceId')';
+
+
+tmp = [(1:length(FCentrs_diff))', FCentrs_diff];
+sortTmp = sortrows(tmp, -2);
+
+
+objFace = 1;
+objLabel_An5 = trackedFL_An5(sortTmp(objFace, 1), :);
+mask = (FL_An5(:,1) == objLabel_An5(1) & FL_An5(:,2) == objLabel_An5(2));
+unique(FL_An5(mask, :), 'rows')
+unique(faceId_An5(mask))
+
+objLabel_An4 = trackedFL_An4(sortTmp(objFace, 1), :);
+mask = (FL_An4(:,1) == objLabel_An4(1) & FL_An4(:,2) == objLabel_An4(2));
+unique(FL_An4(mask, :), 'rows')
+unique(faceId_An4(mask))
+
+
+
+%% ##### get FeatureFaceId for the faces whose centroids moved the most #####
+clc
+
+file_An4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_mesh.dream3d');
+file_An5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_mesh.dream3d');
+
+faceId_An4 = h5read(file_An4, '/DataContainers/TriangleDataContainer/FaceFeatureData/FaceLabels')';
+faceId_An5 = h5read(file_An5, '/DataContainers/TriangleDataContainer/FaceFeatureData/FaceLabels')';
+nTris_An4 = h5read(file_An4, '/DataContainers/TriangleDataContainer/FaceFeatureData/NumTriangles')';
+nTris_An5 = h5read(file_An5, '/DataContainers/TriangleDataContainer/FaceFeatureData/NumTriangles')';
+SG_An4 = h5read(file_An4,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
+SG_An5 = h5read(file_An5,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
+faceId_An4(1,:) = [];
+faceId_An5(1,:) = [];
+faceId_An4 = sort(faceId_An4, 2);
+faceId_An5 = sort(faceId_An5, 2);
+SG_An4(1) = [];
+SG_An5(1) = [];
+
+tmp = [(1:length(FCentrs_diff))', FCentrs_diff];
+sortTmp = sortrows(tmp, -2);
+
+cond = true;
+while cond
+    objFace = round(rand()*14000);
+    trackedFL_An4 = sort(trackedFL_An4, 2);
+
+    objLabel_An4 = trackedFL_An4(sortTmp(objFace, 1), :);
+    [idx_An4, ~] = find(faceId_An4(:,1) == objLabel_An4(1) & faceId_An4(:,2) == objLabel_An4(2));
+    objLabel_An5 = trackedFL_An5(sortTmp(objFace, 1), :);
+    [idx_An5, ~] = find((faceId_An5(:,1) == objLabel_An5(1) & faceId_An5(:,2) == objLabel_An5(2)) | (faceId_An5(:,1) == objLabel_An5(2) & faceId_An5(:,2) == objLabel_An5(1)));
+    if ~isempty(faceId_An4(idx_An4, :)) && ~isempty(faceId_An5(idx_An5, :))
+        cond1 = any([SG_An4(faceId_An4(idx_An4, :)); SG_An5(faceId_An5(idx_An5, :))]==1);
+        cond2 = (nTris_An4(idx_An4)<300 || nTris_An5(idx_An5)<300);
+        cond = (cond1 || cond2);
+    end
+end
+disp(['FaceId in An4:   ', num2str(idx_An4), ',   size=', num2str(nTris_An4(idx_An4))])
+disp(['FaceLabel in An4:  [', num2str(faceId_An4(idx_An4, :)), ']', ]);
+disp(['FaceId in An5:   ', num2str(idx_An5), ',   size=', num2str(nTris_An5(idx_An5))])
+disp(['FaceLabel in An5:  [', num2str(faceId_An5(idx_An5, :)), ']', ]);
 
 
 
