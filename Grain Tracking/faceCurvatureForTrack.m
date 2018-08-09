@@ -1,4 +1,4 @@
-function faceCurves = faceCurvatureForTrack(file, faces)
+function faceCurves = FaceCurvatureForTrack(file, faces)
 % ##########################################################################
 % * Input
 %     - faces([N,2]) and faceCorresp([N,1]) is returned by the function 'TrackFace'

@@ -1,4 +1,4 @@
-function UFcorresp = TrackUniqueFace(UF_1, UF_2, lookUp)
+function UFcorresp = trackUniqueFace(UF_1, UF_2, lookUp)
 % ###########################################################################
 % * Very similar to TrackFace, except that the input is the uniqueFaces.
 % * Input

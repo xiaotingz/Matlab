@@ -1,4 +1,4 @@
-function [faceCoords, UFlabels] = makeFaceCoords(file)
+function [face_coords, unique_facelabel] = makeFaceCoords(file)
 % ##########################################################################
 % * Input
 %     - faces([N,2]) and faceCorresp([N,1]) is returned by the function 'TrackFace'
@@ -39,26 +39,26 @@ data = [FL, zeros(length(FL), 1), triNodes];
 data = sortrows(data);
 
 % ##### record facelabels to for tracking of faces #####
-UFlabels = [];
+unique_facelabel = [];
 % ##### make the {m, n_i, 3} cell #####
 idx_Coords = 1;
 idx_Info = 1;
 faceNodes = [];
-faceCoords = {};
+face_coords = {};
 for i = 1:length(data)-1
     if data(i, 1) == data(i+1, 1) && data(i, 2) == data(i+1, 2)
         faceNodes = [faceNodes; data(i, 4:6)];
     else
         faceNodes = [faceNodes; data(i, 4:6)];
-        faceCoords{idx_Coords} = num2cell(NCoords(faceNodes,:));
-        UFlabels = [UFlabels, data(i, 1:2)];
+        face_coords{idx_Coords} = num2cell(NCoords(faceNodes,:));
+        unique_facelabel = [unique_facelabel, data(i, 1:2)];
         idx_Coords = idx_Coords + 1;
         faceNodes = [];
     end
 end
 faceNodes = [faceNodes; data(i, 4:6)];
-faceCoords{idx_Coords} = num2cell(NCoords(faceNodes,:));
-UFlabels = [UFlabels, data(i, 1:2)];
+face_coords{idx_Coords} = num2cell(NCoords(faceNodes,:));
+unique_facelabel = [unique_facelabel, data(i, 1:2)];
 end
 
 

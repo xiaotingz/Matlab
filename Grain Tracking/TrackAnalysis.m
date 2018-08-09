@@ -1,60 +1,60 @@
-data = [faceCorresp, FA_diff, FCurv_diff];
+%% ##### Make a easy to check dictionary #####
+data = [face_corresp, face_area_diff, FCurv_diff];
 data = sortrows(data, [4, 3]);
 
-faceMap_An4 = containers.Map(faceCorresp(:,1), num2cell(faces_An4(faceCorresp(:,1),:),2));
-faceMap_An5 = containers.Map(faceCorresp(:,2), num2cell(faces_An5(faceCorresp(:,2),:),2));
-
+face_map_An4 = containers.map(face_corresp(:,1), num2cell(faces_an4(face_corresp(:,1),:),2));
+face_map_An5 = containers.map(face_corresp(:,2), num2cell(faces_an5(face_corresp(:,2),:),2));
 
 %% ##### The Complete Tracked Grains #####
-SG_An4 = h5read(file_An4,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
-SG_An5 = h5read(file_An5,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
-SG_An4(1) = [];
-SG_An5(1) = [];
+surf_grain_an4 = h5read(file_an4,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
+surf_grain_an5 = h5read(file_an5,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
+surf_grain_an4(1) = [];
+surf_grain_an5(1) = [];
 
-mask_lookUp = logical([SG_An4(lookUp(:,1)), SG_An5(lookUp(:,2))]);
-lookUp_CG = lookUp(all(~mask_lookUp, 2), :);
+mask_lookup = logical([surf_grain_an4(look_up_table(:,1)), surf_grain_an5(look_up_table(:,2))]);
+lookup_CG = look_up_table(all(~mask_lookup, 2), :);
 
 
 %% ##### The Grains that growed from being inner to touch surface #####
-[faces_An4, faces_An5, faceCorresp_AllF] = TrackFace(file_An4, file_An5, lookUp, false);
-faceInfo_all = [faces_An4(faceCorresp_AllF(:,1),:), faces_An5(faceCorresp_AllF(:,2),:)];
+[faces_an4, faces_n5, face_corresp_all] = TrackFace(file_an4, file_an5, look_up_table, false);
+faceInfo_all = [faces_an4(face_corresp_all(:,1),:), faces_an5(face_corresp_all(:,2),:)];
 
-SG_An4 = h5read(file_An4,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
-SG_An5 = h5read(file_An5,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
-SG_An4(1) = [];
-SG_An5(1) = [];
-SGinfo_all = [SG_An4(faceInfo_all(:,1:2)), SG_An5(faceInfo_all(:,3:4))];
+surf_grain_an4 = h5read(file_an4,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
+surf_grain_an5 = h5read(file_an5,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
+surf_grain_an4(1) = [];
+surf_grain_an5(1) = [];
+surf_grain_info_all = [surf_grain_an4(faceInfo_all(:,1:2)), surf_grain_an5(faceInfo_all(:,3:4))];
 
 % tmp1 = (SGinfo_all(:,1)==1 & SGinfo_all(:,2)==1 & SGinfo_all(:,3)==0 & SGinfo_all(:,4)==0);
-tmp2 = (SGinfo_all(:,1)==0 & SGinfo_all(:,2)==0 & SGinfo_all(:,3)==1 & SGinfo_all(:,4)==1);
-mask_growToSurf = tmp2;
+tmp2 = (surf_grain_info_all(:,1)==0 & surf_grain_info_all(:,2)==0 & surf_grain_info_all(:,3)==1 & surf_grain_info_all(:,4)==1);
+mask_growtosurf = tmp2;
 
 % FItgCurvs_An4 = faceCurvatureForTrack(file_An4, faces_An4);
 % FItgCurvs_An5 = faceCurvatureForTrack(file_An5, faces_An5);
-diff_tmp = FItgCurvs_An5(faceCorresp_AllF(:,2),:) - FItgCurvs_An4(faceCorresp_AllF(:,1),:);
-FA_diff = diff_tmp(mask_growToSurf,1);
+diff_tmp = face_integ_curv_an5(face_corresp_all(:,2),:) - face_integ_curv_an4(face_corresp_all(:,1),:);
+face_area_diff = diff_tmp(mask_growtosurf,1);
 
 
 %% ##### Plot Triangle Curvature Distribution #####
 set(0,'defaultAxesLabelFontSize',1.1)
 set(0,'defaultAxesFontSize',19)
 
-FL_An4 = double(h5read(file_An4,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
-triCurves_An4 =  abs(roundn(h5read(file_An4,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5)).';
-mask_An4 = ~(any(FL_An4 <= 0, 2) | triCurves_An4 > 100);
-triCurves_An4 = triCurves_An4(mask_An4);
-FL_An5 = double(h5read(file_An5,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
-triCurves_An5 =  abs(roundn(h5read(file_An5,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5)).';
-mask_An5 = ~(any(FL_An5 <= 0, 2) | triCurves_An5 > 100);
-triCurves_An5 = triCurves_An5(mask_An5);
+face_label_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
+tri_curve_an4 =  abs(roundn(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5)).';
+mask_an4 = ~(any(face_label_an4 <= 0, 2) | tri_curve_an4 > 100);
+tri_curve_an4 = tri_curve_an4(mask_an4);
+face_label_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
+tri_curve_an5 =  abs(roundn(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5)).';
+mask_an5 = ~(any(face_label_an5 <= 0, 2) | tri_curve_an5 > 100);
+tri_curve_an5 = tri_curve_an5(mask_an5);
 
-histogram(triCurves_An4,100)
+histogram(tri_curve_an4,100)
 hold on
-histogram(triCurves_An5,100)
+histogram(tri_curve_an5,100)
 set(gca, 'YScale', 'log')
-aveTriCurv_An4 = sum(triCurves_An4)/length(triCurves_An4);
-aveTriCurv_An5 = sum(triCurves_An5)/length(triCurves_An4);
-legend(['aveTriCurv, An4 = ', num2str(aveTriCurv_An4)], ['aveTriCurv, An5 = ', num2str(aveTriCurv_An5)])
+avg_tri_curv_an4 = sum(tri_curve_an4)/length(tri_curve_an4);
+avg_tri_curv_an5 = sum(tri_curve_an5)/length(tri_curve_an4);
+legend(['aveTriCurv, An4 = ', num2str(avg_tri_curv_an4)], ['aveTriCurv, An5 = ', num2str(avg_tri_curv_an5)])
 xlabel('Triangle Curvature, \mum^{-1}')
 ylabel('# Triangles')
 
@@ -63,127 +63,130 @@ ylabel('# Triangles')
 % get the coords of one face pair
 
 idx = 1;
-idx_An4 = faceCorresp(idx, 1);
-idx_An5 = faceCorresp(idx, 2);
-label_An4 = faces_An4(idx_An4, :);
-label_An5 = faces_An5(idx_An5, :);
+idx_an4 = face_corresp(idx, 1);
+idx_an5 = face_corresp(idx, 2);
+label_an4 = faces_an4(idx_an4, :);
+label_an5 = faces_an5(idx_an5, :);
 
-FL_An4 = double(h5read(file_An4,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
-triNodes_An4 = 1 + double(h5read(file_An4,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList'))';
-NCoords_An4 = double(h5read(file_An4,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedVertexList'))';
-FL_An5 = double(h5read(file_An5,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
-triNodes_An5 = 1 + double(h5read(file_An5,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList'))';
-NCoords_An5 = double(h5read(file_An5,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedVertexList'))';
+face_label_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
+tri_nodes_an4 = 1 + double(h5read(file_an4,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList'))';
+num_coords_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedVertexList'))';
+face_label_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
+tri_nodes_an5 = 1 + double(h5read(file_an5,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList'))';
+num_coords_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedVertexList'))';
 
-mask_An4 = ((FL_An4(:,1) == label_An4(1) & FL_An4(:,2) == label_An4(2)) | (FL_An4(:,1) == label_An4(2) & FL_An4(:,2) == label_An4(1)));
-mask_An5 = ((FL_An5(:,1) == label_An5(1) & FL_An5(:,2) == label_An5(2)) | (FL_An5(:,1) == label_An5(2) & FL_An5(:,2) == label_An5(1)));
+mask_an4 = ((face_label_an4(:,1) == label_an4(1) & face_label_an4(:,2) == label_an4(2)) | (face_label_an4(:,1) == label_an4(2) & face_label_an4(:,2) == label_an4(1)));
+mask_an5 = ((face_label_an5(:,1) == label_an5(1) & face_label_an5(:,2) == label_an5(2)) | (face_label_an5(:,1) == label_an5(2) & face_label_an5(:,2) == label_an5(1)));
 
-thisFaceNodes_An4 = triNodes_An4(mask_An4,:);
-thisFaceNodes_An5 = triNodes_An5(mask_An5,:);
-thisFaceNodes_An4 = reshape(thisFaceNodes_An4, [], 1);
-thisFaceNodes_An5 = reshape(thisFaceNodes_An5, [], 1);
-triNodeCoords_An4 = NCoords_An4(thisFaceNodes_An4,:);
-triNodeCoords_An5 = NCoords_An5(thisFaceNodes_An5,:);
+this_face_nodes_an4 = tri_nodes_an4(mask_an4,:);
+this_face_nodes_an5 = tri_nodes_an5(mask_an5,:);
+this_face_nodes_an4 = reshape(this_face_nodes_an4, [], 1);
+this_face_nodes_an5 = reshape(this_face_nodes_an5, [], 1);
+tri_node_coords_an4 = num_coords_an4(this_face_nodes_an4,:);
+tri_node_coords_an5 = num_coords_an5(this_face_nodes_an5,:);
 
-tmpNodes_An4 = triNodes_An4(mask_An4,:);
-tmpNodes_An5 = triNodes_An5(mask_An5,:);
+tmp_nodes_an4 = tri_nodes_an4(mask_an4,:);
+tmp_nodes_an5 = tri_nodes_an5(mask_an5,:);
 %%
-trisurf( tmpNodes_An4, NCoords_An4(:,1), NCoords_An4(:,2), NCoords_An4(:,3) );
+trisurf( tmp_nodes_an4, num_coords_an4(:,1), num_coords_an4(:,2), num_coords_an4(:,3) );
 rotate3d on
 hold on
-trisurf( tmpNodes_An5, NCoords_An5(:,1), NCoords_An5(:,2), NCoords_An5(:,3),'Facecolor',[218/255 168/255 32/255] );
+trisurf( tmp_nodes_an5, num_coords_an5(:,1), num_coords_an5(:,2), num_coords_an5(:,3),'Facecolor',[218/255 168/255 32/255] );
 rotate3d on
 
 
 
 
 %% ##### Find the faceID of a face between two grains #####
-[~, ~, faceCorresp_CF] = TrackFace(file_An4, file_An5, lookUp, true);
+[~, ~, faceCorresp_CF] = TrackFace(file_an4, file_an5, look_up_table, true);
 
-faceInfo_CF = [C_An4, faces_An4(faceCorresp_CF(:,1),:)];
-faceInfo_CF = sortrows(faceInfo_CF);
+face_info_CF = [C_An4, faces_an4(faceCorresp_CF(:,1),:)];
+face_info_CF = sortrows(face_info_CF);
 
-faceIDs = h5read(file_An4, '/DataContainers/TriangleDataContainer/FaceData/FeatureFaceId')';
-FL = h5read(file_An4, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
+face_id = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/FeatureFaceId')';
+face_label = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
 
-GA = faceInfo_CF(68,2)
-GB = faceInfo_CF(68,3)
-mask = ((FL(:,1) == GA & FL(:,2) == GB) | (FL(:,1) == GB & FL(:,2) == GA));
-unique(faceIDs(mask))
-
-
+GA = face_info_CF(68,2)
+GB = face_info_CF(68,3)
+mask = ((face_label(:,1) == GA & face_label(:,2) == GB) | (face_label(:,1) == GB & face_label(:,2) == GA));
+unique(face_id(mask))
 
 
 clc
 
 
-file_An4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_mesh.dream3d');
-file_An5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_mesh.dream3d');
+file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_mesh.dream3d');
+file_an5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_mesh.dream3d');
 
-FL_An4 = h5read(file_An4, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
-FL_An5 = h5read(file_An5, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
-faceId_An4 = h5read(file_An4, '/DataContainers/TriangleDataContainer/FaceData/FeatureFaceId')';
-faceId_An5 = h5read(file_An5, '/DataContainers/TriangleDataContainer/FaceData/FeatureFaceId')';
+face_label_an4 = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
+face_label_an5 = h5read(file_an5, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
+face_id_an4 = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/FeatureFaceId')';
+face_id_an5 = h5read(file_an5, '/DataContainers/TriangleDataContainer/FaceData/FeatureFaceId')';
 
 
 tmp = [(1:length(FCentrs_diff))', FCentrs_diff];
-sortTmp = sortrows(tmp, -2);
+sort_tmp = sortrows(tmp, -2);
 
 
-objFace = 1;
-objLabel_An5 = trackedFL_An5(sortTmp(objFace, 1), :);
-mask = (FL_An5(:,1) == objLabel_An5(1) & FL_An5(:,2) == objLabel_An5(2));
-unique(FL_An5(mask, :), 'rows')
-unique(faceId_An5(mask))
+obj_face = 1;
+obj_label_an5 = tracked_facelabel_an5(sort_tmp(obj_face, 1), :);
+mask = (face_label_an5(:,1) == obj_label_an5(1) & face_label_an5(:,2) == obj_label_an5(2));
+unique(face_label_an5(mask, :), 'rows')
+unique(face_id_an5(mask))
 
-objLabel_An4 = trackedFL_An4(sortTmp(objFace, 1), :);
-mask = (FL_An4(:,1) == objLabel_An4(1) & FL_An4(:,2) == objLabel_An4(2));
-unique(FL_An4(mask, :), 'rows')
-unique(faceId_An4(mask))
+obj_label_an4 = tracked_facelabel_an4(sort_tmp(obj_face, 1), :);
+mask = (face_label_an4(:,1) == obj_label_an4(1) & face_label_an4(:,2) == obj_label_an4(2));
+unique(face_label_an4(mask, :), 'rows')
+unique(face_id_an4(mask))
 
 
 
-%% ##### get FeatureFaceId for the faces whose centroids moved the most #####
+%% ##### get FeatureFaceId for the faces satisfying a certain condition #####
 clc
 
-file_An4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_mesh.dream3d');
-file_An5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_mesh.dream3d');
+file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_mesh.dream3d');
+file_an5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_mesh.dream3d');
 
-faceId_An4 = h5read(file_An4, '/DataContainers/TriangleDataContainer/FaceFeatureData/FaceLabels')';
-faceId_An5 = h5read(file_An5, '/DataContainers/TriangleDataContainer/FaceFeatureData/FaceLabels')';
-nTris_An4 = h5read(file_An4, '/DataContainers/TriangleDataContainer/FaceFeatureData/NumTriangles')';
-nTris_An5 = h5read(file_An5, '/DataContainers/TriangleDataContainer/FaceFeatureData/NumTriangles')';
-SG_An4 = h5read(file_An4,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
-SG_An5 = h5read(file_An5,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
-faceId_An4(1,:) = [];
-faceId_An5(1,:) = [];
-faceId_An4 = sort(faceId_An4, 2);
-faceId_An5 = sort(faceId_An5, 2);
-SG_An4(1) = [];
-SG_An5(1) = [];
+face_id_an4 = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceFeatureData/FaceLabels')';
+face_id_an5 = h5read(file_an5, '/DataContainers/TriangleDataContainer/FaceFeatureData/FaceLabels')';
+num_tri_an4 = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceFeatureData/NumTriangles')';
+num_tri_an5 = h5read(file_an5, '/DataContainers/TriangleDataContainer/FaceFeatureData/NumTriangles')';
+surf_grain_an4 = h5read(file_an4,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
+surf_grain_an5 = h5read(file_an5,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
+face_id_an4(1,:) = [];
+face_id_an5(1,:) = [];
+face_id_an4 = sort(face_id_an4, 2);
+face_id_an5 = sort(face_id_an5, 2);
+surf_grain_an4(1) = [];
+surf_grain_an5(1) = [];
 
 tmp = [(1:length(FCentrs_diff))', FCentrs_diff];
-sortTmp = sortrows(tmp, -2);
+sort_tmp = sortrows(tmp, -2);
 
 cond = true;
 while cond
-    objFace = round(rand()*14000);
+    obj_face = round(rand()*14008);
     trackedFL_An4 = sort(trackedFL_An4, 2);
 
-    objLabel_An4 = trackedFL_An4(sortTmp(objFace, 1), :);
-    [idx_An4, ~] = find(faceId_An4(:,1) == objLabel_An4(1) & faceId_An4(:,2) == objLabel_An4(2));
-    objLabel_An5 = trackedFL_An5(sortTmp(objFace, 1), :);
-    [idx_An5, ~] = find((faceId_An5(:,1) == objLabel_An5(1) & faceId_An5(:,2) == objLabel_An5(2)) | (faceId_An5(:,1) == objLabel_An5(2) & faceId_An5(:,2) == objLabel_An5(1)));
-    if ~isempty(faceId_An4(idx_An4, :)) && ~isempty(faceId_An5(idx_An5, :))
-        cond1 = any([SG_An4(faceId_An4(idx_An4, :)); SG_An5(faceId_An5(idx_An5, :))]==1);
-        cond2 = (nTris_An4(idx_An4)<300 || nTris_An5(idx_An5)<300);
-        cond = (cond1 || cond2);
+    obj_label_an4 = trackedFL_An4(sort_tmp(obj_face, 1), :);
+    [idx_an4, ~] = find(face_id_an4(:,1) == obj_label_an4(1) & face_id_an4(:,2) == obj_label_an4(2));
+    obj_label_an5 = trackedFL_An5(sort_tmp(obj_face, 1), :);
+    [idx_an5, ~] = find((face_id_an5(:,1) == obj_label_an5(1) & face_id_an5(:,2) == obj_label_an5(2)) | (face_id_an5(:,1) == obj_label_an5(2) & face_id_an5(:,2) == obj_label_an5(1)));
+    if ~isempty(face_id_an4(idx_an4, :)) && ~isempty(face_id_an5(idx_an5, :))
+        cond1 = any([surf_grain_an4(face_id_an4(idx_an4, :)); surf_grain_an5(face_id_an5(idx_an5, :))]==1);
+        cond2 = (num_tri_an4(idx_an4)>300 || num_tri_an5(idx_an5)>300);
+%         cond = (cond1 || cond2);
+        numTri_diff = abs(num_tri_an4(idx_an4) - num_tri_an4(idx_an4));
+        cond3 = numTri_diff > 0.5*num_tri_an4(idx_an4) || numTri_diff > 0.5*num_tri_an5(idx_an5);
+        cond = (cond1 || cond2 || cond3);
     end
 end
-disp(['FaceId in An4:   ', num2str(idx_An4), ',   size=', num2str(nTris_An4(idx_An4))])
-disp(['FaceLabel in An4:  [', num2str(faceId_An4(idx_An4, :)), ']', ]);
-disp(['FaceId in An5:   ', num2str(idx_An5), ',   size=', num2str(nTris_An5(idx_An5))])
-disp(['FaceLabel in An5:  [', num2str(faceId_An5(idx_An5, :)), ']', ]);
+disp(['FaceId in An4:   ', num2str(idx_an4), ',   size=', num2str(num_tri_an4(idx_an4))])
+disp(['FaceLabel in An4:  [', num2str(face_id_an4(idx_an4, :)), ']', ]);
+disp(['FaceId in An5:   ', num2str(idx_an5), ',   size=', num2str(num_tri_an5(idx_an5))])
+disp(['FaceLabel in An5:  [', num2str(face_id_an5(idx_an5, :)), ']', ]);
+
+
 
 
 
