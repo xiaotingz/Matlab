@@ -23,41 +23,40 @@ function [face_coords, unique_facelabel] = makeFaceCoords(file)
 % faces = faces_An5;
 % ---------------------------------------------------------------
 
-FL = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
+facelabel = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
     % -- NOTE triNodes are indexes starting from zero 
-triNodes = 1 + double(h5read(file,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList'))';
-NCoords = double(h5read(file,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedVertexList'))';
+tri_node = 1 + double(h5read(file,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList'))';
+node_coord = double(h5read(file,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedVertexList'))';
 
 % ##### filter bad data #####
-mask = all(FL > 0, 2);
-FL = FL(mask,:);
-triNodes = triNodes(mask,:);
+mask = all(facelabel > 0, 2);
+facelabel = facelabel(mask,:);
+tri_node = tri_node(mask,:);
 
 % ##### sort triangle data (node coords) by facelabel. #####
-FL = sort(FL, 2);
-data = [FL, zeros(length(FL), 1), triNodes];
+facelabel = sort(facelabel, 2);
+data = [facelabel, zeros(length(facelabel), 1), tri_node];
 data = sortrows(data);
 
 % ##### record facelabels to for tracking of faces #####
 unique_facelabel = [];
 % ##### make the {m, n_i, 3} cell #####
-idx_Coords = 1;
-idx_Info = 1;
-faceNodes = [];
+idx_coords = 1;
+face_nodes = [];
 face_coords = {};
 for i = 1:length(data)-1
     if data(i, 1) == data(i+1, 1) && data(i, 2) == data(i+1, 2)
-        faceNodes = [faceNodes; data(i, 4:6)];
+        face_nodes = [face_nodes; data(i, 4:6)];
     else
-        faceNodes = [faceNodes; data(i, 4:6)];
-        face_coords{idx_Coords} = num2cell(NCoords(faceNodes,:));
+        face_nodes = [face_nodes; data(i, 4:6)];
+        face_coords{idx_coords} = num2cell(node_coord(face_nodes,:));
         unique_facelabel = [unique_facelabel, data(i, 1:2)];
-        idx_Coords = idx_Coords + 1;
-        faceNodes = [];
+        idx_coords = idx_coords + 1;
+        face_nodes = [];
     end
 end
-faceNodes = [faceNodes; data(i, 4:6)];
-face_coords{idx_Coords} = num2cell(NCoords(faceNodes,:));
+face_nodes = [face_nodes; data(i, 4:6)];
+face_coords{idx_coords} = num2cell(node_coord(face_nodes,:));
 unique_facelabel = [unique_facelabel, data(i, 1:2)];
 end
 

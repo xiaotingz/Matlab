@@ -15,7 +15,7 @@ mask_lookup = logical([surf_grain_an4(look_up_table(:,1)), surf_grain_an5(look_u
 lookup_CG = look_up_table(all(~mask_lookup, 2), :);
 
 
-%% ##### The Grains that growed from being inner to touch surface #####
+%% ##### The Grains that Growed From Being Inner to Touch Surface #####
 [faces_an4, faces_n5, face_corresp_all] = TrackFace(file_an4, file_an5, look_up_table, false);
 faceInfo_all = [faces_an4(face_corresp_all(:,1),:), faces_an5(face_corresp_all(:,2),:)];
 
@@ -87,7 +87,9 @@ tri_node_coords_an5 = num_coords_an5(this_face_nodes_an5,:);
 
 tmp_nodes_an4 = tri_nodes_an4(mask_an4,:);
 tmp_nodes_an5 = tri_nodes_an5(mask_an5,:);
-%%
+
+
+%% ##### Visualize Grain Face in MATLAB #####
 trisurf( tmp_nodes_an4, num_coords_an4(:,1), num_coords_an4(:,2), num_coords_an4(:,3) );
 rotate3d on
 hold on
@@ -97,7 +99,7 @@ rotate3d on
 
 
 
-%% ##### Find the faceID of a face between two grains #####
+%% ##### Find the FaceID of A Face Between Two Grains #####
 [~, ~, faceCorresp_CF] = TrackFace(file_an4, file_an5, look_up_table, true);
 
 face_info_CF = [C_An4, faces_an4(faceCorresp_CF(:,1),:)];
@@ -141,7 +143,7 @@ unique(face_id_an4(mask))
 
 
 
-%% ##### get FeatureFaceId for the faces satisfying a certain condition #####
+%% ##### Get FeatureFaceId for the Faces Satisfying a Certain Condition #####
 clc
 
 file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_mesh.dream3d');
@@ -185,6 +187,17 @@ disp(['FaceId in An4:   ', num2str(idx_an4), ',   size=', num2str(num_tri_an4(id
 disp(['FaceLabel in An4:  [', num2str(face_id_an4(idx_an4, :)), ']', ]);
 disp(['FaceId in An5:   ', num2str(idx_an5), ',   size=', num2str(num_tri_an5(idx_an5))])
 disp(['FaceLabel in An5:  [', num2str(face_id_an5(idx_an5, :)), ']', ]);
+
+
+
+%%
+% [face_coords_an4, unique_facelabel_an4] = makeFaceCoords(file_an4);
+% [face_coords_an5, unique_facelabel_an5] = makeFaceCoords(file_an5);
+% unique_facelabel_corresp = trackUniqueFace(unique_facelabel_an4, unique_facelabel_an5, look_up_table);
+
+
+
+
 
 
 
