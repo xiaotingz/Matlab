@@ -50,7 +50,7 @@ face_node_coord_2 = node_coord_2(face_node_id_2,:);
 
 % ##### get node types of the objective triangles #####
 face_node_type_1 = node_type_1(face_node_id_1, :);
-face_node_type_2 = node_type_1(face_node_id_2, :);
+face_node_type_2 = node_type_2(face_node_id_2, :);
 
 % ##### write data #####
 face_node_info = cell(4,2);

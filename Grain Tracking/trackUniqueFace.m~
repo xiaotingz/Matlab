@@ -84,5 +84,5 @@ function [tracked_uniqueface_1, tracked_uniqueface_2] = trackUniqueFace(file_1, 
     unique_facelabel_corresp = sortrows(unique_facelabel_corresp, 2);
     
     tracked_uniqueface_1 = unique_facelabel_1(unique_facelabel_corresp(:,1), 2:3);
-    tracked_uniqueface_2 = unique_facelabel_2(unique_facelabel_corresp(:,2), :);
+    tracked_unique_face{1,2} = unique_facelabel_2(unique_facelabel_corresp(:,2), :);
 end

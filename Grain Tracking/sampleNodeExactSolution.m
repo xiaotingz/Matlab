@@ -8,7 +8,7 @@
 %     - make sure samples are aligned by changing ORIGIN.
 %     - the ideal is to make the points distribute as uniform as possible.
 %     The problem is the p-dispersion problem. The objective function is
-%     written as max(min(D)). See: Discrete Network Location Models by John Current
+%     written as max(min(D)). 
 % ##########################################################################
 % ----------------------- load debug data -----------------------
 load('node_coord.mat');
