@@ -48,7 +48,9 @@ end
 
 
 %% ##### Visualize Face Correspondences #####
-idx = small_face(randi(length(small_face)));
+% idx = small_face(randi(length(small_face)));
+idx = 654;
+
 obj_facelabel_an4 = tracked_uniqueface_an4(idx, :);
 obj_facelabel_an5 = tracked_uniqueface_an5(idx, :);
 
