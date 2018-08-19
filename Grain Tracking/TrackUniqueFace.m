@@ -8,7 +8,9 @@ function [tracked_uniqueface_1, tracked_uniqueface_2] = trackUniqueFace(file_1, 
 %         =0 --> all faces; 
 %         =1 --> the tracked faces are complete in both anneal states
 % * Output
-%     - UFcorresp = [faceID_state1, faceID_state2]
+%     - tracked_uniqueface_1 and tracked_uniqueface_2 = [m, 2]
+%         m is the number of unique facesd. The two arrays have been sorted
+%         such that every row corresponds to the same face. 
 %         this correspondence can be applied to faceCoords directly.
 % ###########################################################################
 % ------------------ load data for debug --------------------

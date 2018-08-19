@@ -45,3 +45,13 @@ for i = 1:n
     X_to_Y{i} = int32(x_to_y);
     Y_to_X{i} = int32(y_to_x);
 end
+
+
+%% ##### Visualize Face Correspondences #####
+idx = small_face(randi(length(small_face)));
+obj_facelabel_an4 = tracked_uniqueface_an4(idx, :);
+obj_facelabel_an5 = tracked_uniqueface_an5(idx, :);
+
+face_node_info = getSingleFaceNodes(file_an4, obj_facelabel_an4, file_an5, obj_facelabel_an5);
+figure(1)
+visualizeFace(face_node_info, face_node_info{4,1}, face_node_info{4,2}, X_to_Y{idx})
