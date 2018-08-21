@@ -1,0 +1,90 @@
+%%  ##### MATLAB Simple Examples #####
+mu = [1 -1];
+
+% ##### A Corner-Shape Surface #####
+SIGMA = [.9 .4; .4 .3];
+[x,y] = meshgrid(linspace(-1,3,25)',linspace(-3,1,25)');
+x = x(:);
+y = y(:);
+z = 4 * mvncdf([x y],mu,SIGMA);
+tri = delaunay(x, y);
+% ##### A Ribbon-Shape Surface #####
+% SIGMA = [.6 .2; .2 .3];
+% [x, y] = meshgrid(linspace(-3,3,30)',linspace(0,2,10)');
+% z = mvncdf([x y],mu,SIGMA);
+% tri = delaunay(x, y);
+
+tri_mesh = triangulation(tri, [x y, z(:)]);
+tri_center = incenter(tri_mesh);
+tri_normal = faceNormal(tri_mesh);
+
+tri_migration = sum(z(tri),2)/3 * [0,0,1];
+tri_migration_project = dot(tri_migration, tri_normal, 2);
+
+avg_migration = sum(tri_migration(:,3))/length(tri_migration);
+% ----- projection = dot(a,b)/|b|, |b|=1 in this case -----
+avg_migration_project = sum(tri_migration_project)/length(tri_migration);
+avg_migration_diff = avg_migration - avg_migration_project;
+
+
+% ##### Alpha Shape #####
+x_full = [x; x];
+y_full = [y; y];
+z_full = [z; zeros(length(x), 1)];
+% shp = alphaShape(x_full, y_full, z_full);
+% shp.Alpha = 0.5;
+% plot(shp)
+% rotate3d on
+% volume = shp.volume;
+
+% ##### Migration by volume/surface_area #####
+DT = delaunayTriangulation([x_full, y_full, z_full]);
+[C, v] = convexHull(DT);
+trisurf(C,DT.Points(:,1),DT.Points(:,2),DT.Points(:,3));
+
+%% --- get mesh area ---
+z2 = zeros(length(x), 1);
+P1 = [x(tri(:,1)), y(tri(:,1)), z(tri(:,1))];
+P2 = [x(tri(:,2)), y(tri(:,2)), z(tri(:,2))];
+P3 = [x(tri(:,3)), y(tri(:,3)), z(tri(:,3))];
+area = 0;
+for i = 1:length(P1)
+    area = area + 1/2*norm(cross(P2(i,:)-P1(i,:),P3(i,:)-P1(i,:)));
+end
+avg_migration_trunctedcone = heightUsingTruncatedConeModel(16, area, v);
+
+
+
+
+
+%% ##### Visualize Mesh #####
+color1 = [0, 0.4470, 0.7410];
+color2 = [0.9290, 0.6940, 0.1250];
+trisurf(tri, x, y, z(:), 'Facealpha', 0, 'edgecolor', color1)
+rotate3d on
+hold on  
+quiver3(tri_center(:,1),tri_center(:,2),tri_center(:,3), ...
+     tri_normal(:,1),tri_normal(:,2),tri_normal(:,3),0.5,'color','r', ...
+     'AutoScaleFactor', 3);
+trisurf(tri, x, y, zeros(length(x), 1), 'Facealpha', 0, 'edgecolor', color2);
+plot3([x(end), x(end)], [y(end), y(end)], [0, z(end)], 'k', 'LineWidth', 1);
+idx = 573;
+plot3([x(idx), x(idx)], [y(idx), y(idx)], [0, z(idx)], 'k', 'LineWidth', 1);
+
+% ----- solve correpondence -----
+% X = [x, y, z(:)];
+% Y = [x, y, zeros(length(x), 1)];
+% [x_to_y, y_to_x] = solveNodeCorresp(X, Y);
+
+
+
+
+
+
+%%  ##### Surface from D3D #####
+
+% ----- visualizeSingleFaceWithNormal(file, obj_facelabel, reverse_winding) -----
+% visualizeSingleFaceWithNormal(file_an4, obj_facelabel, 1)
+
+
+
