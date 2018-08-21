@@ -4,6 +4,7 @@
 % %     - In this file, the coordinates on face are not stored because the
 % %     memory cost is too expensive. However, the face coordinates can be obtained by
 % %     running getSingleFaceNodes.m
+%       - 
 % % ############################################################################
 % facelabel_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
 % facelabel_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
@@ -89,6 +90,25 @@ parfor i = 1:large_face_size
 end
 save('180820_largeFaces.mat', 'X_to_Y_large', 'Y_to_X_large', 'huge_face_id');
 
-% face_node_info = getSingleFaceNodes(file_an4, obj_facelabel_an4, file_an5, obj_facelabel_an5)
-% figure(1)
-% visualizeFace(face_node_info, face_node_info{4,1}, face_node_info{4,2}, X_to_Y{3})
+
+%%
+%% ##### Visualize Face Correspondences #####
+% idx = small_face(randi(length(small_face)));
+idx = 5767;
+
+% ----- get the object face triangles and nodes -----
+obj_facelabel_an4 = tracked_uniqueface_an4(idx, :);
+obj_facelabel_an5 = tracked_uniqueface_an5(idx, :);
+face_node_info = getSingleFaceNodes(file_an4, obj_facelabel_an4, file_an5, obj_facelabel_an5);
+
+% ----- plot with alpha shape-----
+figure(1)
+visualizeFace(face_node_info, face_node_info{4,1}, face_node_info{4,2}, X_to_Y{idx}, 0.3)
+
+% ----- alpha shape -----
+% shp = alphaShape([face_node_info{4,1}; face_node_info{4,2}]);
+% shp.Alpha = 16.4938;
+% plot(shp)
+% alpha(.5)
+% rotate3d on
+% volume = shp.volume;
