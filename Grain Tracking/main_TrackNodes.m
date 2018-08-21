@@ -94,7 +94,7 @@ save('180820_largeFaces.mat', 'X_to_Y_large', 'Y_to_X_large', 'huge_face_id');
 %%
 %% ##### Visualize Face Correspondences #####
 % idx = small_face(randi(length(small_face)));
-idx = 5767;
+idx = 4256;
 
 % ----- get the object face triangles and nodes -----
 obj_facelabel_an4 = tracked_uniqueface_an4(idx, :);
@@ -103,7 +103,7 @@ face_node_info = getSingleFaceNodes(file_an4, obj_facelabel_an4, file_an5, obj_f
 
 % ----- plot with alpha shape-----
 figure(1)
-visualizeFace(face_node_info, face_node_info{4,1}, face_node_info{4,2}, X_to_Y{idx}, 0.3)
+visualizeFace(face_node_info, X_to_Y{idx})
 
 % ----- alpha shape -----
 % shp = alphaShape([face_node_info{4,1}; face_node_info{4,2}]);
