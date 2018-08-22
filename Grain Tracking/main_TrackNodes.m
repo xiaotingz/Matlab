@@ -91,10 +91,10 @@ end
 save('180820_largeFaces.mat', 'X_to_Y_large', 'Y_to_X_large', 'huge_face_id');
 
 
-%%
+
 %% ##### Visualize Face Correspondences #####
-% idx = small_face(randi(length(small_face)));
-idx = 4256;
+idx = small_face_id(randi(length(small_face_id)))
+% idx = 3102;
 
 % ----- get the object face triangles and nodes -----
 obj_facelabel_an4 = tracked_uniqueface_an4(idx, :);
