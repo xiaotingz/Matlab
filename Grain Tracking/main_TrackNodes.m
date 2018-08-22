@@ -19,8 +19,6 @@
 % n = length(tracked_uniqueface_an4);
 
 %%
-% facelabel_an4 = sort(facelabel_an4, 2);
-% facelabel_an5 = sort(facelabel_an5, 2);
 % 
 % X_to_Y = cell(n,1);
 % Y_to_X = cell(n,1);
@@ -55,40 +53,7 @@
 % save('180820_smallFaces.mat', 'X_to_Y', 'Y_to_X', 'large_face_id');
 
 % -------------------------------------------------------------------------------------------------
-facelabel_an4 = sort(facelabel_an4, 2);
-facelabel_an5 = sort(facelabel_an5, 2);
-recalc_list = [];
-
-for i = 1:length(tracked_uniqueface_an4)
-    obj_facelabel_an4 = tracked_uniqueface_an4(i, :);
-    obj_facelabel_an5 = tracked_uniqueface_an5(i, :);
-    
-    % ##### get objective triangles on the objective face #####
-    mask_objface_an4 = (facelabel_an4(:,1) == obj_facelabel_an4(1) & facelabel_an4(:,2) == obj_facelabel_an4(2));
-    mask_objface_an5 = (facelabel_an5(:,1) == obj_facelabel_an5(1) & facelabel_an5(:,2) == obj_facelabel_an5(2));
-
-    % ##### get id and coord of the objective triangles #####
-    face_node_id_an4 = tri_node_an4(mask_objface_an4, :);
-    face_node_id_an4 = unique(face_node_id_an4);
-    face_node_coord_an4 = node_coord_an4(face_node_id_an4,:);
-    face_node_id_an5 = tri_node_an5(mask_objface_an5, :);
-    face_node_id_an5 = unique(face_node_id_an5);
-    face_node_coord_an5 = node_coord_an5(face_node_id_an5,:);
-    
-    x_size = length(face_node_id_an4);
-    y_size = length(face_node_id_an5);
-    if x_size ~= length(X_to_Y{i}) || y_size ~= length(Y_to_X{i})
-        recalc_list = [recalc_list, i];
-    end
-end
-
-
-% -------------------------------------------------------------------------------------------------
-huge_face_id = [];
-large_face_size = length(large_face_id);
-X_to_Y_large = cell(large_face_size,1);
-Y_to_X_large= cell(large_face_size,1);
-for i = 1:large_face_size
+for i = 1:length(recalc_list)
     idx = large_face_id(i);
     obj_facelabel_an4 = tracked_uniqueface_an4(idx, :);
     obj_facelabel_an5 = tracked_uniqueface_an5(idx, :);
@@ -122,7 +87,7 @@ save('180820_largeFaces.mat', 'X_to_Y_large', 'Y_to_X_large', 'huge_face_id');
 
 
 %% ##### Visualize Face Correspondences #####
-idx = large_face_id(randi(length(large_face_id)))
+idx = 1
 % idx = 3102;
 
 % ----- get the object face triangles and nodes -----
