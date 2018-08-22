@@ -47,15 +47,8 @@ z_full = [z; zeros(length(x), 1)];
 % rotate3d on
 % volume = shp.volume;
 
-% ##### Migration by individual volume/surface_area #####
-P1_1 = [x(tri(:,1)), y(tri(:,1)), z(tri(:,1))];
-P2_1 = [x(tri(:,2)), y(tri(:,2)), z(tri(:,2))];
-P3_1 = [x(tri(:,3)), y(tri(:,3)), z(tri(:,3))];
-z2 = zeros(length(x), 1);
-P1_2 = [x(tri(:,1)), y(tri(:,1)), z2(tri(:,1))];
-P2_2 = [x(tri(:,2)), y(tri(:,2)), z2(tri(:,2))];
-P3_2 = [x(tri(:,3)), y(tri(:,3)), z2(tri(:,3))];
 
+% ##### Migration by individual volume/surface_area #####
 avg_migration_trunctedcone_sep = 0;
 v = 0;
 area1 = 0;
@@ -72,26 +65,15 @@ for i = 1:length(P1_1)
 end
 avg_migration_trunctedcone_sep = avg_migration_trunctedcone_sep/length(P1_1);
 
-
-% ##### Migration by entire volume/surface_area #####
-avg_migration_trunctedcone_itg = heightUsingTruncatedConeModel(area1, area2, v);
-
-% ----- the volume by convex hull is actually larger than the real volume -----
-% DT = delaunayTriangulation([x_full, y_full, z_full]);
-% [C, v] = convexHull(DT);
-% trisurf(C,DT.Points(:,1),DT.Points(:,2),DT.Points(:,3), 'Facecolor', [0.4660, 0.6740, 0.1880], 'edgecolor', 'k');
-
-
-
 % ##### Visualize Mesh #####
 color1 = [0, 0.4470, 0.7410];
 color2 = [0.9290, 0.6940, 0.1250];
 trisurf(tri, x, y, z(:), 'Facealpha', 0, 'edgecolor', color1)
 rotate3d on
 hold on  
-quiver3(tri_center(:,1),tri_center(:,2),tri_center(:,3), ...
-     tri_normal(:,1),tri_normal(:,2),tri_normal(:,3),0.5,'color','r', ...
-     'AutoScaleFactor', 3);
+% quiver3(tri_center(:,1),tri_center(:,2),tri_center(:,3), ...
+%      tri_normal(:,1),tri_normal(:,2),tri_normal(:,3),0.5,'color','r', ...
+%      'AutoScaleFactor', 3);
 trisurf(tri, x, y, zeros(length(x), 1), 'Facealpha', 0, 'edgecolor', color2);
 % plot3([x(end), x(end)], [y(end), y(end)], [0, z(end)], 'k', 'LineWidth', 1);
 % idx = 573;
