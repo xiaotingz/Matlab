@@ -40,16 +40,14 @@ function [tracked_uniqueface_1, tracked_uniqueface_2] = trackUniqueFace(file_1, 
 
 % ##### Make a Full Look-up Table ##### 
     look_up_table = sortrows(look_up_table, 2);  %  somehow the look up table is not really sorted well 
-    look_up_2to1 = zeros(max(look_up_table(:,2)),2);
+    look_up_2to1 = zeros(max(look_up_table(:,2)),1);
     idx = 1;
     for i = 1 : max(look_up_table(:,2))
         if look_up_table(idx,2) == i
             look_up_2to1(i,1) = look_up_table(idx,1);
-            look_up_2to1(i,2) = look_up_table(idx,2);
             idx = idx + 1;
         else
             look_up_2to1(i,1) = NaN;
-            look_up_2to1(i,2) = i;
         end
     end
     

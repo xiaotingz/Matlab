@@ -1,4 +1,4 @@
-function TLs = findTripleLines(file)
+function triple_line = findTripleLines(file)
 % ############################################################################
 % - tripleLines = [n, 3], n is the number of triple lines in the volume, 3
 %       stands for the threeGrainIDs encapsulating the triple line.
@@ -10,9 +10,9 @@ function TLs = findTripleLines(file)
 % ---------------------------------------------------------------
 
 % ##### Read in data ##### 
-triNodes_raw = 1 + double(h5read(file,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList'))';
-FLs_raw = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
-nodeTypes = double(h5read(file,'/DataContainers/TriangleDataContainer/VertexData/NodeType'))';
+tri_node_raw = 1 + double(h5read(file,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList'))';
+face_lable_raw = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
+node_type = double(h5read(file,'/DataContainers/TriangleDataContainer/VertexData/NodeType'))';
 
 % ##### Find the triangles on tripleline #####
 %     """
@@ -20,10 +20,10 @@ nodeTypes = double(h5read(file,'/DataContainers/TriangleDataContainer/VertexData
 %     - the triple line triangles are those which have at least 2 TLnodes or QuadNodes 
 %            TLnodes=3 happens for the triangles sitting on a corner 
 %     """
-nodeTypes(nodeTypes==4) = 3;
-mask_TLtri = (sum(nodeTypes(triNodes_raw)==3, 2) >= 2);
-FLs = FLs_raw(mask_TLtri, :);
-triNodes = triNodes_raw(mask_TLtri, :);
+node_type(node_type==4) = 3;
+mask_TLtri = (sum(node_type(tri_node_raw)==3, 2) >= 2);
+FLs = face_lable_raw(mask_TLtri, :);
+triNodes = tri_node_raw(mask_TLtri, :);
 
     
 % ##### Sort the triangles into groups of 3 #####
@@ -33,7 +33,7 @@ triNodes = triNodes_raw(mask_TLtri, :);
 %     - special case are the triangles having 3 quad nodes, then it's difficult to tell which are the two nodes in use
 %           in such case, duplicate the triangle
 %     """
-mask_TLnodes = (nodeTypes(triNodes)==3);
+mask_TLnodes = (node_type(triNodes)==3);
 TLnodes_raw = triNodes.*mask_TLnodes;
 TLnodes_raw = sort(TLnodes_raw,2);
 % TLnodes(:,1) = (1:length(TLnodes))';
@@ -81,21 +81,21 @@ TLtri_FLs= FLs(TLnodes(mask_groupOf3, 1), :);
 if rem(length(TLtri_FLs), 3) ~= 0 
     warning('ERROR, length(TLtri_FLs)/3 is not integer')
 end
-TLs = zeros(length(TLtri_FLs)/3, 3);
+triple_line = zeros(length(TLtri_FLs)/3, 3);
 for i = 1:length(TLtri_FLs)/3
     FLgroup = TLtri_FLs((i-1)*3+1 : (i-1)*3+3, :);
     if length(unique(FLgroup)) == 3
-        TLs(i,:) = unique(FLgroup);
+        triple_line(i,:) = unique(FLgroup);
     else
         warning(['length(unique(FLgroup)) ~= 3 at FLgroup=', num2str(i)]);
     end
 end
-TLs = sort(TLs, 2);
-TLs = unique(TLs, 'rows');
+triple_line = sort(triple_line, 2);
+triple_line = unique(triple_line, 'rows');
 
 % --- clean the data --- 
-mask_surfTL = any(TLs==0, 2);
-TLs = TLs(~mask_surfTL, :);
+mask_surfTL = any(triple_line==0, 2);
+triple_line = triple_line(~mask_surfTL, :);
 
 end
 
