@@ -100,42 +100,35 @@ rotate3d on
 
 
 %% ##### Find the FaceID of A Face Between Two Grains #####
-[~, ~, faceCorresp_CF] = TrackFace(file_an4, file_an5, look_up_table, true);
-
-face_info_CF = [C_An4, faces_an4(faceCorresp_CF(:,1),:)];
-face_info_CF = sortrows(face_info_CF);
-
-face_id = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/FeatureFaceId')';
-face_label = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
-
-GA = face_info_CF(68,2)
-GB = face_info_CF(68,3)
-mask = ((face_label(:,1) == GA & face_label(:,2) == GB) | (face_label(:,1) == GB & face_label(:,2) == GA));
-unique(face_id(mask))
-
-
-clc
-
-
 file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_mesh.dream3d');
 file_an5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_mesh.dream3d');
-
+face_id = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/FeatureFaceId')';
+face_label = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
 face_label_an4 = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
 face_label_an5 = h5read(file_an5, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
 face_id_an4 = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/FeatureFaceId')';
 face_id_an5 = h5read(file_an5, '/DataContainers/TriangleDataContainer/FaceData/FeatureFaceId')';
 
+obj_face = 1;
+
+
+[~, ~, faceCorresp_CF] = TrackFace(file_an4, file_an5, look_up_table, true);
+
+face_info_CF = [C_An4, faces_an4(faceCorresp_CF(:,1),:)];
+face_info_CF = sortrows(face_info_CF);
+
+GA = face_info_CF(68,2);
+GB = face_info_CF(68,3);
+mask = ((face_label(:,1) == GA & face_label(:,2) == GB) | (face_label(:,1) == GB & face_label(:,2) == GA));
+% unique(face_id(mask))
 
 tmp = [(1:length(FCentrs_diff))', FCentrs_diff];
 sort_tmp = sortrows(tmp, -2);
 
-
-obj_face = 1;
 obj_label_an5 = tracked_facelabel_an5(sort_tmp(obj_face, 1), :);
 mask = (face_label_an5(:,1) == obj_label_an5(1) & face_label_an5(:,2) == obj_label_an5(2));
 unique(face_label_an5(mask, :), 'rows')
 unique(face_id_an5(mask))
-
 obj_label_an4 = tracked_facelabel_an4(sort_tmp(obj_face, 1), :);
 mask = (face_label_an4(:,1) == obj_label_an4(1) & face_label_an4(:,2) == obj_label_an4(2));
 unique(face_label_an4(mask, :), 'rows')
