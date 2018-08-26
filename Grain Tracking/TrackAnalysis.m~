@@ -62,9 +62,9 @@ ylabel('# Triangles')
 %% ##### Plot Triangle Curvature Distribution #####
 % get the coords of one face pair
 
-i = 1;
-idx_an4 = face_corresp(i, 1);
-idx_an5 = face_corresp(i, 2);
+idx = 1;
+idx_an4 = face_corresp(idx, 1);
+idx_an5 = face_corresp(idx, 2);
 label_an4 = faces_an4(idx_an4, :);
 label_an5 = faces_an5(idx_an5, :);
 
@@ -191,26 +191,21 @@ disp(['FaceLabel in An5:  [', num2str(face_id_an5(idx_an5, :)), ']', ]);
 load('/Users/xiaotingzhong/Dropbox/grainTracking_forCluster/180822_FaceCorresp.mat');
 load('/Users/xiaotingzhong/Dropbox/grainTracking_forCluster/180822.mat');
 
+idx = 1;
+% ----- get the object face triangles and nodes -----
+obj_facelabel_an4 = tracked_uniqueface_an4(idx, :);
+obj_facelabel_an5 = tracked_uniqueface_an5(idx, :);
+x_to_y = X_to_Y{idx};
 
-longedge_tri_nodeid_an4 = cell(length(tracked_uniqueface_an4), 1);
-longedge_tri_nodeid_an5 = cell(length(tracked_uniqueface_an4), 1);
-longestedge = cell(length(tracked_uniqueface_an4), 1);
-for i = 1:2
-    % ----- get the object face triangles and nodes -----
-    obj_facelabel_an4 = tracked_uniqueface_an4(i, :);
-    obj_facelabel_an5 = tracked_uniqueface_an5(i, :);
-    x_to_y = X_to_Y{i};
-    [longedge_tri_nodeid_an4{i}, longedge_tri_nodeid_an5{i}, longestedge{i}] = getLongEdgeCorrespTris(obj_facelabel_an4, obj_facelabel_an5, x_to_y, 6);
-end
+face_node_info = getSingleFaceNodes(file_an4, obj_facelabel_an4, file_an5, obj_facelabel_an5);
 
 
-% idx = 1;
-% % ----- get the object face triangles and nodes -----
-% obj_facelabel_an4 = tracked_uniqueface_an4(idx, :);
-% obj_facelabel_an5 = tracked_uniqueface_an5(idx, :);
-% x_to_y = X_to_Y{idx};
-% 
-% face_node_info = getSingleFaceNodes(file_an4, obj_facelabel_an4, file_an5, obj_facelabel_an5);
+[longedge_tri_nodeid_an4, longedge_tri_nodeid_an5, longestedge] = getLongEdgeCorrespTris(obj_facelabel_an4, obj_facelabel_an5, x_to_y, 6);
+
+
+
+
+
 % plot_trinode_an4 = node_coord_an4(longedge_tri_nodeid_an4, :);
 % plot_trinode_an5 = node_coord_an5(longedge_tri_nodeid_an5, :);
 % visualizeFace(face_node_info, x_to_y, plot_trinode_an4, plot_trinode_an5, 'distort_tri');
