@@ -31,13 +31,13 @@ rotate3d on
 
 % ##### If No obj_node Specified, Default Will Use All Nodes On Surface #####
 if nargin == 2
+    node_id_an4 = unique(obj_face{2,1});
+    node_id_an5 = unique(obj_face{2,2});
+    obj_node_an4 = node_coordsmooth_an4(node_id_an4, :);
+    obj_node_an5 = node_coordsmooth_an5(node_id_an5, :);
+    scatter3(obj_node_an4(:,1), obj_node_an4(:,2), obj_node_an4(:,3), 20, 'filled', 'MarkerFaceColor',color1, 'MarkerEdgeColor',color1);
+    scatter3(obj_node_an5(:,1), obj_node_an5(:,2), obj_node_an5(:,3), 20, 'filled', 'MarkerFaceColor',color2, 'MarkerEdgeColor',color2);
     for i = 1:length(x_to_y)
-        node_id_an4 = unique(obj_face{2,1});
-        node_id_an5 = unique(obj_face{2,2});
-        obj_node_an4 = node_coordsmooth_an4(node_id_an4, :);
-        obj_node_an5 = node_coordsmooth_an5(node_id_an5, :);
-        scatter3(obj_node_an4(:,1), obj_node_an4(:,2), obj_node_an4(:,3), 20, 'filled', 'MarkerFaceColor',color1, 'MarkerEdgeColor',color1);
-        scatter3(obj_node_an5(:,1), obj_node_an5(:,2), obj_node_an5(:,3), 20, 'filled', 'MarkerFaceColor',color2, 'MarkerEdgeColor',color2);
         plot3([obj_node_an4(i,1), obj_node_an5(x_to_y(i),1)], [obj_node_an4(i,2), obj_node_an5(x_to_y(i),2)], [obj_node_an4(i,3), obj_node_an5(x_to_y(i),3)], 'k', 'LineWidth', 1);
 %         text(obj_point_smooth_an4(i,1), obj_point_smooth_an4(i,2), obj_point_smooth_an4(i,3),[' ', num2str(int32(i))],'FontSize',16, 'Color', color1);
     end
