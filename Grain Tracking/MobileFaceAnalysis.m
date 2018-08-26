@@ -61,8 +61,10 @@ end
 % Get Mobile Face Info for Paraview
 % % ############################################################################
 %% ##### Load Data ##### 
-file_an4 = '/Volumes/XIAOTING/Ni_180823/An4new6_fixedOrigin_smooth_forParaview.dream3d';
-file_an5 = '/Volumes/XIAOTING/Ni_180823/An5new6_smooth_forParaview.dream3d';
+file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d');
+file_an5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
+% file_an4 = '/Volumes/XIAOTING/Ni_180823/An4new6_fixedOrigin_smooth_forParaview.dream3d';
+% file_an5 = '/Volumes/XIAOTING/Ni_180823/An5new6_smooth_forParaview.dream3d';
 num_neigh_an4 = h5read(file_an4,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors').';
 num_neigh_an5 = h5read(file_an5,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors').';
 num_neigh_an4(1) = [];
@@ -80,7 +82,7 @@ face_label_an5 = face_label_an5(all(face_label_an5 > 0, 2), :);
 face_label_an4 = sort(face_label_an4, 2);
 face_label_an5 = sort(face_label_an5, 2);
 
-load('180822.mat', 'tracked_uniqueface_an4', 'tracked_uniqueface_an5');
+load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/180822.mat', 'tracked_uniqueface_an4', 'tracked_uniqueface_an5');
 list = [2723, 654, 1500, 2158, 3102, 3832, 2945]';
 
 %% ##### Individual Face Info ##### 

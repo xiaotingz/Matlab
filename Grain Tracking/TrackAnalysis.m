@@ -182,13 +182,27 @@ disp(['FaceId in An5:   ', num2str(idx_an5), ',   size=', num2str(num_tri_an5(id
 disp(['FaceLabel in An5:  [', num2str(face_id_an5(idx_an5, :)), ']', ]);
 
 
-
-%%
 % [face_coords_an4, unique_facelabel_an4] = makeFaceCoords(file_an4);
 % [face_coords_an5, unique_facelabel_an5] = makeFaceCoords(file_an5);
 % unique_facelabel_corresp = trackUniqueFace(unique_facelabel_an4, unique_facelabel_an5, look_up_table);
 
 
+%% ##### Check If the an5 Triangles Found By Correspondence are Distorted #####
+load('/Users/xiaotingzhong/Dropbox/grainTracking_forCluster/180822_FaceCorresp.mat');
+load('/Users/xiaotingzhong/Dropbox/grainTracking_forCluster/180822.mat');
+
+idx = 1;
+% ----- get the object face triangles and nodes -----
+obj_facelabel_an4 = tracked_uniqueface_an4(idx, :);
+obj_facelabel_an5 = tracked_uniqueface_an5(idx, :);
+x_to_y = X_to_Y{idx};
+
+face_node_info = getSingleFaceNodes(file_an4, obj_facelabel_an4, file_an5, obj_facelabel_an5);
+
+[longedge_tri_nodeid_an4, longedge_tri_nodeid_an5, longestedge] = getLongEdgeCorrespTris(obj_facelabel_an4, obj_facelabel_an5, x_to_y, 6);
+plot_trinode_an4 = node_coord_an4(longedge_tri_nodeid_an4, :);
+plot_trinode_an5 = node_coord_an5(longedge_tri_nodeid_an5, :);
+visualizeFace(face_node_info, x_to_y, plot_trinode_an4, plot_trinode_an5, 'distort_tri');
 
 
 
