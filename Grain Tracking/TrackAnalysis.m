@@ -135,7 +135,6 @@ unique(face_label_an4(mask, :), 'rows')
 unique(face_id_an4(mask))
 
 
-
 %% ##### Get FeatureFaceId for the Faces Satisfying a Certain Condition #####
 clc
 
@@ -187,7 +186,8 @@ disp(['FaceLabel in An5:  [', num2str(face_id_an5(idx_an5, :)), ']', ]);
 % unique_facelabel_corresp = trackUniqueFace(unique_facelabel_an4, unique_facelabel_an5, look_up_table);
 
 
-%% ##### Check If the an5 Triangles Found By Correspondence are Distorted #####
+%% ##### Record Long-edge Corresp Triangles #####
+% ----- the objective is to check if the an5 triangles found by correspondence are distorted -----
 load('/Users/xiaotingzhong/Dropbox/grainTracking_forCluster/180822_FaceCorresp.mat');
 load('/Users/xiaotingzhong/Dropbox/grainTracking_forCluster/180822.mat');
 
@@ -203,6 +203,9 @@ for i = 1:2
     [longedge_tri_nodeid_an4{i}, longedge_tri_nodeid_an5{i}, longestedge{i}] = getLongEdgeCorrespTris(obj_facelabel_an4, obj_facelabel_an5, x_to_y, 6);
 end
 
+%% ##### Finer Classify Faces with various Triangle Edge Lengths #####
+% load('180826_longEdges.mat')
+% load('180822_FaceCorresp.mat')
 
 % idx = 1;
 % % ----- get the object face triangles and nodes -----
@@ -215,9 +218,54 @@ end
 % plot_trinode_an5 = node_coord_an5(longedge_tri_nodeid_an5, :);
 % visualizeFace(face_node_info, x_to_y, plot_trinode_an4, plot_trinode_an5, 'distort_tri');
 
+% longedge_length = [];
+edge_10to20_faces = [];
+edge_20to50_faces = [];
+edge_longer50_faces = [];
+for i = 1:length(longestedge)
+%     longedge_length = [longedge_length; longestedge{i}];
+    if any(longestedge{i} > 10) && all(longestedge{i} <= 20) 
+        edge_10to20_faces = [edge_10to20_faces; i];
+    end
+    if any(longestedge{i} > 20) && all(longestedge{i} <= 50) 
+        edge_20to50_faces = [edge_20to50_faces; i];
+    end
+    if any(longestedge{i} > 50)
+        edge_longer50_faces = [edge_longer50_faces; i];
+    end
+end
 
 
 
+%% ##### Visualization #####
+file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d');
+file_an5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
+
+idx = edge_10to20_faces(randi(length(edge_10to20_faces)));
+x_to_y = X_to_Y{idx};
+obj_facelabel_an4 = tracked_uniqueface_an4(idx, :);
+obj_facelabel_an5 = tracked_uniqueface_an5(idx, :);
+face_node_info = getSingleFaceNodes(file_an4, obj_facelabel_an4, file_an5, obj_facelabel_an5);
+obj_node_an4 = longedge_tri_nodeid_an4{idx};
+obj_node_an5 = longedge_tri_nodeid_an5{idx};
+edge_length = longestedge{idx};
+mask_longer10 = (edge_length > 10);
+obj_node_an4 = obj_node_an4(mask_longer10, :);
+obj_node_an5 = obj_node_an5(mask_longer10, :);
+
+
+% ----- Corresp -----
+% visualizeFace(face_node_info, x_to_y)
+
+
+% ----- Distort triangles -----
+visualizeFace(face_node_info, x_to_y, obj_node_an4, obj_node_an5, 'distort_tri')
+hold off
 
 
 
+%%
+
+print(['pair_', num2str(idx), '_triedge_10to20'], '-dpng','-r300')
+
+print(['pair_', num2str(idx), '_triedge_10to20_part'], '-dpng','-r300')

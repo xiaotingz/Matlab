@@ -51,6 +51,8 @@ elseif nargin == 5 && strcmp(obj, 'corresp')
     end
 % ##### Specified obj_node, distort_tri #####
 elseif nargin == 5 && strcmp(obj, 'distort_tri')
+    obj_node_an4 = node_coordsmooth_an4(obj_node_an4(:), :);
+    obj_node_an5 = node_coordsmooth_an5(obj_node_an5(:), :);
     scatter3(obj_node_an4(:,1), obj_node_an4(:,2), obj_node_an4(:,3), 20, 'filled', 'MarkerFaceColor',color1, 'MarkerEdgeColor',color1);
     scatter3(obj_node_an5(:,1), obj_node_an5(:,2), obj_node_an5(:,3), 20, 'filled', 'MarkerFaceColor',color2, 'MarkerEdgeColor',color2);
     for i = 1:length(obj_node_an5)

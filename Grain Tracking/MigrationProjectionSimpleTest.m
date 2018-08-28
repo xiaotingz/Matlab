@@ -38,9 +38,9 @@ avg_migration_diff = avg_migration - avg_migration_project;
 
 
 % ##### Alpha Shape #####
-x_full = [x; x];
-y_full = [y; y];
-z_full = [z; zeros(length(x), 1)];
+% x_full = [x; x];
+% y_full = [y; y];
+% z_full = [z; zeros(length(x), 1)];
 % shp = alphaShape(x_full, y_full, z_full);
 % shp.Alpha = 0.5;
 % plot(shp)
@@ -48,29 +48,26 @@ z_full = [z; zeros(length(x), 1)];
 % volume = shp.volume;
 
 % ##### Migration by individual volume/surface_area #####
-P1_1 = [x(tri(:,1)), y(tri(:,1)), z(tri(:,1))];
-P2_1 = [x(tri(:,2)), y(tri(:,2)), z(tri(:,2))];
-P3_1 = [x(tri(:,3)), y(tri(:,3)), z(tri(:,3))];
-z2 = zeros(length(x), 1);
-P1_2 = [x(tri(:,1)), y(tri(:,1)), z2(tri(:,1))];
-P2_2 = [x(tri(:,2)), y(tri(:,2)), z2(tri(:,2))];
-P3_2 = [x(tri(:,3)), y(tri(:,3)), z2(tri(:,3))];
+node_coord_an4 = [x, y, z]; 
+node_coord_an5 = [x, y, zeros(length(x),1)];
 
-avg_migration_trunctedcone_sep = 0;
-v = 0;
+avg_migration_trunctedcone_sep = zeros(size(tri, 1), 1);
 area1 = 0;
 area2 = 0;
-for i = 1:length(P1_1)
-    DT = delaunayTriangulation([P1_1(i,:);P2_1(i,:);P3_1(i,:);P1_2(i,:);P2_2(i,:);P3_2(i,:)]);
+v = 0;
+for i = 1:length(avg_migration_trunctedcone_sep)
+    tri1_nodes = node_coord_an4(tri(i, :), :);
+    tri2_nodes = node_coord_an5(tri(i, :), :);
+    DT = delaunayTriangulation([tri1_nodes; tri2_nodes]);
     [C, v_tmp] = convexHull(DT);
-    area1_tmp = 1/2*norm(cross(P2_1(i,:)-P1_1(i,:),P3_1(i,:)-P1_1(i,:)));
-    area2_tmp =  1/2*norm(cross(P2_2(i,:)-P1_2(i,:),P3_2(i,:)-P1_2(i,:)));
-    avg_migration_trunctedcone_sep = avg_migration_trunctedcone_sep + heightUsingTruncatedConeModel(area1_tmp, area2_tmp, v_tmp);
-    v = v + v_tmp;
+    area1_tmp = calcArea(tri1_nodes);
+    area2_tmp = calcArea(tri2_nodes);
+    avg_migration_trunctedcone_sep(i) = heightUsingTruncatedConeModel(area1_tmp, area2_tmp, v_tmp);
+    v= v + v_tmp;
     area1 = area1 + area1_tmp;
     area2 = area2 + area2_tmp;
 end
-avg_migration_trunctedcone_sep = avg_migration_trunctedcone_sep/length(P1_1);
+migration = sum(avg_migration_trunctedcone_sep)/length(avg_migration_trunctedcone_sep);
 
 
 % ##### Migration by entire volume/surface_area #####
