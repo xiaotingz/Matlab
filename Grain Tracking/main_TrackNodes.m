@@ -105,7 +105,45 @@
 load('180822_FaceCorresp');
 load('/Users/xiaotingzhong/Dropbox/grainTracking_forCluster/180822.mat');
 
-idx = 5602;
+face_piecewise = [];
+subgraph_corresp_list = {};
+idx_face_piecewise = 1;
+for idx = 1:length(tracked_uniqueface_an4)
+    obj_facelabel_an4 = tracked_uniqueface_an4(idx, :);
+    obj_facelabel_an5 = tracked_uniqueface_an5(idx, :);
+
+    % ##### Get Objective Triangles on the Objective Face #####
+    mask_objface_an4 = (facelabel_an4(:,1) == obj_facelabel_an4(1) & facelabel_an4(:,2) == obj_facelabel_an4(2));
+    mask_objface_an5 = (facelabel_an5(:,1) == obj_facelabel_an5(1) & facelabel_an5(:,2) == obj_facelabel_an5(2));
+
+    % ##### Get Id and Coord of the Objective Triangles #####
+    face_tri_nodeid_an4 = tri_node_an4(mask_objface_an4, :);
+    face_unique_nodeid_an4 = unique(face_tri_nodeid_an4);
+    face_node_coord_an4 = node_coord_an4(face_unique_nodeid_an4,:);
+    face_tri_nodeid_an5 = tri_node_an5(mask_objface_an5, :);
+    face_unique_nodeid_an5 = unique(face_tri_nodeid_an5);
+    face_node_coord_an5 = node_coord_an5(face_unique_nodeid_an5,:);
+
+    % ##### Find Disconnected Subgraphs and Solve Subgraph Correp #####
+    [subgraph_an4, subgraph_an5] = findSubgraph(face_unique_nodeid_an4, face_unique_nodeid_an5, face_tri_nodeid_an4, face_tri_nodeid_an5);
+
+    if length(unique(subgraph_an4)) > 1 || length(unique(subgraph_an5)) > 1
+        face_piecewise = [face_piecewise, i];
+    end
+    
+end
+
+%% 
+% % ############################################################################
+% % Check: Visualize Subgraph
+% % ############################################################################
+color1 = [0, 0.4470, 0.7410];
+color2 = [0.9290, 0.6940, 0.1250];
+color3 = [0.8500, 0.3250, 0.0980];
+color4 = [0.4660, 0.6740, 0.1880];
+colors = [color1; color2; color3; color4];
+
+idx = face_piecewise(randi(length(face_piecewise)));
 obj_facelabel_an4 = tracked_uniqueface_an4(idx, :);
 obj_facelabel_an5 = tracked_uniqueface_an5(idx, :);
 
@@ -121,36 +159,36 @@ face_tri_nodeid_an5 = tri_node_an5(mask_objface_an5, :);
 face_unique_nodeid_an5 = unique(face_tri_nodeid_an5);
 face_node_coord_an5 = node_coord_an5(face_unique_nodeid_an5,:);
 
-% ##### Find Disconnected Subgraphs and Solve Subgraph Correp #####
 [subgraph_an4, subgraph_an5] = findSubgraph(face_unique_nodeid_an4, face_unique_nodeid_an5, face_tri_nodeid_an4, face_tri_nodeid_an5);
-
-% ##### Solve Node Corresp Between the Subgraph Pairs #####
 subgraph_corresp = solveSubgraphCorresp(subgraph_an4, subgraph_an5, face_node_coord_an4, face_node_coord_an5);
 
-% ##### Check: Visualize Subgraphs #####
-% ----- need node_coord_an4 and node_coord_an4 -----
-color1 = [0, 0.4470, 0.7410];
-color2 = [0.9290, 0.6940, 0.1250];
-color3 = [0.8500, 0.3250, 0.0980];
-color4 = [0.4660, 0.6740, 0.1880];
 
 trisurf(face_tri_nodeid_an4, node_coord_an4(:,1), node_coord_an4(:,2), node_coord_an4(:,3),'Facecolor',color1, 'Facealpha', 0.3, 'edgealpha', 0.3);
 hold on
 rotate3d on
-for i = 1:length(unique(subgraph_an4))
-    scatter3(face_node_coord_an4((subgraph_an4==i), 1), face_node_coord_an4((subgraph_an4==i), 2), face_node_coord_an4((subgraph_an4==i), 3), 30, 'filled');
+trisurf(face_tri_nodeid_an5, node_coord_an5(:,1), node_coord_an5(:,2), node_coord_an5(:,3),'Facecolor',color2, 'Facealpha', 0.3, 'edgealpha', 0.3);
+if length(unique(subgraph_an4)) < length(unique(subgraph_an5))
+    for i = 1:length(unique(subgraph_an4))
+        scatter3(face_node_coord_an4((subgraph_an4==i), 1), face_node_coord_an4((subgraph_an4==i), 2), face_node_coord_an4((subgraph_an4==i), 3), ...
+            10, 'filled', 'MarkerFaceColor',colors(i, :), 'MarkerEdgeColor',colors(i, :));
+        scatter3(face_node_coord_an5((subgraph_an5==subgraph_corresp(i)), 1), face_node_coord_an5((subgraph_an5==subgraph_corresp(i)), 2), face_node_coord_an5((subgraph_an5==subgraph_corresp(i)), 3), ...
+            10, 'filled', 'MarkerFaceColor',colors(i, :), 'MarkerEdgeColor',colors(i, :));
+    end
+else
+    for i = 1:length(unique(subgraph_an5))
+        scatter3(face_node_coord_an4((subgraph_an4==subgraph_corresp(i)), 1), face_node_coord_an4((subgraph_an4==subgraph_corresp(i)), 2), face_node_coord_an4((subgraph_an4==subgraph_corresp(i)), 3), ...
+            10, 'filled', 'MarkerFaceColor',colors(i, :), 'MarkerEdgeColor',colors(i, :));
+        scatter3(face_node_coord_an5((subgraph_an5==i), 1), face_node_coord_an5((subgraph_an5==i), 2), face_node_coord_an5((subgraph_an5==i), 3), ...
+            10, 'filled', 'MarkerFaceColor',colors(i, :), 'MarkerEdgeColor',colors(i, :));
+    end
 end
 hold off
-% print(['pair_', num2str(idx), '_subgraph_an4'], '-dpng','-r300')
+print(['pair_', num2str(idx), '_subgraph'], '-dpng','-r300')
 
-figure()
-trisurf(face_tri_nodeid_an5, node_coord_an5(:,1), node_coord_an5(:,2), node_coord_an5(:,3),'Facecolor',color2, 'Facealpha', 0.3, 'edgealpha', 0.3);
-hold on
-rotate3d on
-for i = 1:length(unique(subgraph_an5))
-    scatter3(face_node_coord_an5((subgraph_an5==i), 1), face_node_coord_an5((subgraph_an5==i), 2), face_node_coord_an5((subgraph_an5==i), 3), 30, 'filled');
-end
-% print(['pair_', num2str(idx), '_subgraph_2'], '-dpng','-r300')
+
+
+
+
 % % ############################################################################
 % % Visualize Face Correspondences
 % % ############################################################################

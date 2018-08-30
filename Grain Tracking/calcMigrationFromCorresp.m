@@ -100,6 +100,11 @@ tri_migration_projection = sum(d_proj)/length(d_proj);
 % scatter3(tri2_nodes(:,1), tri2_nodes(:,2), tri2_nodes(:,3))
 % 
 
+% % ############################################################################
+% % Visualize Face Correspondences
+% % ############################################################################
+node_info = getSingleFaceNodes(file_an4, obj_facelabel_an4, file_an5, obj_facelabel_an5);
+visualizeFace(node_info, X_to_Y{idx})
 
 
 
