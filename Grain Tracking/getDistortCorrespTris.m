@@ -1,4 +1,5 @@
-function [distort_tri_node_an4, distort_tri_node_an5, values] = getDistortCorrespTris(obj_facelabel_an4, obj_facelabel_an5, x_to_y, obj, thres)
+function [distort_tri_node_an4, distort_tri_node_an5, values] = getDistortCorrespTris(obj_facelabel_an4, obj_facelabel_an5, x_to_y, obj, thres, ...
+    facelabel_an4, facelabel_an5, node_coord_an4, node_coord_an5, tri_node_an4, tri_node_an5)
 % ###########################################################################
 % * Input 
 %     - obj_facelabel_ = [2,1], facelabel of the objective face. 
@@ -33,7 +34,6 @@ function [distort_tri_node_an4, distort_tri_node_an5, values] = getDistortCorres
 % obj = 'min_angle_diff';
 % thres = 20;
 % -----------------------------------------------------------
-load('/Users/xiaotingzhong/Dropbox/grainTracking_forCluster/180822.mat');
 
 % ##### get objective triangles on the objective face #####
 mask_objface_an4 = (facelabel_an4(:,1) == obj_facelabel_an4(1) & facelabel_an4(:,2) == obj_facelabel_an4(2));

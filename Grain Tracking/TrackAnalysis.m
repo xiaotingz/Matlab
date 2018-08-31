@@ -150,29 +150,21 @@ load('/Users/xiaotingzhong/Dropbox/grainTracking_forCluster/180822.mat');
 distort_tri_nodeid_an4 = cell(length(tracked_uniqueface_an4), 1);
 distort_tri_nodeid_an5 = cell(length(tracked_uniqueface_an4), 1);
 min_angle_diff = cell(length(tracked_uniqueface_an4), 1);
-for i = 1:length(tracked_uniqueface_an4)
+parfor i = 1:length(tracked_uniqueface_an4)
     % ----- get the object face triangles and nodes -----
     obj_facelabel_an4 = tracked_uniqueface_an4(i, :);
     obj_facelabel_an5 = tracked_uniqueface_an5(i, :);
     x_to_y = X_to_Y{i};
-    [distort_tri_nodeid_an4{i}, distort_tri_nodeid_an5{i}, min_angle_diff{i}] = getDistortCorrespTris(obj_facelabel_an4, obj_facelabel_an5, x_to_y, 'min_angle_diff', 20);
+    [distort_tri_nodeid_an4{i}, distort_tri_nodeid_an5{i}, min_angle_diff{i}] = getDistortCorrespTris(obj_facelabel_an4, obj_facelabel_an5, x_to_y, ...
+        'min_angle_diff', 20, facelabel_an4, facelabel_an5, node_coord_an4, node_coord_an5, tri_node_an4, tri_node_an5);
     disp(i)
 end
 
-%% ##### Finer Classify Faces with various Triangle Edge Lengths #####
+%% ##### Finer Classify the Distorted Tirangles #####
+
+% ----- edge lengths -----
 % load('180826_longEdges.mat')
 % load('180822_FaceCorresp.mat')
-
-% idx = 1;
-% % ----- get the object face triangles and nodes -----
-% obj_facelabel_an4 = tracked_uniqueface_an4(idx, :);
-% obj_facelabel_an5 = tracked_uniqueface_an5(idx, :);
-% x_to_y = X_to_Y{idx};
-% 
-% face_node_info = getSingleFaceNodes(file_an4, obj_facelabel_an4, file_an5, obj_facelabel_an5);
-% plot_trinode_an4 = node_coord_an4(longedge_tri_nodeid_an4, :);
-% plot_trinode_an5 = node_coord_an5(longedge_tri_nodeid_an5, :);
-% visualizeFace(face_node_info, x_to_y, plot_trinode_an4, plot_trinode_an5, 'distort_tri');
 
 % longedge_length = [];
 edge_10to20_faces = [];
@@ -191,13 +183,38 @@ for i = 1:length(min_angle_diff)
     end
 end
 
+%% ----- min_angle_diff, portion of distorted triangles -----
+total_num_tri_onepiece = 0;
+num_tri_minadiff20_onepiece = 0;
+num_tri_minadiff30_onepiece = 0;
+face_onepice = (1:length(tracked_uniqueface_an4))';
+face_onepice(face_piecewise) = [];
+parfor i = 1:length(face_onepice)
+    idx = face_onepice(i);
+    obj_facelabel_an4 = tracked_uniqueface_an4(idx, :);
+    mask_objface_an4 = (facelabel_an4(:,1) == obj_facelabel_an4(1) & facelabel_an4(:,2) == obj_facelabel_an4(2));
+    total_num_tri_onepiece = total_num_tri_onepiece + sum(mask_objface_an4);
+    num_tri_minadiff20_onepiece = num_tri_minadiff20_onepiece + size(min_angle_diff{idx},1);
+    num_tri_minadiff30_onepiece = num_tri_minadiff30_onepiece + sum(min_angle_diff{idx}>30);
+end
 
+total_num_tri_all = 0;
+num_tri_minadiff20_all = 0;
+num_tri_minadiff30_all = 0;
+parfor i = 1:length(tracked_uniqueface_an4)
+    obj_facelabel_an4 = tracked_uniqueface_an4(i, :);
+    mask_objface_an4 = (facelabel_an4(:,1) == obj_facelabel_an4(1) & facelabel_an4(:,2) == obj_facelabel_an4(2));
+    total_num_tri_all = total_num_tri_all + sum(mask_objface_an4);
+    num_tri_minadiff20_all = num_tri_minadiff20_all + size(min_angle_diff{i},1);
+    num_tri_minadiff30_all = num_tri_minadiff30_all + sum(min_angle_diff{i}>30);
+end
 
 %% ##### Visualization #####
 file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d');
 file_an5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
 
-idx = edge_10to20_faces(randi(length(edge_10to20_faces)));
+% idx = edge_10to20_faces(randi(length(edge_10to20_faces)));
+idx = 1;
 x_to_y = X_to_Y{idx};
 obj_facelabel_an4 = tracked_uniqueface_an4(idx, :);
 obj_facelabel_an5 = tracked_uniqueface_an5(idx, :);
@@ -205,14 +222,13 @@ face_node_info = getSingleFaceNodes(file_an4, obj_facelabel_an4, file_an5, obj_f
 obj_node_an4 = distort_tri_nodeid_an4{idx};
 obj_node_an5 = distort_tri_nodeid_an5{idx};
 edge_length = min_angle_diff{idx};
-mask_longer10 = (edge_length > 10);
-obj_node_an4 = obj_node_an4(mask_longer10, :);
-obj_node_an5 = obj_node_an5(mask_longer10, :);
+% mask_longer10 = (edge_length > 10);
+% obj_node_an4 = obj_node_an4(mask_longer10, :);
+% obj_node_an5 = obj_node_an5(mask_longer10, :);
 
 
 % ----- Corresp -----
 % visualizeFace(face_node_info, x_to_y)
-
 
 % ----- Distort triangles -----
 visualizeFace(face_node_info, x_to_y, obj_node_an4, obj_node_an5, 'distort_tri')
