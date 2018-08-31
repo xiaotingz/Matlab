@@ -150,13 +150,12 @@ load('/Users/xiaotingzhong/Dropbox/grainTracking_forCluster/180822.mat');
 distort_tri_nodeid_an4 = cell(length(tracked_uniqueface_an4), 1);
 distort_tri_nodeid_an5 = cell(length(tracked_uniqueface_an4), 1);
 min_angle_diff = cell(length(tracked_uniqueface_an4), 1);
-for i = 1:length(tracked_uniqueface_an4)
+for i = 1:length(track)
     % ----- get the object face triangles and nodes -----
     obj_facelabel_an4 = tracked_uniqueface_an4(i, :);
     obj_facelabel_an5 = tracked_uniqueface_an5(i, :);
     x_to_y = X_to_Y{i};
-    [distort_tri_nodeid_an4{i}, distort_tri_nodeid_an5{i}, min_angle_diff{i}] = getDistortCorrespTris(obj_facelabel_an4, obj_facelabel_an5, x_to_y, 'min_angle_diff', 20);
-    disp(i)
+    [distort_tri_nodeid_an4{i}, distort_tri_nodeid_an5{i}, min_angle_diff{i}] = getDistortCorrespTris(obj_facelabel_an4, obj_facelabel_an5, x_to_y, 'long_edge', 6);
 end
 
 %% ##### Finer Classify Faces with various Triangle Edge Lengths #####
