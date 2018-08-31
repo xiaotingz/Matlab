@@ -70,7 +70,7 @@ if strcmp(obj, 'long_edge')
     
 elseif strcmp(obj, 'min_angle_diff')
     min_angle_diff = - ones(length(face_tri_an4), 1);
-    for i = 1:length(face_tri_an4)
+    for i = 1:size(face_tri_an4, 1)
         tri_an4 = node_coord_an4(face_tri_an4(i,:),:);
         tri_5from4 = node_coord_an5(face_node_uniqueid_an5(face_tri_5from4(i,:)),:);
         minangle_tri_an4 = calcTriangleMinAngle(tri_an4);
