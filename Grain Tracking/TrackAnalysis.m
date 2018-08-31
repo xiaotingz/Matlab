@@ -89,51 +89,6 @@ tmp_nodes_an4 = tri_nodes_an4(mask_an4,:);
 tmp_nodes_an5 = tri_nodes_an5(mask_an5,:);
 
 
-%% ##### Visualize Grain Face in MATLAB #####
-trisurf( tmp_nodes_an4, num_coords_an4(:,1), num_coords_an4(:,2), num_coords_an4(:,3) );
-rotate3d on
-hold on
-trisurf( tmp_nodes_an5, num_coords_an5(:,1), num_coords_an5(:,2), num_coords_an5(:,3),'Facecolor',[218/255 168/255 32/255] );
-rotate3d on
-
-
-
-
-%% ##### Find the FaceID of A Face Between Two Grains #####
-file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_mesh.dream3d');
-file_an5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_mesh.dream3d');
-face_id = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/FeatureFaceId')';
-face_label = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
-face_label_an4 = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
-face_label_an5 = h5read(file_an5, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
-face_id_an4 = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/FeatureFaceId')';
-face_id_an5 = h5read(file_an5, '/DataContainers/TriangleDataContainer/FaceData/FeatureFaceId')';
-
-obj_face = 1;
-
-
-[~, ~, faceCorresp_CF] = TrackFace(file_an4, file_an5, look_up_table, true);
-
-face_info_CF = [C_An4, faces_an4(faceCorresp_CF(:,1),:)];
-face_info_CF = sortrows(face_info_CF);
-
-GA = face_info_CF(68,2);
-GB = face_info_CF(68,3);
-mask = ((face_label(:,1) == GA & face_label(:,2) == GB) | (face_label(:,1) == GB & face_label(:,2) == GA));
-% unique(face_id(mask))
-
-tmp = [(1:length(FCentrs_diff))', FCentrs_diff];
-sort_tmp = sortrows(tmp, -2);
-
-obj_label_an5 = tracked_facelabel_an5(sort_tmp(obj_face, 1), :);
-mask = (face_label_an5(:,1) == obj_label_an5(1) & face_label_an5(:,2) == obj_label_an5(2));
-unique(face_label_an5(mask, :), 'rows')
-unique(face_id_an5(mask))
-obj_label_an4 = tracked_facelabel_an4(sort_tmp(obj_face, 1), :);
-mask = (face_label_an4(:,1) == obj_label_an4(1) & face_label_an4(:,2) == obj_label_an4(2));
-unique(face_label_an4(mask, :), 'rows')
-unique(face_id_an4(mask))
-
 
 %% ##### Get FeatureFaceId for the Faces Satisfying a Certain Condition #####
 clc
@@ -200,7 +155,7 @@ for i = 1:2
     obj_facelabel_an4 = tracked_uniqueface_an4(i, :);
     obj_facelabel_an5 = tracked_uniqueface_an5(i, :);
     x_to_y = X_to_Y{i};
-    [longedge_tri_nodeid_an4{i}, longedge_tri_nodeid_an5{i}, longestedge{i}] = getLongEdgeCorrespTris(obj_facelabel_an4, obj_facelabel_an5, x_to_y, 6);
+    [longedge_tri_nodeid_an4{i}, longedge_tri_nodeid_an5{i}, longestedge{i}] = getDistortCorrespTris(obj_facelabel_an4, obj_facelabel_an5, x_to_y, 'long_edge', 6);
 end
 
 %% ##### Finer Classify Faces with various Triangle Edge Lengths #####

@@ -197,8 +197,9 @@ print('simpleGeo2', '-dpng', '-r300')
 
 
 %% ############################################################################
-% Simple Example 3). Prism with Top/Bottom Surface Shape
+% Simple Example 3). Prism with Different Top/Bottom Surface Shape
 % ############################################################################
+%% ##### Simple Direct Corresps #####
 figure()
 points_1 = [0,0,0; 2,0,0; 0,1,0; 0,0,1; 4,0,1; 0,2,1];  
 DT_4 = delaunayTriangulation(points_1);
@@ -224,9 +225,10 @@ trisurf(C_3,DT_3.Points(:,1),DT_3.Points(:,2),DT_3.Points(:,3), 'Facealpha', 0.3
 h2 = heightUsingTruncatedConeModel(1, 4, v_3)
 rotate3d on
 
+%% ##### Direct Corresp, Distorted Bottom Shape #####
 figure()
-points_1 = [-1,0,0; 1,0,0; 0,1,0; 0,0,1; 4,0,1; 0,2,1];  
-DT_4 = delaunayTriangulation(points_1);
+points_4 = [-1,0,0; 1,0,0; 0,1,0; 0,0,1; 4,0,1; 0,2,1];  
+DT_4 = delaunayTriangulation(points_4);
 [C_4, v_4] = convexHull(DT_4);
 trisurf(C_4,DT_4.Points(:,1),DT_4.Points(:,2),DT_4.Points(:,3), 'Facealpha', 0.3);
 daspect([2, 2, 1])
@@ -234,8 +236,8 @@ h4 = heightUsingTruncatedConeModel(1, 4, v_4)
 rotate3d on
 
 figure()
-points_1 =  [-4,0,0; 4,0,0; 0,0.25,0; 0,0,1; 4,0,1; 0,2,1]; 
-DT_5 = delaunayTriangulation(points_1);
+points_5 =  [-4,0,0; 4,0,0; 0,0.25,0; 0,0,1; 4,0,1; 0,2,1]; 
+DT_5 = delaunayTriangulation(points_5);
 [C_5, v_5] = convexHull(DT_5);
 trisurf(C_5,DT_5.Points(:,1),DT_5.Points(:,2),DT_5.Points(:,3), 'Facealpha', 0.3);
 daspect([2, 2, 1])
@@ -243,10 +245,76 @@ h5 = heightUsingTruncatedConeModel(1, 4, v_5)
 rotate3d on
 
 figure()
-points_1 = [-10,0,0; 10,0,0; 0,0.1,0; 0,0,1; 4,0,1; 0,2,1];  
-DT_6 = delaunayTriangulation(points_1);
+points_6 = [-10,0,0; 10,0,0; 0,0.1,0; 0,0,1; 4,0,1; 0,2,1];  
+DT_6 = delaunayTriangulation(points_6);
 [C_6, v_6] = convexHull(DT_6);
 trisurf(C_6,DT_6.Points(:,1),DT_6.Points(:,2),DT_6.Points(:,3), 'Facealpha', 0.3);
 daspect([2, 2, 1])
 h6 = heightUsingTruncatedConeModel(1, 4, v_6)
 rotate3d on
+
+
+%% ##### Non-direct Corresp + Distorted Bottom Shape #####
+figure()
+points_7_top = [-1,0,0; 1,0,0; 0,1,0];
+points_7_bottom = [-1,0,1; 1,0,1; 0,1,1];
+points_1 = [points_7_top; points_7_bottom];
+DT_7 = delaunayTriangulation(points_1);
+[C_7, v_7] = convexHull(DT_7);
+trisurf(C_7,DT_7.Points(:,1),DT_7.Points(:,2),DT_7.Points(:,3), 'Facealpha', 0.3);
+daspect([2, 1, 1])
+area_7_top = calcArea(points_7_top);
+area_7_bottom = calcArea(points_7_bottom);
+h7 = heightUsingTruncatedConeModel(area_7_top, area_7_bottom, v_7)
+rotate3d on
+print('pillar7', '-dpng', '-r300')
+
+figure()
+points_8_top = [-1,0,0; 1,0,0; 0,1,0];
+points_8_bottom = [-1,1,1; 1,1,1; 0,0,1];
+points_1 = [points_8_top; points_8_bottom];
+DT_8 = delaunayTriangulation(points_1);
+[C_8, v_8] = convexHull(DT_8);
+trisurf(C_8,DT_8.Points(:,1),DT_8.Points(:,2),DT_8.Points(:,3), 'Facealpha', 0.3);
+daspect([2, 1, 1])
+area_8_top = calcArea(points_8_top);
+area_8_bottom = calcArea(points_8_bottom);
+h8 = heightUsingTruncatedConeModel(area_8_top, area_8_bottom, v_8)
+rotate3d on
+print('pillar8', '-dpng', '-r300')
+
+figure()
+points_9_top = [-1,0,0; 1,0,0; 0,1,0];
+points_9_bottom = [-5,0.2,1; 5,0.2,1; 0,0,1];
+points_1 = [points_9_top; points_9_bottom];
+DT_9 = delaunayTriangulation(points_1);
+[C_9, v_9] = convexHull(DT_9);
+trisurf(C_9,DT_9.Points(:,1),DT_9.Points(:,2),DT_9.Points(:,3), 'Facealpha', 0.3);
+daspect([2, 1, 1])
+area_9_top = calcArea(points_9_top);
+area_9_bottom = calcArea(points_9_bottom);
+h9 = heightUsingTruncatedConeModel(area_9_top, area_9_bottom, v_9)
+rotate3d on
+print('pillar9', '-dpng', '-r300')
+
+figure()
+points_10_top = [-1,0,0; 1,0,0; 0,1,0];
+points_10_bottom = [-1,6,1; 1,6,1; 0,5,1];
+points_1 = [points_10_top; points_10_bottom];
+DT_10 = delaunayTriangulation(points_1);
+[C_10, v_10] = convexHull(DT_10);
+trisurf(C_10,DT_10.Points(:,1),DT_10.Points(:,2),DT_10.Points(:,3), 'Facealpha', 0.3);
+daspect([2, 1, 1])
+area_10_top = calcArea(points_10_top);
+area_10_bottom = calcArea(points_10_bottom);
+h10 = heightUsingTruncatedConeModel(area_10_top, area_10_bottom, v_10)
+rotate3d on
+print('pillar10', '-dpng', '-r300')
+
+
+
+
+
+
+
+

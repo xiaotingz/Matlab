@@ -1,22 +1,26 @@
-function [longedge_tri_node_an4, longedge_tri_node_an5, longestedge] = getLongEdgeCorrespTris(obj_facelabel_an4, obj_facelabel_an5, x_to_y, thres)
+% function [distort_tri_node_an4, distort_tri_node_an5, values] = getDistortCorrespTris(obj_facelabel_an4, obj_facelabel_an5, x_to_y, obj, thres)
 % ###########################################################################
 % * Input 
 %     - obj_facelabel_ = [2,1], facelabel of the objective face. 
 %         The full facelabel_list is returned by TrackUniqueFace.m
 %     - x_to_y = [n, 1], the correspondence
 %         Returned by main_TrackNodes.m or solveNodeCorresp.m
-%     - thres, a scalar value defining which triangle edges are long
+%     - thres
+%         a scalar value defining what is a long edge,
+%         or what is a small angle
+%     - obj = 'long_edge' or 'small_angle'
 %  * Output
-%     - longedge_tri_node_ = [m, 3], node_id for the triangles which have long edges
+%     - distort_tri_node_ = [m, 3], node_id for the triangles which have long
+%     edges or small inner angle
 %         _an5 are not mesh nodes that form mesh triangles in an5, but are the an5 nodes that
 %         corresponds to the an4 mesh triangle nodes
-%     - longestedge = [m, 1], the length of the longest triangle edge for the triangles in an5
+%     - values = [m, 1], 
+%         the length of the longest triangle edge for the triangles in an5,
+%         or the triangle's smallest inner angle
 %  * Notes
-%     - This file is use together with visualizeFace.m obj='distort_tri' to
-%     see if the corresponding triangles have distorted shape. If they do,
-%     the volume/area model for migration distance are not valid. If the
-%     triangles are not distorted, the volume/area model for migration
-%     distance is valid.
+%     - This file is use together with visualizeFace.m to see if the corresponding
+%      triangles have distorted shape. 
+%     - If triangles are distorted, the volume/area model for migration distance have high error.
 % ###########################################################################
 % ------------------ load data for debug --------------------
 % load('180822_FaceCorresp');
@@ -52,16 +56,20 @@ for i = 1:size(face_tri_5from4, 1)
     end
 end
 
-% ##### calculate triangle edge lengths #####
-face_triedges_5from4 = zeros(size(face_tri_5from4));
-face_triedges_5from4(:,1) = vecnorm(face_node_coord_an5(face_tri_5from4(:,1), :) - face_node_coord_an5(face_tri_5from4(:,2), :), 2, 2);
-face_triedges_5from4(:,2) = vecnorm(face_node_coord_an5(face_tri_5from4(:,2), :) - face_node_coord_an5(face_tri_5from4(:,3), :), 2, 2);
-face_triedges_5from4(:,3) = vecnorm(face_node_coord_an5(face_tri_5from4(:,3), :) - face_node_coord_an5(face_tri_5from4(:,1), :), 2, 2);
-
-% ##### get triangles with long edges #####
-distort_tri = any(face_triedges_5from4 > thres, 2);
-longedge_tri_node_an4 = face_tri_an4(distort_tri, :);
-longedge_tri_node_an5 = face_node_uniqueid_an5(face_tri_5from4(distort_tri, :));
-longestedge = max(face_triedges_5from4(any(face_triedges_5from4 > 6, 2), :),[], 2);
-
-end
+if strcmp(obj, 'long_edge')
+    % ##### calculate triangle edge lengths #####
+    face_triedges_5from4 = zeros(size(face_tri_5from4));
+    face_triedges_5from4(:,1) = vecnorm(face_node_coord_an5(face_tri_5from4(:,1), :) - face_node_coord_an5(face_tri_5from4(:,2), :), 2, 2);
+    face_triedges_5from4(:,2) = vecnorm(face_node_coord_an5(face_tri_5from4(:,2), :) - face_node_coord_an5(face_tri_5from4(:,3), :), 2, 2);
+    face_triedges_5from4(:,3) = vecnorm(face_node_coord_an5(face_tri_5from4(:,3), :) - face_node_coord_an5(face_tri_5from4(:,1), :), 2, 2);
+    % ##### get triangles with long edges #####
+    distort_tri = any(face_triedges_5from4 > thres, 2);
+    distort_tri_node_an4 = face_tri_an4(distort_tri, :);
+    distort_tri_node_an5 = face_node_uniqueid_an5(face_tri_5from4(distort_tri, :));
+    values = max(face_triedges_5from4(any(face_triedges_5from4 > 6, 2), :),[], 2);
+elseif strcmp(obj, 'min_angle')
+    
+    
+    
+    
+% end
