@@ -1,10 +1,10 @@
-function [RFvec, misA] = dgInFZ(g1, g2, O)
+function [rf_vec, misA] = dgInFZ(g1, g2, O)
 % ##########################################################################
 % * Input: 
 %     - g1, g2, size = [3, 3]
 %         orientation matrixes
 % * Output: 
-%     - RFvex, size = [3,1]
+%     - RFvec, size = [3,1]
 %         the variant of the misorientation, as Rodrigues vector, that lies in the Fundamental Zone
 %     - g_FZ, size = [3, 3]
 %         the variant of the misorientation, as orientation matrix, that lies in the Fundamental Zone         
@@ -25,10 +25,10 @@ function [RFvec, misA] = dgInFZ(g1, g2, O)
 % #                 return 
 % # # misA error check-----------------------------------------------------------------
             
-            RFvec = [dg(2,3)-dg(3,2), dg(3,1)-dg(1,3), dg(1,2)-dg(2,1)] /(2*sind(misA)) * tand(misA/2);
-            inFZ = ((all(RFvec >= 0)) & (RFvec(1) <= (sqrt(2) - 1)) & ...
-                      (RFvec(1) >= RFvec(2)) & (RFvec(2) >= RFvec(3)) & (sum(RFvec) <= 1) & (sum(RFvec) > 0.0001) );
-            if inFZ
+            rf_vec = [dg(2,3)-dg(3,2), dg(3,1)-dg(1,3), dg(1,2)-dg(2,1)] /(2*sind(misA)) * tand(misA/2);
+            in_fz = ((all(rf_vec >= 0)) & (rf_vec(1) <= (sqrt(2) - 1)) & ...
+                      (rf_vec(1) >= rf_vec(2)) & (rf_vec(2) >= rf_vec(3)) & (sum(rf_vec) <= 1) & (sum(rf_vec) > 0.0001) );
+            if in_fz
                 return 
             end
             dg = gg2*gg1';
@@ -42,10 +42,10 @@ function [RFvec, misA] = dgInFZ(g1, g2, O)
 % #                 return
 % # # misA error check-----------------------------------------------------------------                
             
-            RFvec = [dg(2,3)-dg(3,2), dg(3,1)-dg(1,3), dg(1,2)-dg(2,1)] /(2*sind(misA)) * tand(misA/2);
-            inFZ = ((all(RFvec >= 0)) & (RFvec(1) <= (sqrt(2) - 1)) & ...
-                      (RFvec(1) >= RFvec(2)) & (RFvec(2) >= RFvec(3)) & (sum(RFvec) <= 1) & (sum(RFvec) > 0.0001));
-            if inFZ
+            rf_vec = [dg(2,3)-dg(3,2), dg(3,1)-dg(1,3), dg(1,2)-dg(2,1)] /(2*sind(misA)) * tand(misA/2);
+            in_fz = ((all(rf_vec >= 0)) & (rf_vec(1) <= (sqrt(2) - 1)) & ...
+                      (rf_vec(1) >= rf_vec(2)) & (rf_vec(2) >= rf_vec(3)) & (sum(rf_vec) <= 1) & (sum(rf_vec) > 0.0001));
+            if in_fz
                 return 
             end
         end

@@ -1,4 +1,4 @@
-% function migration = calcMigrationFromCorresp(file_an4, obj_facelabel_an4, obj_facelabel_an5, x_to_y)
+% function migration = calcNormalMigration(file_an4, obj_facelabel_an4, obj_facelabel_an5, x_to_y)
 % ############################################################################
 % * Input 
 %     - obj_facelabel_ = [2,1], facelabel of the objective face. 

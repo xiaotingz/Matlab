@@ -14,7 +14,10 @@ num_cells_an4(1) = [];
 num_cells_an5(1) = [];
 
 % ##### get the faceLabels and their correpondence ##### 
-[faces_an4, faces_an5, face_corresp] = TrackFace(file_an4, file_an5, look_up_table, true);
+[faces_an4, faces_an5, face_corresp] = TrackFace(file_an4, file_an5, look_up_table, use_complete_faces);
+
+
+
 
 %%
 % ##### calc integral |face curvature| ##### 
