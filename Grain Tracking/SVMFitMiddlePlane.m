@@ -1,6 +1,9 @@
-load('/Users/xiaotingzhong/Dropbox/grainTracking_forCluster/180822_FaceCorresp');
-load('/Users/xiaotingzhong/Dropbox/grainTracking_forCluster/180822');
-idx = 1329;
+file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d');
+file_an5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
+load('look_up_table_an4_an5.mat')
+load('180822_FaceCorresp.mat', 'X_to_Y', 'tracked_uniqueface_an4', 'tracked_uniqueface_an5')
+
+idx = 1500;
 
 x_to_y = X_to_Y{idx};
 obj_facelabel_an4 = tracked_uniqueface_an4(idx, :);
@@ -16,12 +19,15 @@ SVMModel = fitcsvm(X, Y,'KernelFunction','linear',...
 
 x_range = [min(X(:,1)), max(X(:,1))];
 y_range = [min(X(:,2)), max(X(:,2))];
-normal = SVMModel.Beta;
-bias = SVMModel.Bias;
-plotPlane(normal, bias, x_range, y_range)
+scale = ceil(max(length(face_node_info{2,1}), length(face_node_info{2,2}))/100);
+scale(scale < 3) = 3;
+plotTriNormals(SVMModel.Beta, obj_facelabel_an4, obj_facelabel_an5, file_an4, file_an5, 'show_avg')
+% plotSVMPlane(SVMModel.Beta, SVMModel.Bias, x_range, y_range, scale);
+hold off
 
-Y_pre = str2double(cell2mat(predict(SVMModel,X)));
-error = sum(Y ~= Y_pre)
+Y_pre = str2num(cell2mat(predict(SVMModel,X)));
+error = sum(Y ~= Y_pre) / length(Y)
+
 %%
 rng(1); % For reproducibility
 r = sqrt(rand(100,1)); % Radius

@@ -3,9 +3,13 @@ function visualizeFace(obj_face, x_to_y, obj_node_an4, obj_node_an5, obj)
 % Input
 %     - obj_face = {4, 2}, wrote by getSingleFaceNodes.m
 %     - x_to_y = [m, 1], wrote by solveNodeCorresp.m
-%     - obj_point_... = [n, 3], surface mesh node coordinates from D3D
+%     - obj_node_... = [n, 3], surface mesh node coordinates from D3D
 %     - obj = 'distort_tri' || 'corresp' 
 %           use with getDistortedMatchTriangles.m
+%     - obj, string
+%           'corresp' | 'distort_tri' | 'show_normal' | 'avg_normalPlane'
+%             avg_normalPlane is to be compared with the SVM plane by
+%             plotSVMPlane.m
 % NOTES
 %     - change inputs according to what is desired. 
 %     - default is to plot the correspondence between all nodes, but
@@ -20,6 +24,7 @@ function visualizeFace(obj_face, x_to_y, obj_node_an4, obj_node_an5, obj)
 load('node_coord');
 color1 = [0, 0.4470, 0.7410];
 color2 = [0.9290, 0.6940, 0.1250];
+
 
 
 % ##### Plot Mesh #####
@@ -49,6 +54,7 @@ elseif nargin == 5 && strcmp(obj, 'corresp')
     for i = 1:length(obj_node_an4)
         plot3([obj_node_an4(i,1), obj_node_an5(x_to_y(i),1)], [obj_node_an4(i,2), obj_node_an5(x_to_y(i),2)], [obj_node_an4(i,3), obj_node_an5(x_to_y(i),3)], 'k', 'LineWidth', 1);
     end
+    
 % ##### Specified obj_node, distort_tri #####
 elseif nargin == 5 && strcmp(obj, 'distort_tri')
     obj_node_an4 = node_coordsmooth_an4(obj_node_an4(:), :);
@@ -67,7 +73,7 @@ elseif nargin == 5 && strcmp(obj, 'distort_tri')
         plot3([obj_node_an5(i+num_obj_tri,1), obj_node_an5(i+2*num_obj_tri,1)], [obj_node_an5(i+num_obj_tri,2), obj_node_an5(i+2*num_obj_tri,2)], [obj_node_an5(i+num_obj_tri,3), obj_node_an5(i+2*num_obj_tri,3)], 'Color', color2, 'LineWidth', 2);
         plot3([obj_node_an5(i,1), obj_node_an5(i+2*num_obj_tri,1)], [obj_node_an5(i,2), obj_node_an5(i+2*num_obj_tri,2)], [obj_node_an5(i,3), obj_node_an5(i+2*num_obj_tri,3)], 'Color', color2, 'LineWidth', 2);
     end
-end
+
 
 end
 

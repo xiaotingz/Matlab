@@ -14,7 +14,7 @@
 % ########################################################
 % Set up recording parameters (optional), and record
 OptionZ.FrameRate=20; OptionZ.Duration=8; OptionZ.Periodic=true;
-file_name = ['pair_', num2str(idx)];
+file_name = ['pair_', num2str(idx), '_normals'];
 CaptureFigVid([-20,10;-110,10;-190,80;-290,10;-380,10], file_name ,OptionZ)
 
 % CaptureFigVid([-20,10;-110,10;-190,80], file_name, OptionZ)
