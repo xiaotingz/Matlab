@@ -1,4 +1,4 @@
-function [tracked_uniqueface_1, tracked_uniqueface_2] = trackUniqueFace(file_1, file_2, look_up_table, complete)
+function [tracked_uniqueface_1, tracked_uniqueface_2] = trackUniqueFace(file_1, file_2, look_up_table, use_complete_faces)
 % ###########################################################################
 % * Very similar to TrackFace, except that the input is the uniqueFaces.
 % * Input
@@ -24,7 +24,7 @@ function [tracked_uniqueface_1, tracked_uniqueface_2] = trackUniqueFace(file_1, 
     unique_facelabel_2 = unique_facelabel_2(all(unique_facelabel_2>0, 2), :);
     unique_facelabel_1 = sortrows(unique_facelabel_1);
     unique_facelabel_2 = sortrows(unique_facelabel_2);
-    if complete == 1
+    if strcmp(use_complete_faces, 'use_complete_faces')
             surface_grain_1 = h5read(file_1,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
             surface_grain_2 = h5read(file_2,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
             surface_grain_1(1) = [];

@@ -1,4 +1,4 @@
-function [faces_1_raw, faces_2_raw, corresp] = TrackFace(file_1, file_2,look_up_table, useCompleteFaces)
+function [faces_1_raw, faces_2_raw, corresp] = trackFace(file_1, file_2,look_up_table, use_complete_faces)
 % ###########################################################################
 % * Input
 %     - lookUp = [N,2] = [ID_s1, ID_s2] 
@@ -6,7 +6,10 @@ function [faces_1_raw, faces_2_raw, corresp] = TrackFace(file_1, file_2,look_up_
 % * Output
 %     - faces = [N,2] = [labelA, labelB] are raw lists including all possible faces. Note just the ones that are tracked.
 %     - corresp = [n,2] = [faceID_state1, faceID_state2]
-% * Note the facesList is duplicated by [A,B] and [B,A]. This code only gives half correspondence. 
+% * Note 
+%     - The facesList is duplicated by [A,B] and [B,A]. This code only gives half correspondence. 
+%     - This file only asks the grain faces to be complete in their own
+%     states but not complete in both states. 
 % ###########################################################################
 % ------------------ load data for debug --------------------
 % file_1 = file_An4;
@@ -19,7 +22,7 @@ function [faces_1_raw, faces_2_raw, corresp] = TrackFace(file_1, file_2,look_up_
     neigh_list_2 = double(h5read(file_2,'/DataContainers/ImageDataContainer/CellFeatureData/NeighborList'));
     num_neigh_1(1) = [];
     num_neigh_2(1) = [];
-    if useCompleteFaces
+    if strcmp(use_complete_faces, 'use_complete_faces')
         surf_grain_1 = h5read(file_1,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
         surf_grain_2 = h5read(file_2,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
         surf_grain_1(1) = [];
@@ -66,7 +69,7 @@ function [faces_1_raw, faces_2_raw, corresp] = TrackFace(file_1, file_2,look_up_
     faces_2_id1 = [(1:length(faces_2_raw)).', look_up_table_2to1(faces_2_raw)];
     
     % ##### get rid of the incomplete faces #####
-    if useCompleteFaces
+    if strcmp(use_complete_faces, 'use_complete_faces')
         mask_completefaces1 = any(surf_grain_1(faces_1_raw) == 0, 2);
         mask_completefaces2 = any(surf_grain_2(faces_2_raw) == 0, 2);
         faces_1 = faces_1(mask_completefaces1, :);
