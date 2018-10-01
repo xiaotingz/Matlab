@@ -1,13 +1,13 @@
 function plotSVMPlane(normal, bias, x_range, y_range, scale)
 % ############################################################################
-% NOTES
-%   - use together with visualizeFace.m and plotTriNormals.m
 % Inputs
 %   - normal = [3, 1], the plane normal direction
 %   - bias, scalar, the bias term
 %   - x_range, [2, 1], [x_min, x_max]
 %   - y_range, [2, 1], [y_min, y_max]
 %   - scale, the scale for the plane normal arrow
+% Notes
+%   - use together with visualizeFace.m and visualizeSingleFaceWithNormal.m
 % ############################################################################
 % ------------------ load data for debug --------------------
 % normal = SVMModel.Beta;

@@ -7,7 +7,7 @@ function visualizeFace(obj_face, x_to_y, obj_node_an4, obj_node_an5, obj)
 %     - obj = 'distort_tri' || 'corresp' 
 %           use with getDistortedMatchTriangles.m
 %     - obj, string
-%           'corresp' | 'distort_tri' | 'show_normal' | 'avg_normalPlane'
+%           'corresp' | 'distort_tri' 
 %             avg_normalPlane is to be compared with the SVM plane by
 %             plotSVMPlane.m
 % NOTES
