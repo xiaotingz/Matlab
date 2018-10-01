@@ -1,3 +1,20 @@
+% ##################################################
+% Contents
+% * Make a easy to check dictionary 
+% * Surface grains
+%     - The Complete Tracked Grains
+%     - The Grains that Growed From Being Inner to Touch Surface
+% * Plot Triangle Curvature 
+% * Get twins
+% * Check Piecewise and Twins
+% * Get FeatureFaceId for the Faces Satisfying a Certain Condition
+% * Distorted Triangles
+% * Visualization
+% ##################################################
+file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d');
+file_an5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
+load('look_up_table_an4_an5.mat')
+
 %% ##### Make a easy to check dictionary #####
 data = [face_corresp, face_area_diff, FCurv_diff];
 data = sortrows(data, [4, 3]);
@@ -39,13 +56,13 @@ face_area_diff = diff_tmp(mask_growtosurf,1);
 set(0,'defaultAxesLabelFontSize',1.1)
 set(0,'defaultAxesFontSize',19)
 
-face_label_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
+facelabel_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
 tri_curve_an4 =  abs(roundn(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5)).';
-mask_an4 = ~(any(face_label_an4 <= 0, 2) | tri_curve_an4 > 100);
+mask_an4 = ~(any(facelabel_an4 <= 0, 2) | tri_curve_an4 > 100);
 tri_curve_an4 = tri_curve_an4(mask_an4);
-face_label_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
+facelabel_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
 tri_curve_an5 =  abs(roundn(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5)).';
-mask_an5 = ~(any(face_label_an5 <= 0, 2) | tri_curve_an5 > 100);
+mask_an5 = ~(any(facelabel_an5 <= 0, 2) | tri_curve_an5 > 100);
 tri_curve_an5 = tri_curve_an5(mask_an5);
 
 histogram(tri_curve_an4,100)
@@ -59,34 +76,125 @@ xlabel('Triangle Curvature, \mum^{-1}')
 ylabel('# Triangles')
 
 
-%% ##### Plot Triangle Curvature Distribution #####
-% get the coords of one face pair
+%% ##### Get Twins #####
+% """
+% * Note that twin is decided by the ||rf_vec_diff||, calculated
+% rf_vec_diff(60@111, 55@111)=0.0568, so chose thres = 0.5
+% * Also, the twin judged from an4 is different from the twin judged from
+% an5. It's arguable that which should be used but define twin as twin_an4 | twin_an5
+% """
+EA_an4 = rad2deg(h5read(file_an4,'/DataContainers/ImageDataContainer/CellFeatureData/AvgEulerAngles')).';
+EA_an5 = rad2deg(h5read(file_an5,'/DataContainers/ImageDataContainer/CellFeatureData/AvgEulerAngles')).';
+O = CrysSym;
 
-i = 1;
-idx_an4 = face_corresp(i, 1);
-idx_an5 = face_corresp(i, 2);
-label_an4 = faces_an4(idx_an4, :);
-label_an5 = faces_an5(idx_an5, :);
+[tracked_uniqueface_an4, tracked_uniqueface_an5] = trackUniqueFace(file_an4, file_an5, look_up_table, 'use_complete_faces');
+g1 = eye(3);
+g2 = AAToG(60, [1,1,1]);
+[rf_vec_obj, ~] = dgInFZ(g1, g2, O);
+thres = 0.05;
 
-face_label_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
-tri_nodes_an4 = 1 + double(h5read(file_an4,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList'))';
-num_coords_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedVertexList'))';
-face_label_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
-tri_nodes_an5 = 1 + double(h5read(file_an5,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList'))';
-num_coords_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedVertexList'))';
+rf_vec_an4 = zeros(length(tracked_uniqueface_an4), 3);
+rf_vec_an5 = rf_vec_an4;
+for i = 1:length(tracked_uniqueface_an4)
+    g1_an4 = EAtoG(EA_an4(tracked_uniqueface_an4(i,1), :));
+    g2_an4 = EAtoG(EA_an4(tracked_uniqueface_an4(i,2), :));
+    g1_an5 = EAtoG(EA_an5(tracked_uniqueface_an5(i,1), :));
+    g2_an5 = EAtoG(EA_an5(tracked_uniqueface_an5(i,2), :));    
+    [rf_vec_an4(i, :), ~] = dgInFZ(g1_an4, g2_an4, O);
+    [rf_vec_an5(i, :), ~] = dgInFZ(g1_an5, g2_an5, O);
+end
 
-mask_an4 = ((face_label_an4(:,1) == label_an4(1) & face_label_an4(:,2) == label_an4(2)) | (face_label_an4(:,1) == label_an4(2) & face_label_an4(:,2) == label_an4(1)));
-mask_an5 = ((face_label_an5(:,1) == label_an5(1) & face_label_an5(:,2) == label_an5(2)) | (face_label_an5(:,1) == label_an5(2) & face_label_an5(:,2) == label_an5(1)));
+rf_vec_obj = repmat(rf_vec_obj, length(rf_vec_an4), 1);
+dg_diff_an4 = rf_vec_an4 - rf_vec_obj;
+dg_diff_an4 = sum(dg_diff_an4.*dg_diff_an4, 2);
+dg_diff_an5 = rf_vec_an5 - rf_vec_obj;
+dg_diff_an5 = sum(dg_diff_an5.*dg_diff_an5, 2);
+mask_twin_an4 = (dg_diff_an4 < thres);
+mask_twin_an5 = (dg_diff_an5 < thres);
+mask_twin = mask_twin_an4 | mask_twin_an5;
 
-this_face_nodes_an4 = tri_nodes_an4(mask_an4,:);
-this_face_nodes_an5 = tri_nodes_an5(mask_an5,:);
-this_face_nodes_an4 = reshape(this_face_nodes_an4, [], 1);
-this_face_nodes_an5 = reshape(this_face_nodes_an5, [], 1);
-tri_node_coords_an4 = num_coords_an4(this_face_nodes_an4,:);
-tri_node_coords_an5 = num_coords_an5(this_face_nodes_an5,:);
+clear g1 g2 g1_an4 g2_an4 g1_an5 g2_an5 i O
 
-tmp_nodes_an4 = tri_nodes_an4(mask_an4,:);
-tmp_nodes_an5 = tri_nodes_an5(mask_an5,:);
+tracked_facenotwin_an4 = tracked_uniqueface_an4(~mask_twin, :);
+tracked_facenotwin_an5 = tracked_uniqueface_an5(~mask_twin, :);
+disp(['#twins_an4 = ', num2str(sum(mask_twin_an4)), '; #twins_an5 = ', num2str(sum(mask_twin_an5))])
+disp(['#twins_either =', num2str(sum(mask_twin))]);
+
+
+%% ##### Check Piecewise and Twins #####
+% """
+% * Run the previous section (Get Twins first)
+% * There are many piecewise surfaces that are not twins, checked they ----
+% """
+
+% ----- Get piecewise faces (by subgrah) -----
+load('180927_tmp');
+load('180822.mat', 'facelabel_an4', 'facelabel_an5', 'tri_node_an4', 'tri_node_an5');
+load('180828_piecewise_face', 'face_piecewise');
+
+twin_id = (1:length(tracked_uniqueface_an4))';
+twin_id = twin_id(mask_twin);
+
+% ----- Check size of the piecewise non-twins faces -----
+seclarge_piecesize = zeros(size(face_piecewise));
+for i = 1: length(face_piecewise)
+    % ----- Make subgraph from the piecewise surfaces -----
+    idx = face_piecewise(i);
+    obj_facelabel_1 = tracked_uniqueface_an4(idx, :);
+    obj_facelabel_2 = tracked_uniqueface_an5(idx, :);
+    mask_objface_1 = (facelabel_an4(:,1) == obj_facelabel_1(1) & facelabel_an4(:,2) == obj_facelabel_1(2));
+    mask_objface_2 = (facelabel_an5(:,1) == obj_facelabel_2(1) & facelabel_an5(:,2) == obj_facelabel_2(2));
+    face_tri_nodeid_1 = tri_node_an4(mask_objface_1, :);
+    face_unique_nodeid_1 = unique(face_tri_nodeid_1);
+    face_tri_nodeid_2 = tri_node_an5(mask_objface_2, :);
+    face_unique_nodeid_2 = unique(face_tri_nodeid_2);
+
+    [subgraph_1, subgraph_2] = findSubgraph(face_unique_nodeid_1, face_unique_nodeid_2, face_tri_nodeid_1, face_tri_nodeid_2);
+    
+    % ----- Record max size of the two 2nd largest piece -----
+    tmp1 = 0;
+    tmp2 = 0;
+    if length(unique(subgraph_1)) > 1
+        tmp1 = histcounts(subgraph_1);
+        tmp1 = sort(tmp1);
+        tmp1 = tmp1(end - 1);
+    elseif length(unique(subgraph_2)) > 1
+        tmp2 = histcounts(subgraph_2);
+        tmp2 = sort(tmp2);
+        tmp2 = tmp2(end - 1);
+    end
+    seclarge_piecesize(i) = max(tmp1, tmp2);        
+end
+
+[piecewise_normal, idx_normal] = setdiff(face_piecewise, twin_id);
+[piecewise_twin, idx_twin] = intersect(face_piecewise, twin_id);
+disp(['#face_piecewise = ', num2str(length(face_piecewise)), '; #face_piecewise that are twins = ', num2str(length(piecewise_twin))])
+
+piecesize_vari_normal = [piecewise_normal, seclarge_piecesize(idx_normal)];
+piecesize_vari_twin = [piecewise_twin, seclarge_piecesize(idx_twin)];
+
+clearvars -except piecesize_vari_normal piecesize_vari_twin
+%% ----- Display face_pair info ----- 
+% idx_piece = 569;
+% idx = piecewise_notwin(idx_piece);
+idx = all_multipiece_sym(101);
+
+dispFacePairInfo(file_an4, file_an5, tracked_uniqueface_an4, tracked_uniqueface_an5, idx)
+
+x_to_y = X_to_Y{idx};
+obj_facelabel_an4 = tracked_uniqueface_an4(idx, :);
+obj_facelabel_an5 = tracked_uniqueface_an5(idx, :);
+% face_node_info = getSingleFaceNodes(file_an4, obj_facelabel_an4, file_an5, obj_facelabel_an5);
+face_node_info = getSingleFaceNodes(obj_facelabel_an4, obj_facelabel_an5);
+visualizeFace(face_node_info, x_to_y)
+hold off
+
+% x_min = min(face_node_info{4,2}(:,1));
+% x_max = max(face_node_info{4,2}(:,1));
+% y_min = min(face_node_info{4,2}(:,2));
+% y_max = max(face_node_info{4,2}(:,2));
+% z_min = min(face_node_info{4,2}(:,3));
+% z_max = max(face_node_info{4,2}(:,3));
 
 
 
@@ -109,17 +217,17 @@ face_id_an5 = sort(face_id_an5, 2);
 surf_grain_an4(1) = [];
 surf_grain_an5(1) = [];
 
-tmp = [(1:length(FCentrs_diff))', FCentrs_diff];
-sort_tmp = sortrows(tmp, -2);
+tmp1 = [(1:length(FCentrs_diff))', FCentrs_diff];
+sort_tmp = sortrows(tmp1, -2);
 
 cond = true;
 while cond
     obj_face = round(rand()*14008);
-    trackedFL_An4 = sort(trackedFL_An4, 2);
+    tracked_uniqueface_an4 = sort(tracked_uniqueface_an4, 2);
 
-    obj_label_an4 = trackedFL_An4(sort_tmp(obj_face, 1), :);
+    obj_label_an4 = tracked_uniqueface_an4(sort_tmp(obj_face, 1), :);
     [idx_an4, ~] = find(face_id_an4(:,1) == obj_label_an4(1) & face_id_an4(:,2) == obj_label_an4(2));
-    obj_label_an5 = trackedFL_An5(sort_tmp(obj_face, 1), :);
+    obj_label_an5 = tracked_uniqueface_an5(sort_tmp(obj_face, 1), :);
     [idx_an5, ~] = find((face_id_an5(:,1) == obj_label_an5(1) & face_id_an5(:,2) == obj_label_an5(2)) | (face_id_an5(:,1) == obj_label_an5(2) & face_id_an5(:,2) == obj_label_an5(1)));
     if ~isempty(face_id_an4(idx_an4, :)) && ~isempty(face_id_an5(idx_an5, :))
         cond1 = any([surf_grain_an4(face_id_an4(idx_an4, :)); surf_grain_an5(face_id_an5(idx_an5, :))]==1);
@@ -183,7 +291,7 @@ for i = 1:length(min_angle_diff)
     end
 end
 
-%% ----- min_angle_diff, portion of distorted triangles -----
+% ----- min_angle_diff, portion of distorted triangles -----
 total_num_tri_onepiece = 0;
 num_tri_minadiff20_onepiece = 0;
 num_tri_minadiff30_onepiece = 0;
@@ -236,8 +344,5 @@ hold off
 
 
 
-%%
 
-print(['pair_', num2str(idx), '_triedge_10to20'], '-dpng','-r300')
 
-print(['pair_', num2str(idx), '_triedge_10to20_part'], '-dpng','-r300')
