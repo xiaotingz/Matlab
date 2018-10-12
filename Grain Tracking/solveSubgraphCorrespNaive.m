@@ -1,4 +1,4 @@
-function subgraph_corresp = solveSubgraphCorresp(subgraph_1, subgraph_2, face_node_coord_1, face_node_coord_2)
+function subgraph_corresp = solveSubgraphCorrespNaive(subgraph_1, subgraph_2, face_node_coord_1, face_node_coord_2)
 % ############################################################################
 % * Input 
 %     - face_unique_nodeid_ = [n, 1], generation see load data

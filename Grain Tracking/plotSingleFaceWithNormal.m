@@ -1,8 +1,10 @@
-function visualizeSingleFaceWithNormal(file, obj_facelabel, reverse_winding)
+function plotSingleFaceWithNormal(file, obj_facelabel, reverse_winding)
 % ###########################################################################
 % * Inputs
 %     - reverse_winding: a bool variable determining the triangle normal
 %     direction
+% * Notes
+%     - can be compared with plotSVMPlane.m
 % ###########################################################################
 % ------------------ load data for debug --------------------
 % file = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d');
@@ -35,7 +37,7 @@ trimesh(obj_node, node_coord(:,1), node_coord(:,2), node_coord(:,3));
 rotate3d
 hold on
 quiver3(obj_centroid(:,1),obj_centroid(:,2),obj_centroid(:,3), ...
-     obj_normal(:,1),obj_normal(:,2),obj_normal(:,3),0.5,'color','r');
+     obj_normal(:,1),obj_normal(:,2),obj_normal(:,3),1.5,'color','r');
 hold off 
 
 

@@ -2,7 +2,7 @@
 % Simple Examples 1). Direct, Projection and Height=Volume/Area
 % ############################################################################
 mu = [1 -1];
-
+  
 % ##### A Corner-Shape Surface #####
 % SIGMA = [.9 .4; .4 .3];
 % [x,y] = meshgrid(linspace(-1,3,25)',linspace(-3,1,25)');

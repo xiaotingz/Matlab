@@ -1,4 +1,4 @@
-function plotTriNormals(normal_svm, obj_face_an4, obj_face_an5, file_an4, file_an5, obj)
+function plotTriNormals(normal_svm, obj_facelabel_an4, obj_facelabel_an5, file_an4, file_an5, obj)
 % ############################################################################
 % Input
 %   - obj_face_an, [2, 1] the objective face label
@@ -25,31 +25,29 @@ color3 = [0.4660, 0.6740, 0.1880];
     facelabel_an4 = h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
     facelabel_an5 = h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
 
-    mask_an4_1 = ( facelabel_an4(:,1) == obj_face_an4(1) & facelabel_an4(:,2) == obj_face_an4(2) );
-    mask_an4_2 = ( facelabel_an4(:,1) == obj_face_an4(2) & facelabel_an4(:,2) == obj_face_an4(1) );
-    mask_an4 = (mask_an4_1 | mask_an4_2);
-    mask_an5_1 = ( facelabel_an5(:,1) == obj_face_an5(1) & facelabel_an5(:,2) == obj_face_an5(2) );
-    mask_an5_2 = ( facelabel_an5(:,1) == obj_face_an5(2) & facelabel_an5(:,2) == obj_face_an5(1) );
-    mask_an5 = (mask_an5_1 | mask_an5_2);
+    mask_an4 = (facelabel_an4(:,1) == obj_facelabel_an4(1) & facelabel_an4(:,2) == obj_facelabel_an4(2)) ...
+     | (facelabel_an4(:,1) == obj_facelabel_an4(2) & facelabel_an4(:,2) == obj_facelabel_an4(1));
+    mask_an5 = (facelabel_an5(:,1) == obj_facelabel_an5(1) & facelabel_an5(:,2) == obj_facelabel_an5(2)) ... 
+     | (facelabel_an5(:,1) == obj_facelabel_an5(2) & facelabel_an5(:,2) == obj_facelabel_an5(1));
 
-    normal_an4_plot1 = normal_an4(mask_an4_1, :);
-    normal_an4_plot2 = normal_an4(mask_an4_2, :);
-    normal_an5_plot1 = normal_an5(mask_an5_1, :);
-    normal_an5_plot2 = normal_an5(mask_an5_2, :);
     centroid_an4_plot = centroid_an4(mask_an4, :);
-    centroid_an5_plot = centroid_an5(mask_an5, :);
-
+    centroid_an5_plot = centroid_an5(mask_an5, :);    
+    normal_an4_plot = normal_an4(mask_an4, :);
+    normal_an5_plot = normal_an5(mask_an5, :);
+    
     % ----- Change winding and Recombine to plot -----
-    normal_an4_plot = [normal_an4_plot1; - normal_an4_plot2];
-    normal_an5_plot = [normal_an5_plot1; - normal_an5_plot2];
+    mask_reverse_an4 = facelabel_an4(mask_an4,1) > facelabel_an4(mask_an4,2);
+    mask_reverse_an5 = facelabel_an5(mask_an5,1) > facelabel_an5(mask_an5,2);
+    normal_an4_plot(mask_reverse_an4, :) = - normal_an4_plot(mask_reverse_an4, :);
+    normal_an5_plot(mask_reverse_an5, :) = - normal_an5_plot(mask_reverse_an5, :);
 
     % ----- Plot triangle normals-----
-%     quiver3(centroid_an4_plot(:,1), centroid_an4_plot(:,2), centroid_an4_plot(:,3), normal_an4_plot(:,1), ...
-%         normal_an4_plot(:,2), normal_an4_plot(:,3), 'color', color1,  'LineWidth', 1, 'MaxHeadSize', 3);
-%     hold on
-%     rotate3d on
-%     quiver3(centroid_an5_plot(:,1), centroid_an5_plot(:,2), centroid_an5_plot(:,3), normal_an5_plot(:,1), ...
-%         normal_an5_plot(:,2), normal_an5_plot(:,3), 'color', color2,  'LineWidth', 1, 'MaxHeadSize', 3);
+    quiver3(centroid_an4_plot(:,1), centroid_an4_plot(:,2), centroid_an4_plot(:,3), normal_an4_plot(:,1), ...
+        normal_an4_plot(:,2), normal_an4_plot(:,3), 'color', color1,  'LineWidth', 1, 'MaxHeadSize', 3);
+    hold on
+    rotate3d on
+    quiver3(centroid_an5_plot(:,1), centroid_an5_plot(:,2), centroid_an5_plot(:,3), normal_an5_plot(:,1), ...
+        normal_an5_plot(:,2), normal_an5_plot(:,3), 'color', color2,  'LineWidth', 1, 'MaxHeadSize', 3);
     
     % ----- Prepare for the grid -----
     all_centroids = [centroid_an4_plot; centroid_an5_plot];
