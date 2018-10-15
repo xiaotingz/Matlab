@@ -19,8 +19,8 @@ load('look_up_table_an4_an5.mat')
 data = [face_corresp, face_area_diff, FCurv_diff];
 data = sortrows(data, [4, 3]);
 
-face_map_An4 = containers.map(face_corresp(:,1), num2cell(faces_an4(face_corresp(:,1),:),2));
-face_map_An5 = containers.map(face_corresp(:,2), num2cell(faces_an5(face_corresp(:,2),:),2));
+face_map_An4 = containers.Map(face_corresp(:,1), num2cell(faces_an4(face_corresp(:,1),:),2));
+face_map_An5 = containers.Map(face_corresp(:,2), num2cell(faces_an5(face_corresp(:,2),:),2));
 
 %% ##### The Complete Tracked Grains #####
 surf_grain_an4 = h5read(file_an4,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';

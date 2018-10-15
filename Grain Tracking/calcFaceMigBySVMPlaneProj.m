@@ -55,11 +55,10 @@ bias = SVMModel.Bias;
 % - The tol parameter is discussable. 
 % - Point-plane distance ref: http://mathworld.wolfram.com/Point-PlaneDistance.html
 % """
-dist_proj_1 = (normal(1)*coord_1(:,1) + normal(2)*coord_1(:,2) + normal(3)*coord_1(:,3) ...
-    + bias*ones(size(coord_1, 1), 1)) ./ norm(normal);
-dist_proj_2 = (normal(1)*coord_2(:,1) + normal(2)*coord_2(:,2) + normal(3)*coord_2(:,3) ...
-    + bias*ones(size(coord_2, 1), 1)) ./ norm(normal);
-need_another_cluster = sum(dist_direct - abs(dist_proj_1) < 0) / length(dist_direct) > tol; 
+dist_proj_1 = (sum(coord_1.*normal', 2) + bias*ones(size(coord_1, 1), 1)) ./ norm(normal);
+% dist_proj_2 = (normal(1)*coord_2(:,1) + normal(2)*coord_2(:,2) + normal(3)*coord_2(:,3) ...
+%     + bias*ones(size(coord_2, 1), 1)) ./ norm(normal);
+need_another_cluster = (sum(dist_direct - abs(dist_proj_1) < 0) / length(dist_direct)) > tol; 
 
 % ##### Kmeans with Dynamic #Centers #####
 num_cluster = 1;
@@ -75,7 +74,7 @@ while need_another_cluster
         return
     end
 
-    % ----- Initialize cluster center with Kmeans++ -----
+    % ----- Kmeans++, Initialize cluster centers -----
     % """
     % ref: https://www.mathworks.com/help/stats/kmeans.html#bueftl4-1
     % """
@@ -124,15 +123,27 @@ while need_another_cluster
             return 
         end
     end
+    
+    % ----- Fit SVM plane to every cluster -----
+    dist_proj_1 = zeros(size(dist_direct));
+    for i = 1:max(unique(features(:, end)))
+        mask_cluster_i = (features(:, end) == i);
+        mask_cluster_i_1 = (features(:, end) == i & features(:,1) == 1);
+        X = features(mask_cluster_i, 3:5);
+        Y = features(mask_cluster_i, 1);
+        SVMModel = fitcsvm(X, Y,'KernelFunction','linear',...
+            'Standardize',false,'ClassNames',{'1','2'});
+        normal = SVMModel.Beta;
+        bias = SVMModel.Bias;
+        dist_proj_1(mask_cluster_i_1) = (sum(features(mask_cluster_i_1, 3:5).*normal', 2) ...
+            + bias*ones(sum(mask_cluster_i_1), 1)) ./ norm(normal);
+    end
+    
+    % ----- Project to see if num_clusters is enough -----
+    need_another_cluster = (sum(dist_direct - abs(dist_proj_1) < 0) / length(dist_direct)) > tol; 
+
 end
 
-% ----- Fit SVM plane to every cluster -----
-
-
-
-
-
-% ----- Project to see if num_clusters is enough -----
 
 
 
