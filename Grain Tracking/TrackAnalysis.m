@@ -177,7 +177,7 @@ clearvars -except piecesize_vari_normal piecesize_vari_twin
 %% ----- Display face_pair info ----- 
 % idx_piece = 569;
 % idx = piecewise_notwin(idx_piece);
-idx = all_multipiece_sym(101);
+idx = 1;
 
 dispFacePairInfo(file_an4, file_an5, tracked_uniqueface_an4, tracked_uniqueface_an5, idx)
 
@@ -195,6 +195,13 @@ hold off
 % y_max = max(face_node_info{4,2}(:,2));
 % z_min = min(face_node_info{4,2}(:,3));
 % z_max = max(face_node_info{4,2}(:,3));
+
+
+
+
+
+
+
 
 
 
@@ -269,7 +276,6 @@ parfor i = 1:length(tracked_uniqueface_an4)
 end
 
 %% ##### Finer Classify the Distorted Tirangles #####
-
 % ----- edge lengths -----
 % load('180826_longEdges.mat')
 % load('180822_FaceCorresp.mat')

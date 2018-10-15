@@ -17,11 +17,17 @@
 %     Migration Projection notes.
 %     - If too many (>10) median planes are needed, the program will break.
 %     - This script is used in calcMigrations.m, the result can be compared to 
-%     calcFaceMigByLocalNormProj.m and calcFaceMigByPillarHeight.m
+%     calcFaceMigByLocalNormProj.m and calcFaceMigByPillarHeight.m.
+%     - This script has a dependency: updateKmeansClusterAssign.ms
 % ############################################################################
 % ----------------------- load debug data -----------------------
 load('181004_SVMcurv_pair1674')
-
+% node_id_1 = face_node_id_an4;
+% node_id_2 = face_node_id_an5;
+node_id_1 = node_id_an4;
+node_id_2 = node_id_an5;
+% tri_node_1 = face_tri_node_an4;
+% tri_node_2 = face_tri_node_an5;
 tol = 0.05;
 % ---------------------------------------------------------------
 colors = get(gca,'colororder');
@@ -60,69 +66,63 @@ num_cluster = 1;
 m = size(coord_1, 1);
 n = size(coord_2, 1);
 % --- features = [face_id, coordinates, normals, cluster_id] ---
-features = [[ones(m, 1); 2*ones(n, 1)], [node_id_an4; node_id_an5], [coord_1; coord_2], [normal_1; normal_2], ones(m+n, 1)];
+features = [[ones(m, 1); 2*ones(n, 1)], [node_id_1; node_id_2], [coord_1; coord_2], [normal_1; normal_2], ones(m+n, 1)];
 
-% while need_another_cluster 
-num_cluster = num_cluster + 1;
-if num_cluster > 10
-    disp(' '); warning('Too many SVM median planes are needed in MigrationBySVMPlaneProj.m. Check the node!'); disp(' ');
-    return
-end
-
-
-
-
-
-
-num_cluster = 
-
-% ----- Initialize cluster center with Kmeans++ -----
-% """
-% ref: https://www.mathworks.com/help/stats/kmeans.html#bueftl4-1
-% """
-cluster_center = zeros(num_cluster, size(features, 2));
-cluster_center(1, :) = features(randi(size(features, 1)), :);
-dist = calcKmeansFeatureDist(cluster_center(1, :), features);
-P = dist.*dist/sum(dist.*dist);
-cluster_center(2, :) = features(randsample(m+n,1,true,P), :);
-if num_cluster > 2
-    for i = 3 : num_cluster
-        dist = calcKmeansFeatureDist(cluster_center(1, :), features);
-        for j = 2 : i-1
-            dist_tmp = calcKmeansFeatureDist(cluster_center(j, :), features);
-            dist(dist > dist_tmp) = dist_tmp(dist > dist_tmp);
-        end
+while need_another_cluster
+    num_cluster = num_cluster + 1;
+    if num_cluster > 10
+        disp(' '); warning('Too many SVM median planes are needed in MigrationBySVMPlaneProj.m. Check the node!'); disp(' ');
+        return
     end
+
+    % ----- Initialize cluster center with Kmeans++ -----
+    % """
+    % ref: https://www.mathworks.com/help/stats/kmeans.html#bueftl4-1
+    % """
+    cluster_center = zeros(num_cluster, size(features, 2));
+    cluster_center(1, :) = features(randi(size(features, 1)), :);
+    dist = calcKmeansFeatureDist(cluster_center(1, :), features);
     P = dist.*dist/sum(dist.*dist);
-    cluster_center(i, :) = features(randsample(m+n,1,true,P), :);
-end
-
-% ----- Cluster nodes by Kmeans -----
-kmeans_not_converge = true;
-num_loop = 1;
-while kmeans_not_converge 
-    % ----- Update cluster assignment -----
-    cluster_id_old = features(:, end);
-    cluster_id_new = updateKmeansClusterAssign(cluster_center, features, tri_node_1, tri_node_2);
-    features(:, end) = cluster_id_new;
-    
-    % ----- Update cluster centers -----
-    % """
-    % notice the first two columns of cluster center are meaningless
-    % """
-    for i = 1:num_cluster
-        mask_cluster = (features(:,end) == i);
-        cluster_center(i, :) = sum(features(mask_cluster, :))/sum(mask_cluster);
+    cluster_center(2, :) = features(randsample(m+n,1,true,P), :);
+    if num_cluster > 2
+        for i = 3 : num_cluster
+            dist = calcKmeansFeatureDist(cluster_center(1, :), features);
+            for j = 2 : i-1
+                dist_tmp = calcKmeansFeatureDist(cluster_center(j, :), features);
+                dist(dist > dist_tmp) = dist_tmp(dist > dist_tmp);
+            end
+        end
+        P = dist.*dist/sum(dist.*dist);
+        cluster_center(i, :) = features(randsample(m+n,1,true,P), :);
     end
-    
-    % ----- Check if converged -----
-    kmeans_not_converge = (sum(cluster_id_old ~= cluster_id_new) > 0);
-    
-    % ----- Check if max num_loop exceeded -----
-    num_loop = num_loop + 1;
-    if num_loop > max_kmeans_loop
-        warning('max_kmeans_loop reached but still not converge');
-        return 
+
+    % ----- Cluster nodes by Kmeans -----
+    kmeans_not_converge = true;
+    num_loop = 1;
+    while kmeans_not_converge 
+        % ----- Update cluster assignment -----
+        cluster_id_old = features(:, end);
+        cluster_id_new = updateKmeansClusterAssign(cluster_center, features, tri_node_1, tri_node_2);
+        features(:, end) = cluster_id_new;
+
+        % ----- Update cluster centers -----
+        % """
+        % notice the first two columns of cluster center are meaningless
+        % """
+        for i = 1:num_cluster
+            mask_cluster = (features(:,end) == i);
+            cluster_center(i, :) = sum(features(mask_cluster, :))/sum(mask_cluster);
+        end
+
+        % ----- Check if converged -----
+        kmeans_not_converge = (sum(cluster_id_old ~= cluster_id_new) > 0);
+
+        % ----- Check if max num_loop exceeded -----
+        num_loop = num_loop + 1;
+        if num_loop > max_kmeans_loop
+            warning('max_kmeans_loop reached but still not converge');
+            return 
+        end
     end
 end
 
@@ -141,11 +141,12 @@ end
 
 figure
 visualizeFace(face_node_info, x_to_y)
-for i = 1:length(num_cluster)
-    scatter3(features(cluster_id_new==i, 3), features(cluster_id_new==i, 4), features(cluster_id_new==i, 5), 80, 'filled')
+for i = 1:num_cluster
+    scatter3(features(cluster_id_new==i, 3), features(cluster_id_new==i, 4), features(cluster_id_new==i, 5), ...
+        80, 'filled', 'MarkerFaceColor',colors(3+i, :), 'MarkerEdgeColor',colors(3+i, :))
 end
 title('Weighted K-means')
-
+%%
 % scale = ceil(max(length(coord_1), length(coord_2))/100);
 % x_range = [min(X(:,1)), max(X(:,1))];
 % y_range = [min(X(:,2)), max(X(:,2))];
@@ -158,6 +159,9 @@ visualizeFace(face_node_info, x_to_y)
 scatter3(features(idx==1, 3), features(idx==1, 4), features(idx==1, 5), 80, 'filled')
 scatter3(features(idx==2, 3), features(idx==2, 4), features(idx==2, 5), 80, 'filled')
 title('Naive K-means')
+
+%%
+
 
 
 

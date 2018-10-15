@@ -1,7 +1,16 @@
+%% ############################################################## 
+% Contents
+% - Number of Pieces of the Subgraphs
+% - Trial: Project Nodes Onto Basis Plane
+% - Solve Subgraph Corresp, One Complete Plane
+% ############################################################## 
 %% ############################### Number of Pieces of the Subgraphs ############################### 
 load('180822');
+% load('180828_piecewise_face')
 
-num_pieces = zeros(length(face_piecewise), 2);
+% ----- find the piece wise faces and their number of pieces -----
+face_piecewise = [];
+num_pieces = [];
 for i = 1:length(num_pieces)
     idx = face_piecewise(i);
     obj_facelabel_an4 = tracked_uniqueface_an4(idx, :);
@@ -16,8 +25,12 @@ for i = 1:length(num_pieces)
     face_unique_nodeid_an5 = unique(face_tri_nodeid_an5);
     [subgraph_an4, subgraph_an5] = findSubgraph(face_unique_nodeid_an4, face_unique_nodeid_an5, face_tri_nodeid_an4, face_tri_nodeid_an5);
     
-    num_pieces(i, 1) = max(subgraph_an4);
-    num_pieces(i, 2) = max(subgraph_an5);
+    m = length(unique(subgraph_1));
+    n = length(unique(subgraph_2));
+    if m > 1 || n > 1
+        face_piecewise = [face_piecewise; i];
+        num_pieces = [num_pieces; max(subgraph_an4), max(subgraph_an5)];
+    end
 end
 
 all_multipiece = face_piecewise(all(num_pieces>1, 2));
@@ -25,7 +38,7 @@ tmp = num_pieces(all(num_pieces>1, 2), :);
 all_multipiece_asym = all_multipiece(tmp(:,1) ~= tmp(:,2));
 all_multipiece_sym = all_multipiece(tmp(:,1) == tmp(:,2));
 
-
+%% ----- the many-piece faces, are all pieces small -----
 amp_asym_size = ones(length(all_multipiece_asym), 2);
 for i = 1:length(all_multipiece_asym)    
     idx = all_multipiece_asym(i);
@@ -52,7 +65,7 @@ sum(any(amp_asym_size < 10, 2))
 
 
 
-%% ############################### Project Nodes Onto Basis Plane ###############################
+%% ############################### Trial: Project Nodes Onto Basis Plane ###############################
 % ----- load data -----
 facelabel_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
 facelabel_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
@@ -99,7 +112,7 @@ normal_avg_an5 = sum(tri_normal_an5(mask_an5_1, :)) - sum(tri_normal_an5(mask_an
 normal_avg_an5 = normal_avg_an5/norm(normal_avg_an5);
 normal_bp = normal_avg_an4;
 
-% ----- calc basis plane origion as plane centroid -----
+% ----- calc basis plane origion from plane centroid -----
 nodes_an4 = node_coord_an4(node_id_an4, :);
 nodes_an5 = node_coord_an5(node_id_an5, :);
 centroid_bp = sum(nodes_an4)/length(node_id_an4);
@@ -120,7 +133,7 @@ bound_an5 = boundary(nodes_proj2d_an5(:,1), nodes_proj2d_an5(:,2));
 % ----- boundary by TLNs -----
 tln_id_an4 = node_id_an4(node_type_an4(node_id_an4) >= 3);
 tln_id_an5 = node_id_an5(node_type_an5(node_id_an5) >= 3);
-tln_an4 = node_coord_an4(tln_id_an4, :);
+tln_an4 = node_coord_an4(tln_id_an4, :);    
 tln_an5 = node_coord_an5(tln_id_an5, :);
 
 [tln_proj2d_an4, ~] = project3DPointsTo2DPlane(tln_an4, centroid_bp, normal_bp, native2d_x);
@@ -146,7 +159,7 @@ norm_diff = abs(atand(norm(cross(normal_avg_an4, normal_avg_an5))/dot(normal_avg
 score = 0.5 * (area(pgon_inter)/area(pgon_an5)) + 0.5 * (1 - norm_diff/90);
 
 
-%% ##### Visualization of Projection #####
+% ##### Visualization of Projection #####
 % ----- 3D view -----
 % figure
 % x_to_y = X_to_Y{idx};
@@ -177,6 +190,19 @@ score = 0.5 * (area(pgon_inter)/area(pgon_an5)) + 0.5 * (1 - norm_diff/90);
 % quiver3(centroid_bp(1), centroid_bp(2), centroid_bp(3), normal_avg_an4(1), normal_avg_an4(2), normal_avg_an4(3), 5, 'LineWidth', 3, 'MaxHeadSize', 3);
 % quiver3(centroid_bp(1), centroid_bp(2), centroid_bp(3), normal_avg_an5(1), normal_avg_an5(2), normal_avg_an5(3), 5, 'LineWidth', 3, 'MaxHeadSize', 3);
 % daspect([1 1 1])
+
+
+%% ############################### Solve Subgraph Corresp, One Complete Plane ###############################
+% ----- load data -----
+
+
+
+
+
+
+
+
+
 
 
 

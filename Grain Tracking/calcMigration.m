@@ -37,7 +37,7 @@ tri_centroid_an5 = tri_centroid_an5(mask_an5, :);
 
 
 % ##### Data for Current Face #####
-idx = 1674;
+idx = 2158;
 x_to_y = X_to_Y{idx};
 obj_facelabel_an4 = tracked_uniqueface_an4(idx, :);
 obj_facelabel_an5 = tracked_uniqueface_an5(idx, :);
