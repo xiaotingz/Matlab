@@ -19,18 +19,18 @@ color1 = [0, 0.4470, 0.7410];
 color2 = [0.9290, 0.6940, 0.1250];
 
 % ##### Convert Triangle Connection to be Local #####
-face_map_An4 = containers.Map(unique(obj_face{5,1}), (1:length(unique(obj_face{5,1})))');
-face_map_An5 = containers.Map(unique(obj_face{5,2}), (1:length(unique(obj_face{5,2})))');
+face_map_an4 = containers.Map(unique(obj_face{5,1}), (1:length(unique(obj_face{5,1})))');
+face_map_an5 = containers.Map(unique(obj_face{5,2}), (1:length(unique(obj_face{5,2})))');
 tri_connect_1 = zeros(length(obj_face{5,1}), 3);
 tri_connect_2 = zeros(length(obj_face{5,2}), 3);
 for i = 1:size(tri_connect_1, 1)
     for j = 1:3
-        tri_connect_1(i, j) = face_map_An4(obj_face{5,1}(i,j));
+        tri_connect_1(i, j) = face_map_an4(obj_face{5,1}(i,j));
     end
 end
 for i = 1:size(tri_connect_2, 1)
     for j = 1:3
-        tri_connect_2(i, j) = face_map_An5(obj_face{5,2}(i,j));
+        tri_connect_2(i, j) = face_map_an5(obj_face{5,2}(i,j));
     end
 end
 
@@ -60,6 +60,7 @@ elseif nargin == 5 && strcmp(obj, 'corresp')
     for i = 1:length(obj_node_an4)
         plot3([obj_node_an4(i,1), obj_node_an5(x_to_y(i),1)], [obj_node_an4(i,2), obj_node_an5(x_to_y(i),2)], [obj_node_an4(i,3), obj_node_an5(x_to_y(i),3)], 'k', 'LineWidth', 1);
     end
+    
 % ##### Specified obj_node, distort_tri #####
 elseif nargin == 5 && strcmp(obj, 'distort_tri')
     scatter3(obj_node_an4(:,1), obj_node_an4(:,2), obj_node_an4(:,3), 20, 'filled', 'MarkerFaceColor',color1, 'MarkerEdgeColor',color1);

@@ -1,4 +1,4 @@
-function data_grid = BinData(x, stepsize)
+function data_grid = binData(x, stepsize)
 % ------------------ load data for debug --------------------
 %     x = log(D_An4_TG/(sum(D_An4_TG)/length(D_An4_TG)));
 %     x = numNeigh_An4_TCG;

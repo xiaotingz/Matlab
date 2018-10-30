@@ -72,8 +72,8 @@ line([xrange(1), xrange(2)], [0,0], 'LineStyle', '--', 'Color', [0.5, 0.5, 0.5])
 % ylim([4, 20]);
 % ------------------------------
 
-xlabel(label_x,'Interpreter','latex');
-ylabel(label_y,'Interpreter','latex');
+xlabel(label_x);
+ylabel(label_y);
 box on
 
 if showCnt
@@ -81,7 +81,7 @@ if showCnt
 %     histogram('BinEdges', [data_grid(1,1)-stepsize; data_grid(:,1)], 'BinCounts',data_grid(:,4))
     bar(data_grid(:,2), data_grid(:,4),'Barwidth', 1.1,'FaceColor', [0.5,0.5,0.5], 'EdgeColor', [0.5,0.5,0.5], 'FaceAlpha', 0.3, 'EdgeAlpha', 0.3);
 %     ylabel('Counts')
-    ylabel('Counts','Interpreter','latex')
+    ylabel('Counts')
     ax = gca;
     ax.XColor = 'k';
     ax.YColor = 'k';

@@ -14,8 +14,8 @@ num_cells_an4(1) = [];
 num_cells_an5(1) = [];
 
 % ##### get the faceLabels and their correpondence ##### 
-[faces_an4, faces_an5, face_corresp] = TrackFace(file_an4, file_an5, look_up_table, use_complete_faces);
-
+[faces_an4, faces_an5, face_corresp] = trackFace(file_an4, file_an5, look_up_table, 'use_complete_faces');
+[tracked_uniqueface_an4, tracked_uniqueface_an5] = trackUniqueFace(file_an4, file_an5, look_up_table, 'use_complete_faces');
 
 
 
@@ -23,32 +23,36 @@ num_cells_an5(1) = [];
 % ##### calc integral |face curvature| ##### 
 %   --- faceCurvs = [integralArea, integralCurvature] ---
 %   --- data is the order of faces_An but contain just the valid faces ---
-face_integ_curv_an4 = FaceCurvatureForTrack(file_an4, faces_an4);
-face_integ_curv_an5 = FaceCurvatureForTrack(file_an5, faces_an5);
-diff_tmp = face_integ_curv_an5(face_corresp(:,2),:) - face_integ_curv_an4(face_corresp(:,1),:);
-face_area_diff = diff_tmp(:,1);
-face_integ_curv_diff = diff_tmp(:,2);
-diff = face_integ_curv_an5(face_corresp(:,2),2)./face_integ_curv_an5(face_corresp(:,2),1) - face_integ_curv_an4(face_corresp(:,1),2)./face_integ_curv_an4(face_corresp(:,1),1);
-clear diff_tmp
+% face_itg_curv_an4 = calcFaceItgCurv(file_an4, faces_an4, 'all_faces');
+% face_itg_curv_an5 = calcFaceItgCurv(file_an5, faces_an5, 'all_faces');
+face_itg_curv_an4 = calcFaceItgCurv(file_an4, tracked_uniqueface_an4, 'unique_faces');
+face_itg_curv_an5 = calcFaceItgCurv(file_an5, tracked_uniqueface_an5, 'unique_faces');
+
+% diff_tmp = face_itg_curv_an5(face_corresp(:,2),:) - face_itg_curv_an4(face_corresp(:,1),:);
+% face_area_diff = diff_tmp(:,1);
+% face_itg_curv_diff = diff_tmp(:,2);
+% diff = face_itg_curv_an5(face_corresp(:,2),2)./face_itg_curv_an5(face_corresp(:,2),1) - face_itg_curv_an4(face_corresp(:,1),2)./face_itg_curv_an4(face_corresp(:,1),1);
+% clear diff_tmp
 
 
+%%
 % ##### get the sizeChange of the two grains that defines the face #####
-tracked_facelabel_an4 = faces_an4(face_corresp(:,1),:);
-tracked_facelabel_an5 = faces_an5(face_corresp(:,2),:);
-map_5from4 = containers.Map(look_up_table(:,1), look_up_table(:,2));
-for i = 1:length(tracked_facelabel_an4)
-    if tracked_facelabel_an5(i,1) ~= map_5from4(tracked_facelabel_an4(i,1))
-        tracked_facelabel_an5(i,:) = flip(tracked_facelabel_an5(i,:));
-    end
-end
-tmp1 = num_cells_an4(tracked_facelabel_an4);
-tmp2 = num_cells_an5(tracked_facelabel_an5);
-tmp3 = tmp2 - tmp1;
-%   --- The face mobility should be associated with delta_G1 - delta_G2, ---
-%   --- because a face moves the most when onegrain grow one grain shrink ---
-% cellVolume = 2.8125*2.8125*4;
-faceMob_dV = abs(tmp3(:,1) - tmp3(:,2));
-clear tmp1 tmp2 tmp3
+% tracked_facelabel_an4 = faces_an4(face_corresp(:,1),:);
+% tracked_facelabel_an5 = faces_an5(face_corresp(:,2),:);
+% map_5from4 = containers.Map(look_up_table(:,1), look_up_table(:,2));
+% for i = 1:length(tracked_facelabel_an4)
+%     if tracked_facelabel_an5(i,1) ~= map_5from4(tracked_facelabel_an4(i,1))
+%         tracked_facelabel_an5(i,:) = flip(tracked_facelabel_an5(i,:));
+%     end
+% end
+% tmp1 = num_cells_an4(tracked_facelabel_an4);
+% tmp2 = num_cells_an5(tracked_facelabel_an5);
+% tmp3 = tmp2 - tmp1;
+% %   --- The face mobility should be associated with delta_G1 - delta_G2, ---
+% %   --- because a face moves the most when onegrain grow one grain shrink ---
+% % cellVolume = 2.8125*2.8125*4;
+% faceMob_dV = abs(tmp3(:,1) - tmp3(:,2));
+% clear tmp1 tmp2 tmp3
 
 
 % ##### get the face coordinates #####
@@ -56,7 +60,7 @@ face_centroid_an4 = findFaceCentorids(file_an4, faces_an4);
 face_centroid_an5 = findFaceCentorids(file_an5, faces_an5);
 face_centroid_diff = face_centroid_an5(face_corresp(:,2),:) - face_centroid_an4(face_corresp(:,1),:);
 face_centroid_diff = sqrt(sum(face_centroid_diff .* face_centroid_diff, 2));
-
+% face_centroid_diff = vecnorm(face_centroid_an5 - face_centroid_an4, 2, 2);
 
 % ##### get the Rodrigues Vector corresponding to the Faces #####
 % [RFvecs_An4, misAs_An4]  = getFaceRFvecs(file_An4, faces_An4);
@@ -79,50 +83,50 @@ set(0,'defaultAxesFontSize',14)
 figure('rend','painters','pos',[10 10 900 1100])
 ylim_bin = [-1e4, 1e4];
 subplot(3,2,1)
-plotScatter(face_integ_curv_an4(face_corresp(:,1),1), face_integ_curv_an4(face_corresp(:,1),2), 'Face Area in An4, \mum^{2}', 'Integral |Face Curvature| in An4, \mum');
+plotScatter(face_itg_curv_an4(face_corresp(:,1),1), face_itg_curv_an4(face_corresp(:,1),2), 'Face Area in An4, \mum^{2}', 'Integral |Face Curvature| in An4, \mum');
 title(['ylim of binning = [', num2str(ylim_bin), '], An4'])
 subplot(3,2,3)
-plotBinData(face_integ_curv_an4(face_corresp(:,1),1), face_integ_curv_an4(face_corresp(:,1),2), [0, 10000], ylim_bin, 100, 'Face Area in An4, \mum^{2}', 'Integral |Face Curvature| in An4, \mum', true, false) 
+plotBinData(face_itg_curv_an4(face_corresp(:,1),1), face_itg_curv_an4(face_corresp(:,1),2), [0, 10000], ylim_bin, 100, 'Face Area in An4, \mum^{2}', 'Integral |Face Curvature| in An4, \mum', true, false) 
 subplot(3,2,5)
-plotBinData(face_integ_curv_an4(face_corresp(:,1),1), face_integ_curv_an4(face_corresp(:,1),2), [0, 1000], ylim_bin, 50, 'Face Area in An4, \mum^{2}', 'Integral |Face Curvature| in An4, \mum', true, true)
+plotBinData(face_itg_curv_an4(face_corresp(:,1),1), face_itg_curv_an4(face_corresp(:,1),2), [0, 1000], ylim_bin, 50, 'Face Area in An4, \mum^{2}', 'Integral |Face Curvature| in An4, \mum', true, true)
 subplot(3,2,2)
-plotScatter(face_integ_curv_an5(face_corresp(:,2),1), face_integ_curv_an5(face_corresp(:,2),2), 'Face Area in An5, \mum^{2}', 'Integral |Face Curvature| in An5, \mum');
+plotScatter(face_itg_curv_an5(face_corresp(:,2),1), face_itg_curv_an5(face_corresp(:,2),2), 'Face Area in An5, \mum^{2}', 'Integral |Face Curvature| in An5, \mum');
 title(['ylim of binning = [', num2str(ylim_bin), '], An5'])
 subplot(3,2,4)
-plotBinData(face_integ_curv_an5(face_corresp(:,2),1), face_integ_curv_an5(face_corresp(:,2),2), [0, 10000], ylim_bin, 100, 'Face Area in An5, \mum^{2}', 'Integral |Face Curvature| in An5, \mum', true, false)
+plotBinData(face_itg_curv_an5(face_corresp(:,2),1), face_itg_curv_an5(face_corresp(:,2),2), [0, 10000], ylim_bin, 100, 'Face Area in An5, \mum^{2}', 'Integral |Face Curvature| in An5, \mum', true, false)
 subplot(3,2,6)
-plotBinData(face_integ_curv_an5(face_corresp(:,2),1), face_integ_curv_an5(face_corresp(:,2),2), [0, 1000], ylim_bin, 50, 'Face Area in An5, \mum^{2}', 'Integral |Face Curvature| in An5, \mum', true, true)
+plotBinData(face_itg_curv_an5(face_corresp(:,2),1), face_itg_curv_an5(face_corresp(:,2),2), [0, 1000], ylim_bin, 50, 'Face Area in An5, \mum^{2}', 'Integral |Face Curvature| in An5, \mum', true, true)
 print('FArea_FIntCurv', '-dpng','-r300')
 
 %% ##### Face Integral Curvature v.s. Face Area Change #####
 figure('rend','painters','pos',[10 10 900 1100])
 ylim_bin = [-1e4, 1e4];
 subplot(3,2,1) 
-plotScatter(face_integ_curv_an4(face_corresp(:,1),2), face_area_diff, 'Integral |Face Curvature| in An4, \mum', 'Face Area Difference, \mum^{2}');
+plotScatter(face_itg_curv_an4(face_corresp(:,1),2), face_area_diff, 'Integral |Face Curvature| in An4, \mum', 'Face Area Difference, \mum^{2}');
 title(['ylim of binning = [', num2str(ylim_bin), '], An4'])
 subplot(3,2,3)
-plotBinData(face_integ_curv_an4(face_corresp(:,1),2), face_area_diff, [0, 500], ylim_bin, 2, 'Integral |Face Curvature| in An4, \mum', 'Face Area Difference, \mum^{2}', true, false) 
+plotBinData(face_itg_curv_an4(face_corresp(:,1),2), face_area_diff, [0, 500], ylim_bin, 2, 'Integral |Face Curvature| in An4, \mum', 'Face Area Difference, \mum^{2}', true, false) 
 subplot(3,2,5)
-plotBinData(face_integ_curv_an4(face_corresp(:,1),2), face_area_diff, [0, 200], ylim_bin, 2, 'Integral |Face Curvature| in An4, \mum', 'Face Area Difference, \mum^{2}', true, true)
+plotBinData(face_itg_curv_an4(face_corresp(:,1),2), face_area_diff, [0, 200], ylim_bin, 2, 'Integral |Face Curvature| in An4, \mum', 'Face Area Difference, \mum^{2}', true, true)
 subplot(3,2,2)
-plotScatter(face_integ_curv_an5(face_corresp(:,2),2), face_area_diff, 'Integral |Face Curvature| in An5, \mum', 'Face Area Difference, \mum^{2}');
+plotScatter(face_itg_curv_an5(face_corresp(:,2),2), face_area_diff, 'Integral |Face Curvature| in An5, \mum', 'Face Area Difference, \mum^{2}');
 title(['ylim of binning = [', num2str(ylim_bin), '], An5'])
 subplot(3,2,4)
-plotBinData(face_integ_curv_an5(face_corresp(:,2),2), face_area_diff, [0, 500], ylim_bin, 2, 'Integral |Face Curvature| in An5, \mum', 'Face Area Difference, \mum^{2}', true, false)
+plotBinData(face_itg_curv_an5(face_corresp(:,2),2), face_area_diff, [0, 500], ylim_bin, 2, 'Integral |Face Curvature| in An5, \mum', 'Face Area Difference, \mum^{2}', true, false)
 subplot(3,2,6)
-plotBinData(face_integ_curv_an5(face_corresp(:,2),2), face_area_diff, [0, 200], ylim_bin, 2, 'Integral |Face Curvature| in An5, \mum', 'Face Area Difference, \mum^{2}', true, true)
+plotBinData(face_itg_curv_an5(face_corresp(:,2),2), face_area_diff, [0, 200], ylim_bin, 2, 'Integral |Face Curvature| in An5, \mum', 'Face Area Difference, \mum^{2}', true, true)
 print('FItgCurv_FADiff', '-dpng','-r300')
 
 %%
 figure('rend','painters','pos',[10 10 400 1100])
 ylim_bin = [-1e4, 1e4];
 subplot(3,1,1)
-plotScatter(face_integ_curv_diff, face_area_diff, 'Integral |Face Curvature| Difference, \mum', 'Face Area Difference, \mum^{2}');
+plotScatter(face_itg_curv_diff, face_area_diff, 'Integral |Face Curvature| Difference, \mum', 'Face Area Difference, \mum^{2}');
 title(['ylim of binning = [', num2str(ylim_bin), ']'])
 subplot(3,1,2)
-plotBinData(face_integ_curv_diff, face_area_diff, [-500, 500], ylim_bin, 5, 'Integral |Face Curvature| Difference, \mum', 'Face Area Difference, \mum^{2}', true, true )
+plotBinData(face_itg_curv_diff, face_area_diff, [-500, 500], ylim_bin, 5, 'Integral |Face Curvature| Difference, \mum', 'Face Area Difference, \mum^{2}', true, true )
 subplot(3,1,3)
-plotBinData(face_integ_curv_diff, face_area_diff, [-100, 100], ylim_bin, 5, 'Integral |Face Curvature| Difference, \mum', 'Face Area Difference, \mum^{2}', true, true)
+plotBinData(face_itg_curv_diff, face_area_diff, [-100, 100], ylim_bin, 5, 'Integral |Face Curvature| Difference, \mum', 'Face Area Difference, \mum^{2}', true, true)
 print('FItgCurvDiff_FADiff', '-dpng','-r300')
 
 %% ###### Average Face Curvature Difference v.s. Face Area Difference #####
@@ -145,44 +149,44 @@ print('FAvgCurvDiff_FADiff', '-dpng','-r300')
 figure('rend','painters','pos',[10 10 1300 1100])
 ylim_bin = [-1e4, 1e4];
 subplot(2,2,1)
-plotScatter(face_integ_curv_an4(face_corresp(:,1),2), face_integ_curv_diff, 'Integral |Face Curvature| in An4, \mum', 'Integral |Face Curvature| Difference, \mum');
+plotScatter(face_itg_curv_an4(face_corresp(:,1),2), face_itg_curv_diff, 'Integral |Face Curvature| in An4, \mum', 'Integral |Face Curvature| Difference, \mum');
 title(['ylim of binning = [', num2str(ylim_bin), ']'])
 subplot(2,2,2)
-plotBinData(face_integ_curv_an4(face_corresp(:,1),2), face_integ_curv_diff, [0, 300], ylim_bin, 5, 'Integral |Face Curvature| in An4, \mum', 'Integral |Face Curvature| Difference, \mum', false)
+plotBinData(face_itg_curv_an4(face_corresp(:,1),2), face_itg_curv_diff, [0, 300], ylim_bin, 5, 'Integral |Face Curvature| in An4, \mum', 'Integral |Face Curvature| Difference, \mum', false)
 subplot(2,2,3)
-plotScatter(face_integ_curv_an5(face_corresp(:,2),2), face_integ_curv_diff, 'Integral |Face Curvature| in An5, \mum', 'Integral |Face Curvature| Difference, \mum');
+plotScatter(face_itg_curv_an5(face_corresp(:,2),2), face_itg_curv_diff, 'Integral |Face Curvature| in An5, \mum', 'Integral |Face Curvature| Difference, \mum');
 title(['ylim of binning = [', num2str(ylim_bin), ']'])
 subplot(2,2,4)
-plotBinData(face_integ_curv_an5(face_corresp(:,2),2), face_integ_curv_diff, [0, 300], ylim_bin, 5, 'Integral |Face Curvature| in An5, \mum', 'Integral |Face Curvature| Difference, \mum', false)
+plotBinData(face_itg_curv_an5(face_corresp(:,2),2), face_itg_curv_diff, [0, 300], ylim_bin, 5, 'Integral |Face Curvature| in An5, \mum', 'Integral |Face Curvature| Difference, \mum', false)
 print('FItgCurv_FItgCurvDiff', '-dpng','-r300')
 
 %% ##### Integral Face Curvature Difference v.s. Associated Volume Difference  #####
 figure('rend','painters','pos',[10 10 1300 1100])
 ylim_bin = [0, 14e4];
 subplot(2,2,1)
-plotScatter(face_integ_curv_an4(face_corresp(:,1),2), faceMob_dV, 'Integral |Face Curvature| in An4, \mum', 'The Associated Volume Change, \mum^{3}');
+plotScatter(face_itg_curv_an4(face_corresp(:,1),2), faceMob_dV, 'Integral |Face Curvature| in An4, \mum', 'The Associated Volume Change, \mum^{3}');
 title(['ylim of binning = [', num2str(ylim_bin), ']'])
 subplot(2,2,2)
-plotBinData(face_integ_curv_an4(face_corresp(:,1),2), faceMob_dV, [0, 1000], ylim_bin, 5, 'Integral |Face Curvature| in An4, \mum', 'The Associated Volume Change, \mum^{3}', true, false)
+plotBinData(face_itg_curv_an4(face_corresp(:,1),2), faceMob_dV, [0, 1000], ylim_bin, 5, 'Integral |Face Curvature| in An4, \mum', 'The Associated Volume Change, \mum^{3}', true, false)
 subplot(2,2,3)
-plotBinData(face_integ_curv_an4(face_corresp(:,1),2), faceMob_dV, [0, 200], ylim_bin, 10, 'Integral |Face Curvature| in An4, \mum', 'The Associated Volume Change, \mum^{3}', true, false)
+plotBinData(face_itg_curv_an4(face_corresp(:,1),2), faceMob_dV, [0, 200], ylim_bin, 10, 'Integral |Face Curvature| in An4, \mum', 'The Associated Volume Change, \mum^{3}', true, false)
 print('FItgCurv_An4_Vdiff', '-dpng','-r300')
 subplot(2,2,4)
-plotBinData(face_integ_curv_an4(face_corresp(:,1),2), faceMob_dV, [0, 150], ylim_bin, 5, 'Integral |Face Curvature| in An4, \mum', 'The Associated Volume Change, \mum^{3}', true, true)
+plotBinData(face_itg_curv_an4(face_corresp(:,1),2), faceMob_dV, [0, 150], ylim_bin, 5, 'Integral |Face Curvature| in An4, \mum', 'The Associated Volume Change, \mum^{3}', true, true)
 print('FItgCurv_An4_Vdiff', '-dpng','-r300')
 
 %% ##### |Integral Face Curvature Difference| v.s. Face Centroid Position Difference #####
 figure('rend','painters','pos',[10 10 1300 1100])
 ylim_bin = [0, 1e4];
 subplot(2,2,1)
-plotScatter(abs(face_integ_curv_diff), face_centroid_diff, 'abs(Integral |Face Curvature| Difference), \mum', 'norm(Face Centorid Difference), \mum');
+plotScatter(abs(face_itg_curv_diff), face_centroid_diff, 'abs(Integral |Face Curvature| Difference), \mum', 'norm(Face Centorid Difference), \mum');
 title(['ylim of binning = [', num2str(ylim_bin), ']'])
 subplot(2,2,2)
-plotBinData(abs(face_integ_curv_diff), face_centroid_diff, [0, 500], ylim_bin, 5, 'abs(Integral |Face Curvature| Difference), \mum', 'norm(Face Centorid Difference), \mum',true,true)
+plotBinData(abs(face_itg_curv_diff), face_centroid_diff, [0, 500], ylim_bin, 5, 'abs(Integral |Face Curvature| Difference), \mum', 'norm(Face Centorid Difference), \mum',true,true)
 subplot(2,2,3)
-plotBinData(abs(face_integ_curv_diff), face_centroid_diff, [0, 200], ylim_bin, 2, 'abs(Integral |Face Curvature| Difference), \mum', 'norm(Face Centorid Difference), \mum',true, true)
+plotBinData(abs(face_itg_curv_diff), face_centroid_diff, [0, 200], ylim_bin, 2, 'abs(Integral |Face Curvature| Difference), \mum', 'norm(Face Centorid Difference), \mum',true, true)
 subplot(2,2,4)
-plotBinData(abs(face_integ_curv_diff), face_centroid_diff, [0, 200], ylim_bin, 2, 'abs(Integral |Face Curvature| Difference), \mum', 'norm(Face Centorid Difference), \mum', true, false)
+plotBinData(abs(face_itg_curv_diff), face_centroid_diff, [0, 200], ylim_bin, 2, 'abs(Integral |Face Curvature| Difference), \mum', 'norm(Face Centorid Difference), \mum', true, false)
 % ylim([450,750])
 print('FItgCurvDiff_CentrDiff', '-dpng','-r300')
 %%
@@ -200,3 +204,66 @@ print('FItgCurvDiff_CentrDiff', '-dpng','-r300')
 % scatter(data_grid(:,1), data_grid(:,2),'filled');
 % xlabel('Misorientation in An4')
 % ylabel('The average dV across face')
+
+
+%%
+% ##### Migration Correlations ##### 
+% load('181028_migration.mat')
+% load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/181025_mig_input.mat', 'face_to_calc')
+
+% face_itg_curv_an4 = face_itg_curv_an4(face_to_calc, :);
+% face_itg_curv_an5 = face_itg_curv_an5(face_to_calc, :);
+% diff_tmp = face_itg_curv_an5 - face_itg_curv_an4;
+% face_area_diff = diff_tmp(:,1);
+% face_itg_curv_diff = diff_tmp(:,2);
+% 
+% set(0,'defaultAxesLabelFontSize',1.1)
+% set(0,'defaultAxesFontSize',14)
+
+%% ----- migration v.s. area -----
+subplot(3,2,1)
+plotBinData(face_itg_curv_an4(:,1), mig_svm_proj(:,2), [0, 500], [-1e4, 1e4], 10, 'Area\_an4, \mum^2', 'Migration\_svm, \mum', true, false)
+subplot(3,2,2)
+plotBinData(face_itg_curv_an5(:,1), mig_svm_proj(:,2), [0, 500], [-1e4, 1e4], 10, 'Area\_an5, \mum^2', 'Migration\_svm, \mum', true, false)
+subplot(3,2,3)
+plotBinData(face_itg_curv_an4(:,1), mig_normal_proj(:,3), [0, 500], [-1e4, 1e4], 10, 'Area\_an4, \mum^2', 'Migration\_normal\_an4, \mum', true, false)
+subplot(3,2,4)
+plotBinData(face_itg_curv_an5(:,1), mig_normal_proj(:,3), [0, 500], [-1e4, 1e4], 10, 'Area\_an5, \mum^2', 'Migration\_normal\_an4, \mum', true, false)
+subplot(3,2,5)
+plotBinData(face_itg_curv_an4(:,1), mig_normal_proj(:,4), [0, 500], [-1e4, 1e4], 10, 'Area\_an4, \mum^2', 'Migration\_normal\_an5, \mum', true, false)
+subplot(3,2,6)
+plotBinData(face_itg_curv_an5(:,1), mig_normal_proj(:,4), [0, 500], [-1e4, 1e4], 10, 'Area\_an5, \mum^2', 'Migration\_normal\_an5, \mum', true, false)
+print('Migration_Area', '-dpng','-r300')
+
+%% ----- migration v.s. itg_curv -----
+subplot(3,2,1)
+plotBinData(face_itg_curv_an4(:,2), mig_svm_proj(:,2), [0, 500], [-1e4, 1e4], 10, 'Itg\_Curv\_an4, \mum', 'Migration\_svm, \mum', true, false)
+subplot(3,2,2)
+plotBinData(face_itg_curv_an5(:,2), mig_svm_proj(:,2), [0, 500], [-1e4, 1e4], 10, 'Itg\_Curv\_an5, \mum', 'Migration\_svm, \mum', true, false)
+subplot(3,2,3)
+plotBinData(face_itg_curv_an4(:,2), mig_normal_proj(:,3), [0, 500], [-1e4, 1e4], 10, 'Itg\_Curv\_an4, \mum', 'Migration\_normal\_an4, \mum', true, false)
+subplot(3,2,4)
+plotBinData(face_itg_curv_an5(:,2), mig_normal_proj(:,3), [0, 500], [-1e4, 1e4], 10, 'Itg\_Curv\_an5, \mum', 'Migration\_normal\_an4, \mum', true, false)
+subplot(3,2,5)
+plotBinData(face_itg_curv_an4(:,2), mig_normal_proj(:,4), [0, 500], [-1e4, 1e4], 10, 'Itg\_Curv\_an4, \mum', 'Migration\_normal\_an5, \mum', true, false)
+subplot(3,2,6)
+plotBinData(face_itg_curv_an5(:,2), mig_normal_proj(:,4), [0, 500], [-1e4, 1e4], 10, 'Itg\_Curv\_an5, \mum', 'Migration\_normal\_an5, \mum', true, false)
+% print('Migration_Itg_Curv', '-dpng','-r300')
+
+%% ----- migration v.s. area_diff -----
+subplot(3,1,1)
+plotBinData(face_area_diff, mig_svm_proj(:,2), [0, 500], [-1e4, 1e4], 10, 'Area\_diff, \mum^2', 'Migration\_svm, \mum', true, false)
+subplot(3,1,2)
+plotBinData(face_area_diff, mig_normal_proj(:,3), [0, 500], [-1e4, 1e4], 10, 'Area\_diff, \mum^2', 'Migration\_normal\_an4, \mum', true, false)
+subplot(3,1,3)
+plotBinData(face_area_diff, mig_normal_proj(:,4), [0, 500], [-1e4, 1e4], 10, 'Area\_diff, \mum^2', 'Migration\_normal\_an5, \mum', true, false)
+% print('Migration_AreaDiff', '-dpng','-r300')
+
+%% ----- migration v.s. itg_curv_diff -----
+subplot(3,1,1)
+plotBinData(face_itg_curv_diff, mig_svm_proj(:,2), [0, 500], [-1e4, 1e4], 10, 'Itg\_Curv\_diff, \mum', 'Migration\_svm, \mum', true, false)
+subplot(3,1,2)
+plotBinData(face_itg_curv_diff, mig_normal_proj(:,3), [0, 500], [-1e4, 1e4], 10, 'Itg\_Curv\_diff, \mum', 'Migration\_normal\_an4, \mum', true, false)
+subplot(3,1,3)
+plotBinData(face_itg_curv_diff, mig_normal_proj(:,4), [0, 500], [-1e4, 1e4], 10, 'Itg\_Curv\_diff, \mum', 'Migration\_normal\_an5, \mum', true, false)
+% print('Migration_ItgCurvDiff', '-dpng','-r300')

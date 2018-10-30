@@ -16,7 +16,7 @@ function face_node_info = getSingleFaceNodes(obj_facelabel_1, obj_facelabel_2)
 % file = file_an4;
 % obj_facelabel = [620,  752];
 % ---------------------------------------------------------------
-load('node_coord_180822.mat');
+load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/node_coord_180822.mat');
 % ##### filter bad data #####
 mask_1 = all(facelabel_1 > 0, 2);
 facelabel_1 = facelabel_1(mask_1,:);

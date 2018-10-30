@@ -14,7 +14,8 @@
 % ########################################################
 % Set up recording parameters (optional), and record
 OptionZ.FrameRate=20; OptionZ.Duration=8; OptionZ.Periodic=true;
-file_name = ['pair_', num2str(idx), '_triedge_10to20'];
+file_name = ['SVM_NaNcase_pair_', num2str(idx), ''];
+% file_name = 'good_example_pair_6';
 CaptureFigVid([-20,10;-110,10;-190,80;-290,10;-380,10], file_name ,OptionZ)
 
 % CaptureFigVid([-20,10;-110,10;-190,80], file_name, OptionZ)

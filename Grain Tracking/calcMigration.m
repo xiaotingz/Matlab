@@ -1,53 +1,63 @@
-% function calcMigration(file_an4, file_an4, X_to_Y)
-% ############################################################################
-% Notes
-%     - This function is doing data preparation.
-%     - Migration of each grain face is calced by calling
-%     calcFaceMigBySVMPlaneProj.m | calcFaceMigByPillarHeight.m |
-%     calcFaceMigByLocalNormProj.m
-% ############################################################################
-% ----------------------- load debug data -----------------------
-% load('180822', 'file_an4', 'file_an5');
-file_an4 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d';
-file_an5 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_mesh.dream3d';
-load('180822_FaceCorresp', 'tracked_uniqueface_an4', 'tracked_uniqueface_an5', 'X_to_Y');
-load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/180828_piecewise_face.mat', 'face_piecewise')
-% ---------------------------------------------------------------
+% % function calcMigration(file_an4, file_an4, X_to_Y)
+% % ############################################################################
+% % Notes
+% %     - This function is doing data preparation.
+% %     - Migration of each grain face is calced by calling
+% %     calcFaceMigBySVMPlaneProj.m | calcFaceMigByPillarHeight.m |
+% %     calcFaceMigByLocalNormProj.m
+% % ############################################################################
+% % ----------------------- load debug data -----------------------
+% % load('180822', 'file_an4', 'file_an5');
+% file_an4 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d';
+% file_an5 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_mesh.dream3d';
+% load('180822_FaceCorresp', 'tracked_uniqueface_an4', 'tracked_uniqueface_an5', 'X_to_Y');
+% load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/180828_piecewise_face.mat', 'face_piecewise')
+% % ---------------------------------------------------------------
+% 
+% % ##### Load Data & Basic Cleans #####
+% facelabel_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
+% facelabel_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
+% tri_normal_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceNormals'))';
+% tri_normal_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceNormals'))';
+% tri_node_an4 = 1 + double(h5read(file_an4,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList'))';
+% tri_node_an5 = 1 + double(h5read(file_an5,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList'))';
+% node_coord_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedVertexList'))';
+% node_coord_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedVertexList'))';
+% mask_an4 = all(facelabel_an4 > 0, 2);
+% facelabel_an4 = facelabel_an4(mask_an4, :);
+% tri_node_an4 = tri_node_an4(mask_an4, :);
+% tri_normal_an4 = tri_normal_an4(mask_an4, :);
+% mask_an5 = all(facelabel_an5 > 0, 2);
+% facelabel_an5 = facelabel_an5(mask_an5, :);
+% tri_node_an5 = tri_node_an5(mask_an5, :);
+% tri_normal_an5 = tri_normal_an5(mask_an5, :);
+% % tri_centroid_an4 = h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceCentroids')';
+% % tri_centroid_an5 = h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceCentroids')';
+% tri_centroid_an4 = tri_centroid_an4(mask_an4, :);
+% tri_centroid_an5 = tri_centroid_an5(mask_an5, :);
+% 
+% % ##### ID of one-piece faces #####
+% face_to_calc = (1:length(tracked_uniqueface_an4))';
+% face_to_calc(face_piecewise) = [];
+% migration = zeros(length(tracked_uniqueface_an4), 1);
 
-% ##### Load Data & Basic Cleans #####
-facelabel_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
-facelabel_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
-tri_normal_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceNormals'))';
-tri_normal_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceNormals'))';
-tri_node_an4 = 1 + double(h5read(file_an4,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList'))';
-tri_node_an5 = 1 + double(h5read(file_an5,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList'))';
-node_coord_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedVertexList'))';
-node_coord_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedVertexList'))';
-mask_an4 = all(facelabel_an4 > 0, 2);
-facelabel_an4 = facelabel_an4(mask_an4, :);
-tri_node_an4 = tri_node_an4(mask_an4, :);
-tri_normal_an4 = tri_normal_an4(mask_an4, :);
-mask_an5 = all(facelabel_an5 > 0, 2);
-facelabel_an5 = facelabel_an5(mask_an5, :);
-tri_node_an5 = tri_node_an5(mask_an5, :);
-tri_normal_an5 = tri_normal_an5(mask_an5, :);
-tri_centroid_an4 = h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceCentroids')';
-tri_centroid_an5 = h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceCentroids')';
-tri_centroid_an4 = tri_centroid_an4(mask_an4, :);
-tri_centroid_an5 = tri_centroid_an5(mask_an5, :);
-
-% ##### ID of one-piece faces #####
-face_to_calc = 1:length(tracked_uniqueface_an4);
-face_to_calc(face_piecewise) = [];
-migration = zeros(size(face_to_calc));
 
 % ##### Data for Current Face #####
-tmp = length(face_to_calc);
-parfor i = 1:tmp
-    idx = face_to_calc(i);
-    x_to_y = X_to_Y{idx};
-    obj_facelabel_an4 = tracked_uniqueface_an4(idx, :);
-    obj_facelabel_an5 = tracked_uniqueface_an5(idx, :);
+load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/181025_mig_input.mat');
+% X_to_Y_onepiece = X_to_Y(face_to_calc);
+% trackedface_an4_onepiece = tracked_uniqueface_an4(face_to_calc, :);
+% trackedface_an5_onepiece = tracked_uniqueface_an5(face_to_calc, :);
+mig_svm_proj = zeros(length(face_to_calc), 3);
+mig_normal_proj = zeros(length(face_to_calc), 4);
+
+eps = 0.2;
+parfor i = 1:length(mig_svm_proj)
+% [idx, ~] = find(face_to_calc == 2945);
+% for i = idx
+    feature = [];
+    x_to_y = X_to_Y_onepiece{i};
+    obj_facelabel_an4 = trackedface_an4_onepiece(i, :);
+    obj_facelabel_an5 = trackedface_an5_onepiece(i, :);
 
     % """
     % Note it's not legal to apply mask_half1 and mask_half2 seperately,
@@ -66,8 +76,8 @@ parfor i = 1:tmp
     face_node_coord_an5 = node_coord_an5(face_node_id_an5, :);
     face_tri_normal_an4 = tri_normal_an4(mask_an4, :);
     face_tri_normal_an5 = tri_normal_an5(mask_an5, :);
-    face_tri_centroid_an4 = tri_centroid_an4(mask_an4, :);
-    face_tri_centroid_an5 = tri_centroid_an5(mask_an5, :);
+%     face_tri_centroid_an4 = tri_centroid_an4(mask_an4, :);
+%     face_tri_centroid_an5 = tri_centroid_an5(mask_an5, :);
     % ----- note triangle normal direction has to be consistent -----
     mask_reverse_an4 = facelabel_an4(mask_an4,1) > facelabel_an4(mask_an4,2);
     mask_reverse_an5 = facelabel_an5(mask_an5,1) > facelabel_an5(mask_an5,2);
@@ -106,17 +116,18 @@ parfor i = 1:tmp
     features = [[ones(m, 1); 2*ones(n, 1)], [face_node_id_an4; face_node_id_an5], ...
         [face_node_coord_an4; face_node_coord_an5], [normal_an4; normal_an5], ones(m+n, 1)];
 
-    dist_proj_1 = calcFaceMigBySVMPlaneProj(features, x_to_y, eps);
-    migration(i) = sum(dist_proj_1)/length(dist_proj_1);
-    
+    mig_svm_proj(i, :) = calcFaceMigBySVMPlaneProj(features, x_to_y, eps);
+    mig_normal_proj(i, :) = calcFaceMigByLocalNormProj(features, x_to_y);
     disp(i);
 
 end
 
+
+
 % ############################# Visualization #############################
-% face_node_info = getSingleFaceNodes(obj_facelabel_an4, obj_facelabel_an5);
 % figure
-% visualizeFace(face_node_info, x_to_y)
+% model = plotSVMPlane(features, face_tri_node_an4, face_tri_node_an5, x_to_y);
+% unique(model.BoxConstraints)
 % plotSingleFaceWithNormal(file_an4, obj_facelabel_an4, 0);
 % hold on
 % quiver3(coord_1(:,1),coord_1(:,2),coord_1(:,3), ...

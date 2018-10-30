@@ -14,7 +14,7 @@ try
         % if the grain contacts the outer side and has less than the threshold number of faces, delete
         threshold = 30;
         for i = 1: length(outer_ind)
-            if num_of_neigh(outer_ind(i)) < threshold;
+            if num_of_neigh(outer_ind(i)) < threshold
                 delete_bool(i) = 0;
             end
         end

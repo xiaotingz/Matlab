@@ -5,7 +5,8 @@ if strcmp(xAxis, 'D')
     x_data = data_grain(:,2);
     % - Austenite & Ferrite Sample start with 0.9; STO1470 start with 0.8
     start = 0; 
-    width = 0.2;
+    width = max(data_grain(:,2))/50;
+%     width = 0.2;
     step = ceil((max(x_data) - start)/width)+1;
 elseif strcmp(xAxis, 'numFaces')
     x_data = data_grain(:,3);

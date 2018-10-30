@@ -1,4 +1,4 @@
-function dist_proj_1  = calcFaceMigBySVMPlaneProj(features, x_to_y, eps)
+function mig_svm_proj  = calcFaceMigBySVMPlaneProj(features, x_to_y, eps)
 % ############################################################################
 % Input
 %     - features = [n+m, 9], [face_id, node_id, coordinates, normals, cluster_id] 
@@ -6,7 +6,10 @@ function dist_proj_1  = calcFaceMigBySVMPlaneProj(features, x_to_y, eps)
 %     - x_to_y = [m, 1], a mapping from nodes_1 to nodes_2
 %     - eps, scalar, the tolarence for deciting if a SVM fitting plane is good.
 % Output
-%     - face_migration, scalar, the average migration distance of the grain face
+%     - mig_svm_proj = [mig_sign, mig_abs, bad_fit]
+%         If interwining shouldn't be considered as migration, use
+%         mig_sign. If interwining should be consider as migration, use
+%         mig_abs
 % Notes
 %     - This script can be compared to the other two projection methods
 %     also: MigrationByLocalNormProj.m and MigrationByPillarHeight.m
@@ -17,8 +20,10 @@ function dist_proj_1  = calcFaceMigBySVMPlaneProj(features, x_to_y, eps)
 %     - If too many (>10) median planes are needed, the program will break.
 %     - This script is used in calcMigrations.m, the result can be compared to 
 %     calcFaceMigByLocalNormProj.m and calcFaceMigByPillarHeight.m.
-%     - This script has a dependency: updateKmeansClusterAssign.m and
+%     - This script has two dependencies: updateKmeansClusterAssign.m and
 %     KmeansAsNormalImproved.m
+%     - MATLAB svm paramters to play with 
+%         !!! 'BoxConstraint', 'Standardize', 'OutlierFraction' !!!         
 % ############################################################################
 % ----------------------- load debug data -----------------------
 % load('181004_SVMcurv_pair1674')
@@ -30,7 +35,6 @@ function dist_proj_1  = calcFaceMigBySVMPlaneProj(features, x_to_y, eps)
 % tri_node_2 = face_tri_node_an5;
 % eps = 0.1;
 % ---------------------------------------------------------------
-colors = get(gca,'colororder');
 
 % ##### Prepare to Start #####
 max_kmeans_loop = 1000;
@@ -38,6 +42,7 @@ coord_1 = features(features(:,1)==1, 3:5);
 coord_2 = features(features(:,1)==2, 3:5);
 coord_1_corresp = coord_2(x_to_y, :); 
 dist_direct = vecnorm(coord_1 - coord_1_corresp, 2, 2);
+max_num_cluster = 10;
 
 % ##### Initial SVM trial #####
 % ----- Find SVM plane -----
@@ -51,16 +56,19 @@ bias = SVMModel.Bias;
 % """
 % - Good median plane is characterized as most projected migration distance 
 % should be smaller than the direct migration distance.  
-% - If the plane is not good enough, add in a cluster fit median plane within 
-% the clusters.
 % - Point-plane distance ref: http://mathworld.wolfram.com/Point-PlaneDistance.html
 % """
 dist_proj_1 = (sum(coord_1.*normal', 2) + bias*ones(size(coord_1, 1), 1)) ./ norm(normal);
-% dist_proj_2 = (normal(1)*coord_2(:,1) + normal(2)*coord_2(:,2) + normal(3)*coord_2(:,3) ...
-%     + bias*ones(size(coord_2, 1), 1)) ./ norm(normal);
-need_another_cluster = (sum(dist_direct - abs(dist_proj_1) < 0) / length(dist_direct)) > eps; 
+dist_proj_2 = (sum(coord_1_corresp.*normal', 2) + bias*ones(size(coord_1_corresp, 1), 1)) ./ norm(normal);
+dist_proj_sign = dist_proj_1 - dist_proj_2;
+dist_proj_abs = abs(dist_proj_1) + abs(dist_proj_2);
+need_another_cluster = (sum(dist_direct - abs(dist_proj_abs) < 0) / length(dist_direct)) > eps; 
+bad_fit = false;
 
-% ##### Kmeans with Dynamic #Centers #####
+% ----- Record the SVM plane parameters -----
+svm_param = [];
+svm_param = [svm_param; normal', bias];
+
 
 % %% ################################## Normal Improved K-means ################################## 
 % % """
@@ -110,20 +118,34 @@ need_another_cluster = (sum(dist_direct - abs(dist_proj_1) < 0) / length(dist_di
 % Note in each iteration, only nodes in the imperfect clusters will be reclustered. Nodes that
 % already found a good median plane will maintain their cluster_id. 
 % """
-num_cluster = 1;
-num_good_clusters = 0;
-dist_proj_1 = zeros(size(dist_direct));
-mask_to_cluster = boolean(ones(size(features, 1), 1));
-svm_param = [];
+if need_another_cluster
+    num_cluster = 1;
+    num_good_clusters = 0;
+    mask_to_cluster = boolean(ones(size(features, 1), 1));
+    dist_proj_sign = zeros(size(dist_direct));
+end
 while need_another_cluster
     num_cluster = num_cluster + 1;
-    if num_cluster > 10
+    
+    % ----- Check if reached max #cluster -----
+    if num_cluster > max_num_cluster
         disp(' '); warning('Too many SVM median planes are needed in MigrationBySVMPlaneProj.m. Check the node!'); disp(' ');
-        dist_proj_1 = NaN;
+        bad_fit = true;
+        mask_goodcluster = (features(:,end) <= num_good_clusters );
+        mask_goodcluster_1 = (mask_goodcluster & features(:,1) == 1);
+        if sum(mask_goodcluster) > size(features,1)*0.9
+            mig_sign = sum(dist_proj_sign(mask_goodcluster_1))/sum(mask_goodcluster_1);
+            mig_abs = sum(abs(dist_proj_sign(mask_goodcluster_1)))/sum(mask_goodcluster_1);
+            mig_svm_proj = [mig_sign, mig_abs, bad_fit];
+        else
+            mig_svm_proj = [NaN, NaN, bad_fit];
+        end
         return 
     end
     
-    % ----- Increase #clusters and recluster nodes in the bad clusters only -----
+    % ----- Re-initialize dist_proj_sign -----
+    
+    % ----- Recluster nodes in the bad clusters only -----
     cluster_id_new = kmeans(features(mask_to_cluster, 3:5), num_cluster - num_good_clusters + 1);
 %     [~, cluster_id_new] = KmeansAsNormalImproved(features, mask_to_cluster, num_cluster, tri_node_1, tri_node_2);
     
@@ -134,17 +156,21 @@ while need_another_cluster
     need_another_cluster = false;
     for i = 1+num_good_clusters : max(features(:, end))
         mask_cluster_i = (features(:, end) == i);
-        mask_cluster_i_1 = (features(:, end) == i & features(:,1) == 1);
+%         mask_cluster_i_1 = (features(:, end) == i & features(:,1) == 1);
+        mask_cluster_i_1 = mask_cluster_i(1:size(coord_1, 1));
         X = features(mask_cluster_i, 3:5);
         Y = features(mask_cluster_i, 1);
-        SVMModel = fitcsvm(X, Y,'KernelFunction','linear', 'Standardize',false,'ClassNames',{'1','2'});
+        SVMModel = fitcsvm(X, Y,'KernelFunction','linear', 'Standardize',false);
         normal = SVMModel.Beta;
         bias = SVMModel.Bias;
-        dist_proj_tmp = (sum(features(mask_cluster_i_1, 3:5).*normal', 2) ...
+        dist_proj_1 = (sum(coord_1(mask_cluster_i_1, :).*normal', 2) ...
             + bias*ones(sum(mask_cluster_i_1), 1)) ./ norm(normal);
+        dist_proj_2 = (sum(coord_1_corresp(mask_cluster_i_1, :).*normal', 2) ...
+            + bias*ones(sum(mask_cluster_i_1), 1)) ./ norm(normal);
+        dist_proj_abs = abs(dist_proj_1) + abs(dist_proj_2);
          
          % ----- Project to see if num_clusters is enough -----
-        this_cluster_bad =  (sum(dist_direct(mask_cluster_i_1) - abs(dist_proj_tmp) < 0) ...
+        this_cluster_bad =  (sum(dist_direct(mask_cluster_i_1) - dist_proj_abs < 0) ...
             / length(dist_direct(mask_cluster_i_1))) > eps;
         
         if this_cluster_bad == true
@@ -153,18 +179,19 @@ while need_another_cluster
         else
             num_good_clusters = num_good_clusters + 1;
             svm_param = [svm_param; normal', bias];
-            dist_proj_1(mask_cluster_i_1) = dist_proj_tmp;
+            dist_proj_sign(mask_cluster_i_1) = dist_proj_1 - dist_proj_2;
             features(mask_cluster_i, end) = num_good_clusters * ones(sum(mask_cluster_i), 1);
         end
-        
-    end
-    
+    end 
 end
+
+mig_sign = sum(dist_proj_sign)/length(dist_proj_sign);
+mig_abs = sum(abs(dist_proj_sign))/length(dist_proj_sign);
+mig_svm_proj = [mig_sign, mig_abs, bad_fit];
 
 end
 
-% visualizeFace(face_node_info, x_to_y)
-% plotSVMPlane(features)
+% plotSVMPlane(features, face_tri_node_an4, face_tri_node_an5, x_to_y)
 % title('Naive K-means')
 
 
