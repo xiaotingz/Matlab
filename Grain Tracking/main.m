@@ -269,10 +269,11 @@ plotBinData(face_itg_curv_diff, mig_normal_proj(:,4), [0, 500], [-1e4, 1e4], 10,
 
 
 %% ----- migration v.s topologies -----
-load('../Topologies/181030_Ni_TopologyResult.mat', 'num_corners_an4', 'num_corners_an5', 'num_edges_an4', 'num_edges_an5');
+load('../Topologies/181101_Ni_TopologyResult_uniqiue.mat', 'num_corners_an4', 'num_corners_an5', 'num_edges_an4', 'num_edges_an5');
 load('181028_migration.mat');
 load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/181025_mig_input.mat', 'face_to_calc', ...
     'tracked_uniqueface_an4', 'tracked_uniqueface_an5');
+load('../Topologies/181101_Ni_faceConnection.mat')
 
 num_corners_an4 = num_corners_an4(face_to_calc, :);
 num_corners_an5 = num_corners_an5(face_to_calc, :);
@@ -280,12 +281,12 @@ num_edges_an4 = num_edges_an4(face_to_calc, :);
 num_edges_an5 = num_edges_an5(face_to_calc, :);
 corner_diff = num_corners_an5 - num_corners_an4;
 
-plotBinData(corner_diff, mig_svm_proj(:,2), [-20, 20], [-1e4, 1e4], 1, 'Corner Diff', 'Migration, \mum', false, false)
-hold on
-plotBinData(corner_diff, mig_normal_proj(:,3), [-20, 20], [-1e4, 1e4], 1, 'Corner Diff', 'Migration, \mum', false, false)
-plotBinData(corner_diff, mig_normal_proj(:,4), [-20, 20], [-1e4, 1e4], 1, 'Corner Diff', 'Migration, \mum', true, false)
-legend('svm projection', 'normal\_an4 projection', 'normal\_an5 projection', 'Location','northwest')
-print('Migration_CornerDiff', '-dpng','-r300')
+% plotBinData(corner_diff, mig_svm_proj(:,2), [-20, 20], [-1e4, 1e4], 1, 'Corner Diff', 'Migration, \mum', false, false)
+% hold on
+% plotBinData(corner_diff, mig_normal_proj(:,3), [-20, 20], [-1e4, 1e4], 1, 'Corner Diff', 'Migration, \mum', false, false)
+% plotBinData(corner_diff, mig_normal_proj(:,4), [-20, 20], [-1e4, 1e4], 1, 'Corner Diff', 'Migration, \mum', true, false)
+% legend('svm projection', 'normal\_an4 projection', 'normal\_an5 projection', 'Location','northwest')
+% print('Migration_CornerDiff', '-dpng','-r300')
 
 
 
