@@ -21,8 +21,8 @@ color2 = [0.9290, 0.6940, 0.1250];
 % ##### Convert Triangle Connection to be Local #####
 face_map_an4 = containers.Map(unique(obj_face{5,1}), (1:length(unique(obj_face{5,1})))');
 face_map_an5 = containers.Map(unique(obj_face{5,2}), (1:length(unique(obj_face{5,2})))');
-tri_connect_1 = zeros(length(obj_face{5,1}), 3);
-tri_connect_2 = zeros(length(obj_face{5,2}), 3);
+tri_connect_1 = zeros(size(obj_face{5,1}, 1), 3);
+tri_connect_2 = zeros(size(obj_face{5,2}, 1), 3);
 for i = 1:size(tri_connect_1, 1)
     for j = 1:3
         tri_connect_1(i, j) = face_map_an4(obj_face{5,1}(i,j));

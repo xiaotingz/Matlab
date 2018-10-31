@@ -1,7 +1,8 @@
 function numEdges = calcNumEdges(numNeigh, neighborList)
 % ############################################################################
 % NOTES
-% - assuming the non-function 0 at the first element of numNeighbors has been deleted.
+% - Assuming the non-function 0 at the first element of numNeighbors has been deleted.
+% - !!! The logic for this script is not right !!!
 % ############################################################################
 % numNeigh(1) = [];
 

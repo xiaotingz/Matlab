@@ -1,15 +1,19 @@
-function [numCorners, numEdges] = getFaceCharacter(labels, TLs, QNs, FCNs)
+function [num_corners, num_edges] = getFaceCharacter(labels, TLs, QNs, FCNs)
 % ############################################################################
-% - labels = [n, 2]
-% - This function takes only FiveCoordSuperQN but not other superQNs.
+% * Inputs
+%   - labels = [n, 2]
+%   - TLs, given by findTripleLines.m
+%   - QNs and FCNs, given by findQuadNodes.m result{1} and result{2}
+% * Note
+%   - This function takes only FiveCoordSuperQN but not other superQNs.
 % ############################################################################
 % ----------------------- load debug data -----------------------
 % A = [277, 277, 277]';
 % B = [8, 69, 100]';
 % labels = [277, 8];
 % ---------------------------------------------------------------
-numEdges = zeros(size(labels, 1), 1);
-numCorners = zeros(size(labels, 1), 1);
+num_edges = zeros(size(labels, 1), 1);
+num_corners = zeros(size(labels, 1), 1);
 
 % ##### if only QuadPoints #####
 if nargin == 3
@@ -20,12 +24,12 @@ if nargin == 3
         mask_TL_A = (TLs == A);
         mask_TL_B = (TLs == B);
         mask_TL_AB = ((sum(mask_TL_A, 2) + sum(mask_TL_B, 2)) == 2);
-        numEdges(i) = sum(mask_TL_AB);
+        num_edges(i) = sum(mask_TL_AB);
 
         mask_QN_A = (QNs == A);
         mask_QN_B = (QNs == B);
         mask_QN_AB = ((sum(mask_QN_A, 2) + sum(mask_QN_B, 2)) == 2);
-        numCorners(i) = sum(mask_QN_AB);
+        num_corners(i) = sum(mask_QN_AB);
     end
 % ##### QuadPoints and FCNoints #####
 elseif nargin == 4
@@ -36,7 +40,7 @@ elseif nargin == 4
         mask_TL_A = (TLs == A);
         mask_TL_B = (TLs == B);
         mask_TL_AB = ((sum(mask_TL_A, 2) + sum(mask_TL_B, 2)) == 2);
-        numEdges(i) = sum(mask_TL_AB);
+        num_edges(i) = sum(mask_TL_AB);
 
         mask_QN_A = (QNs == A);
         mask_QN_B = (QNs == B);
@@ -45,7 +49,7 @@ elseif nargin == 4
         mask_FCN_A = (FCNs == A);
         mask_FCN_B = (FCNs == B);
         mask_FCN_AB = ((sum(mask_FCN_A, 2) + sum(mask_FCN_B, 2)) == 2);
-        numCorners(i) = sum(mask_QN_AB) + sum(mask_FCN_AB)*2;
+        num_corners(i) = sum(mask_QN_AB) + sum(mask_FCN_AB)*2;
     end
 end
 

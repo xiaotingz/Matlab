@@ -18,8 +18,7 @@ num_cells_an5(1) = [];
 [tracked_uniqueface_an4, tracked_uniqueface_an5] = trackUniqueFace(file_an4, file_an5, look_up_table, 'use_complete_faces');
 
 
-
-%%
+%% ########################################### Geometry & Topologies ########################################### 
 % ##### calc integral |face curvature| ##### 
 %   --- faceCurvs = [integralArea, integralCurvature] ---
 %   --- data is the order of faces_An but contain just the valid faces ---
@@ -206,34 +205,34 @@ print('FItgCurvDiff_CentrDiff', '-dpng','-r300')
 % ylabel('The average dV across face')
 
 
-%%
-% ##### Migration Correlations ##### 
-% load('181028_migration.mat')
-% load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/181025_mig_input.mat', 'face_to_calc')
 
-% face_itg_curv_an4 = face_itg_curv_an4(face_to_calc, :);
-% face_itg_curv_an5 = face_itg_curv_an5(face_to_calc, :);
-% diff_tmp = face_itg_curv_an5 - face_itg_curv_an4;
-% face_area_diff = diff_tmp(:,1);
-% face_itg_curv_diff = diff_tmp(:,2);
-% 
-% set(0,'defaultAxesLabelFontSize',1.1)
-% set(0,'defaultAxesFontSize',14)
+%% ########################################### Migration Correlations ########################################### 
+load('181028_migration.mat')
+load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/181025_mig_input.mat', 'face_to_calc')
+
+face_itg_curv_an4 = face_itg_curv_an4(face_to_calc, :);
+face_itg_curv_an5 = face_itg_curv_an5(face_to_calc, :);
+diff_tmp = face_itg_curv_an5 - face_itg_curv_an4;
+face_area_diff = diff_tmp(:,1);
+face_itg_curv_diff = diff_tmp(:,2);
+
+set(0,'defaultAxesLabelFontSize',1.1)
+set(0,'defaultAxesFontSize',14)
 
 %% ----- migration v.s. area -----
 subplot(3,2,1)
-plotBinData(face_itg_curv_an4(:,1), mig_svm_proj(:,2), [0, 500], [-1e4, 1e4], 10, 'Area\_an4, \mum^2', 'Migration\_svm, \mum', true, false)
+plotBinData(face_itg_curv_an4(:,1), mig_svm_proj(:,2), [0, 5000], [-1e4, 1e4], 100, 'Area\_an4, \mum^2', 'Migration\_svm, \mum', true, false)
 subplot(3,2,2)
-plotBinData(face_itg_curv_an5(:,1), mig_svm_proj(:,2), [0, 500], [-1e4, 1e4], 10, 'Area\_an5, \mum^2', 'Migration\_svm, \mum', true, false)
+plotBinData(face_itg_curv_an5(:,1), mig_svm_proj(:,2), [0, 5000], [-1e4, 1e4], 100, 'Area\_an5, \mum^2', 'Migration\_svm, \mum', true, false)
 subplot(3,2,3)
-plotBinData(face_itg_curv_an4(:,1), mig_normal_proj(:,3), [0, 500], [-1e4, 1e4], 10, 'Area\_an4, \mum^2', 'Migration\_normal\_an4, \mum', true, false)
+plotBinData(face_itg_curv_an4(:,1), mig_normal_proj(:,3), [0, 5000], [-1e4, 1e4], 100, 'Area\_an4, \mum^2', 'Migration\_normal\_an4, \mum', true, false)
 subplot(3,2,4)
-plotBinData(face_itg_curv_an5(:,1), mig_normal_proj(:,3), [0, 500], [-1e4, 1e4], 10, 'Area\_an5, \mum^2', 'Migration\_normal\_an4, \mum', true, false)
+plotBinData(face_itg_curv_an5(:,1), mig_normal_proj(:,3), [0, 5000], [-1e4, 1e4], 100, 'Area\_an5, \mum^2', 'Migration\_normal\_an4, \mum', true, false)
 subplot(3,2,5)
-plotBinData(face_itg_curv_an4(:,1), mig_normal_proj(:,4), [0, 500], [-1e4, 1e4], 10, 'Area\_an4, \mum^2', 'Migration\_normal\_an5, \mum', true, false)
+plotBinData(face_itg_curv_an4(:,1), mig_normal_proj(:,4), [0, 5000], [-1e4, 1e4], 100, 'Area\_an4, \mum^2', 'Migration\_normal\_an5, \mum', true, false)
 subplot(3,2,6)
-plotBinData(face_itg_curv_an5(:,1), mig_normal_proj(:,4), [0, 500], [-1e4, 1e4], 10, 'Area\_an5, \mum^2', 'Migration\_normal\_an5, \mum', true, false)
-print('Migration_Area', '-dpng','-r300')
+plotBinData(face_itg_curv_an5(:,1), mig_normal_proj(:,4), [0, 5000], [-1e4, 1e4], 100, 'Area\_an5, \mum^2', 'Migration\_normal\_an5, \mum', true, false)
+% print('Migration_Area', '-dpng','-r300')
 
 %% ----- migration v.s. itg_curv -----
 subplot(3,2,1)
@@ -267,3 +266,30 @@ plotBinData(face_itg_curv_diff, mig_normal_proj(:,3), [0, 500], [-1e4, 1e4], 10,
 subplot(3,1,3)
 plotBinData(face_itg_curv_diff, mig_normal_proj(:,4), [0, 500], [-1e4, 1e4], 10, 'Itg\_Curv\_diff, \mum', 'Migration\_normal\_an5, \mum', true, false)
 % print('Migration_ItgCurvDiff', '-dpng','-r300')
+
+
+%% ----- migration v.s topologies -----
+load('../Topologies/181030_Ni_TopologyResult.mat', 'num_corners_an4', 'num_corners_an5', 'num_edges_an4', 'num_edges_an5');
+load('181028_migration.mat');
+load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/181025_mig_input.mat', 'face_to_calc', ...
+    'tracked_uniqueface_an4', 'tracked_uniqueface_an5');
+
+num_corners_an4 = num_corners_an4(face_to_calc, :);
+num_corners_an5 = num_corners_an5(face_to_calc, :);
+num_edges_an4 = num_edges_an4(face_to_calc, :);
+num_edges_an5 = num_edges_an5(face_to_calc, :);
+corner_diff = num_corners_an5 - num_corners_an4;
+
+plotBinData(corner_diff, mig_svm_proj(:,2), [-20, 20], [-1e4, 1e4], 1, 'Corner Diff', 'Migration, \mum', false, false)
+hold on
+plotBinData(corner_diff, mig_normal_proj(:,3), [-20, 20], [-1e4, 1e4], 1, 'Corner Diff', 'Migration, \mum', false, false)
+plotBinData(corner_diff, mig_normal_proj(:,4), [-20, 20], [-1e4, 1e4], 1, 'Corner Diff', 'Migration, \mum', true, false)
+legend('svm projection', 'normal\_an4 projection', 'normal\_an5 projection', 'Location','northwest')
+print('Migration_CornerDiff', '-dpng','-r300')
+
+
+
+
+
+
+

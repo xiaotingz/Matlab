@@ -38,8 +38,8 @@ if nargin == 4
     % """
     face_map_an4 = containers.Map(unique(face_tri_node_1), (1:length(unique(face_tri_node_1)))');
     face_map_an5 = containers.Map(unique(face_tri_node_2), (1:length(unique(face_tri_node_2)))');
-    tri_connect_1 = zeros(length(face_tri_node_1), 3);
-    tri_connect_2 = zeros(length(face_tri_node_2), 3);
+    tri_connect_1 = zeros(size(face_tri_node_1, 1), 3);
+    tri_connect_2 = zeros(size(face_tri_node_2, 1), 3);
     for i = 1:size(tri_connect_1, 1)
         for j = 1:3
             tri_connect_1(i, j) = face_map_an4(face_tri_node_1(i,j));

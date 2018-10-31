@@ -35,7 +35,7 @@ function [tracked_uniqueface_1, tracked_uniqueface_2] = trackUniqueFace(file_1, 
             unique_facelabel_1 = unique_facelabel_1(mask_completeface_1, :);
             unique_facelabel_2 = unique_facelabel_2(mask_completeface_2, :);    
     else
-        disp('All faces are tracked. Add in a fourth argument if want Complete Faces only.');
+        warning('All faces are tracked. Add in a fourth argument if want Complete Faces only.');
     end
 
 % ##### Make a Full Look-up Table ##### 

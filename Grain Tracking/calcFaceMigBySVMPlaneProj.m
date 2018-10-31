@@ -1,4 +1,4 @@
-function mig_svm_proj  = calcFaceMigBySVMPlaneProj(features, x_to_y, eps)
+function [mig_svm_proj, features]  = calcFaceMigBySVMPlaneProj(features, x_to_y, eps)
 % ############################################################################
 % Input
 %     - features = [n+m, 9], [face_id, node_id, coordinates, normals, cluster_id] 

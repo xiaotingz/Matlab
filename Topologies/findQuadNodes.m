@@ -1,12 +1,11 @@
-function [result, QNList, fiveCoordNList, sixCoordNList] = findQuadNodes(file)
+function [result, quadn_list, fivecoordn_list, sixcoordn_list] = findQuadNodes(file)
 % ############################################################################
-% - QNs = [n, 4] = [G1, G2, G3, G4]
-%     G1-G4 are the four grains encapsulating the point
-% - QNpos = [n, 3] = [x, y, z]
-%     x, y, z are the QuadPoint positions, max(x) = numVoxel_x + 1
-% - QNID = [n, 5] = [NodeID, G1, G2, G3, G4]
-%     [x, y, z] = ind2sub([xDim_N, yDim_N, zDim_N], nodeID);
-% - The algorithm is inspired from D3D's quick mesh.
+% * Output
+%   - result = {QNs, fiveCoordNs, sixCoordNs, sevenCoordNs, eightCoordNs};
+%       the grains encapsulating the nodes, already cleaned and sorted 
+%   -  QNList, fiveCoordNList, sixCoordNList
+%        similar to resutl, but is raw that data hasn'ts been cleaned.
+% * The algorithm is inspired from D3D's quick mesh.
 %     - I care only the inner volume QuadPoints. 
 %     - Every voxel has 6 neighbors, or 6 faces, each face have 4 nodes.
 %     To avoid double counting, only need to check 3 neighbors of each
@@ -114,15 +113,15 @@ end
 
 % ##### Make lists for the Quads & superQuads #####
 % ----- Quads -----
-QNList = [];
+quadn_list = [];
 superQNs = {};
 idx_QN = 1;
 idx_SQN = 1;
 for i = 1:length(ownerList)
     if ~isempty(ownerList{i})
         if size(ownerList{i},2) == 4
-            QNList(idx_QN, 1) = i;
-            QNList(idx_QN, 2:5) = cell2mat(ownerList{i});
+            quadn_list(idx_QN, 1) = i;
+            quadn_list(idx_QN, 2:5) = cell2mat(ownerList{i});
             idx_QN = idx_QN + 1;
         elseif size(ownerList{i},2) > 4
             superQNs{idx_SQN, 1} = i;
@@ -133,8 +132,8 @@ for i = 1:length(ownerList)
 end
 
 % ----- super Quads -----
-fiveCoordNList = [];
-sixCoordNList = [];
+fivecoordn_list = [];
+sixcoordn_list = [];
 sevenCoordNList = [];
 eightCoordNList = [];
 idx_FC = 1;
@@ -144,13 +143,13 @@ idx_EC = 1;
 
 for i = 1:length(superQNs)
     if length(superQNs{i,2}) == 5
-        fiveCoordNList(idx_FC, 1) = superQNs{i,1};
-        fiveCoordNList(idx_FC, 2:6) = cell2mat(superQNs{i,2});
+        fivecoordn_list(idx_FC, 1) = superQNs{i,1};
+        fivecoordn_list(idx_FC, 2:6) = cell2mat(superQNs{i,2});
         idx_FC = idx_FC + 1;
     else
         if length(superQNs{i,2}) == 6
-            sixCoordNList(idx_SiC, 1) = superQNs{i,1};
-            sixCoordNList(idx_SiC, 2:7) = cell2mat(superQNs{i,2});
+            sixcoordn_list(idx_SiC, 1) = superQNs{i,1};
+            sixcoordn_list(idx_SiC, 2:7) = cell2mat(superQNs{i,2});
             idx_SiC = idx_SiC + 1;
         elseif length(superQNs{i,2}) == 7
             sevenCoordNList(idx_SeC, 1) = superQNs{i,1};
@@ -165,7 +164,7 @@ for i = 1:length(superQNs)
 end
 
 % ##### for pillar shape sample, starting with i,j,k=2 won't exclude the surface voxels #####
-QNs = unique(QNList(:,2:5), 'rows');
+QNs = unique(quadn_list(:,2:5), 'rows');
 % --- if one of the ID=0, the voxel is on freeSurface, thus doesn't give a quad --- 
 QNs = QNs(~any(QNs == 0, 2), :);
 % --- Note even for HEDM data, if all the 4 grains are surface grains, the voxel is still a quad ---
@@ -173,14 +172,14 @@ QNs = QNs(~any(QNs == 0, 2), :);
 
 % --- same process applies to the superQuads, note 0 can only show once in the first digit --- 
 fiveCoordNs = []; sixCoordNs = []; sevenCoordNs = []; eightCoordNs = [];
-if ~isempty(fiveCoordNList)
-    fiveCoordNs = unique(fiveCoordNList(:,2:6), 'rows');
+if ~isempty(fivecoordn_list)
+    fiveCoordNs = unique(fivecoordn_list(:,2:6), 'rows');
     mask_QNinFN = any(fiveCoordNs == 0, 2);
     QNs = [QNs; fiveCoordNs(mask_QNinFN, 2:5)];
     fiveCoordNs = fiveCoordNs(~mask_QNinFN, :);
 end
-if ~isempty(sixCoordNList)
-    sixCoordNs = unique(sixCoordNList(:,2:7), 'rows');
+if ~isempty(sixcoordn_list)
+    sixCoordNs = unique(sixcoordn_list(:,2:7), 'rows');
     mask_FNinSixN = any(sixCoordNs == 0, 2);
     fiveCoordNs = [fiveCoordNs; sixCoordNs(mask_FNinSixN, 2:6)];
     sixCoordNs = sixCoordNs(~mask_FNinSixN, :);

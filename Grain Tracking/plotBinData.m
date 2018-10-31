@@ -66,6 +66,8 @@ data_grid(mask_nodata,:) = [];
 scatter(data_grid(:,2), data_grid(:,3), 'filled', 'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k');
 line([xrange(1), xrange(2)], [0,0], 'LineStyle', '--', 'Color', [0.5, 0.5, 0.5]);
 
+% -- set ylim -- 
+% ylim([0, 6])
 % ------------------------------
 % extra lines
 % line([0,0], [5, 25], 'LineStyle', '--', 'Color', [0.5, 0.5, 0.5]);

@@ -43,17 +43,18 @@
 
 
 % ##### Data for Current Face #####
-load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/181025_mig_input.mat');
+% load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/181025_mig_input.mat');
 % X_to_Y_onepiece = X_to_Y(face_to_calc);
 % trackedface_an4_onepiece = tracked_uniqueface_an4(face_to_calc, :);
 % trackedface_an5_onepiece = tracked_uniqueface_an5(face_to_calc, :);
-mig_svm_proj = zeros(length(face_to_calc), 3);
-mig_normal_proj = zeros(length(face_to_calc), 4);
+% mig_svm_proj = zeros(length(face_to_calc), 3);
+% mig_normal_proj = zeros(length(face_to_calc), 4);
 
 eps = 0.2;
-parfor i = 1:length(mig_svm_proj)
+% parfor i = 1:length(mig_svm_proj)
 % [idx, ~] = find(face_to_calc == 2945);
-% for i = idx
+idx = idx_svm_nan(4);
+for i = idx
     feature = [];
     x_to_y = X_to_Y_onepiece{i};
     obj_facelabel_an4 = trackedface_an4_onepiece(i, :);
@@ -116,9 +117,10 @@ parfor i = 1:length(mig_svm_proj)
     features = [[ones(m, 1); 2*ones(n, 1)], [face_node_id_an4; face_node_id_an5], ...
         [face_node_coord_an4; face_node_coord_an5], [normal_an4; normal_an5], ones(m+n, 1)];
 
-    mig_svm_proj(i, :) = calcFaceMigBySVMPlaneProj(features, x_to_y, eps);
-    mig_normal_proj(i, :) = calcFaceMigByLocalNormProj(features, x_to_y);
-    disp(i);
+%     mig_svm_proj(i, :) = calcFaceMigBySVMPlaneProj(features, x_to_y, eps);
+%     mig_normal_proj(i, :) = calcFaceMigByLocalNormProj(features, x_to_y);
+%     disp(i);
+    [mig_svm, features] = calcFaceMigBySVMPlaneProj(features, x_to_y, eps);
 
 end
 
@@ -126,7 +128,9 @@ end
 
 % ############################# Visualization #############################
 % figure
-% model = plotSVMPlane(features, face_tri_node_an4, face_tri_node_an5, x_to_y);
+plotSVMPlane(features, face_tri_node_an4, face_tri_node_an5, x_to_y);
+face_node_info = getSingleFaceNodes(tracked_uniqueface_an4(face_to_calc(idx),:), tracked_uniqueface_an5(face_to_calc(idx),:));
+visualizeFace(face_node_info, x_to_y)
 % unique(model.BoxConstraints)
 % plotSingleFaceWithNormal(file_an4, obj_facelabel_an4, 0);
 % hold on
