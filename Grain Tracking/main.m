@@ -1,3 +1,4 @@
+%% ########################################### Data & Prepare ########################################### 
 clear 
 
 file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d');
@@ -33,8 +34,6 @@ face_itg_curv_an5 = calcFaceItgCurv(file_an5, tracked_uniqueface_an5, 'unique_fa
 % diff = face_itg_curv_an5(face_corresp(:,2),2)./face_itg_curv_an5(face_corresp(:,2),1) - face_itg_curv_an4(face_corresp(:,1),2)./face_itg_curv_an4(face_corresp(:,1),1);
 % clear diff_tmp
 
-
-%%
 % ##### get the sizeChange of the two grains that defines the face #####
 % tracked_facelabel_an4 = faces_an4(face_corresp(:,1),:);
 % tracked_facelabel_an5 = faces_an5(face_corresp(:,2),:);
@@ -53,20 +52,78 @@ face_itg_curv_an5 = calcFaceItgCurv(file_an5, tracked_uniqueface_an5, 'unique_fa
 % faceMob_dV = abs(tmp3(:,1) - tmp3(:,2));
 % clear tmp1 tmp2 tmp3
 
-
-% ##### get the face coordinates #####
-face_centroid_an4 = findFaceCentorids(file_an4, faces_an4);
-face_centroid_an5 = findFaceCentorids(file_an5, faces_an5);
-face_centroid_diff = face_centroid_an5(face_corresp(:,2),:) - face_centroid_an4(face_corresp(:,1),:);
-face_centroid_diff = sqrt(sum(face_centroid_diff .* face_centroid_diff, 2));
-% face_centroid_diff = vecnorm(face_centroid_an5 - face_centroid_an4, 2, 2);
+% 
+% % ##### get the face coordinates #####
+% face_centroid_an4 = findFaceCentorids(file_an4, faces_an4);
+% face_centroid_an5 = findFaceCentorids(file_an5, faces_an5);
+% face_centroid_diff = face_centroid_an5(face_corresp(:,2),:) - face_centroid_an4(face_corresp(:,1),:);
+% face_centroid_diff = sqrt(sum(face_centroid_diff .* face_centroid_diff, 2));
+% % face_centroid_diff = vecnorm(face_centroid_an5 - face_centroid_an4, 2, 2);
 
 % ##### get the Rodrigues Vector corresponding to the Faces #####
-% [RFvecs_An4, misAs_An4]  = getFaceRFvecs(file_An4, faces_An4);
-% [RFvecs_An5, misAs_An5]  = getFaceRFvecs(file_An5, faces_An5);
+[rfvecs_an4]  = getFaceRFvecs(file_an4, tracked_uniqueface_an4);
+[rfvecs_an5]  = getFaceRFvecs(file_an5, tracked_uniqueface_an5);
+
+axis = [1,1,1];
+axis = axis/norm(axis);
+angle = 60;
+rfvec_twin = axis*tand(angle/2);
+rfvec_twin = repmat(rfvec_twin, length(rfvecs_an4), 1);
+
+mask_an4_twin = vecnorm(rfvecs_an4 - rfvec_twin, 2, 2) < 0.05;
+mask_an5_twin = vecnorm(rfvecs_an5 - rfvec_twin, 2, 2) < 0.05;
+
+%% ########################################### One-piece face_to_calc ########################################### 
+load('181028_migration.mat')
+load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/181025_mig_input.mat', 'face_to_calc')
+
+face_itg_curv_an4 = face_itg_curv_an4(face_to_calc, :);
+face_itg_curv_an5 = face_itg_curv_an5(face_to_calc, :);
+diff_tmp = face_itg_curv_an5 - face_itg_curv_an4;
+face_area_diff = diff_tmp(:,1);
+face_itg_curv_diff = diff_tmp(:,2);
 
 
-%%
+set(0,'defaultAxesLabelFontSize',1.1)
+set(0,'defaultAxesFontSize',14)
+
+%% ###########################################  Migration & Topology ########################################### 
+load('../Topologies/181101_Ni_TopologyResult_uniqiue.mat');
+load('181028_migration.mat');
+load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/181025_mig_input.mat', 'face_to_calc', ...
+    'tracked_uniqueface_an4', 'tracked_uniqueface_an5');
+clear neigh_list_faceid_an4 neigh_list_faceid_an5 num_neigh_face_an4 num_neigh_face_an5 result_an4 result_an5 tl_an4 tl_an5
+
+% ----- Get the faces to calculate -----
+mask_face_an4 = ismember(faces_an4, tracked_uniqueface_an4(face_to_calc, :), 'rows');
+mask_face_an5 = ismember(faces_an5, tracked_uniqueface_an5(face_to_calc, :), 'rows');
+
+% ----- Calculate num_corners and corner_diff -----
+num_corners_an4 = num_corners_an4(mask_face_an4, :);
+num_corners_an5 = num_corners_an5(mask_face_an5, :);
+num_edges_an4 = num_edges_an4(mask_face_an4, :);
+num_edges_an5 = num_edges_an5(mask_face_an5, :);
+corner_diff = num_corners_an5 - num_corners_an4;
+
+% ----- Calculate num_corners - avg(num_corners_nearest_neigh_face) -----
+num_nnface_avgcorner_an4 = num_nnface_avgcorner_an4(mask_face_an4);
+num_nnface_avgcorner_an5 = num_nnface_avgcorner_an5(mask_face_an5);
+diff_fc_nnfc_an4 = num_corners_an4 - num_nnface_avgcorner_an4;
+diff_fc_nnfc_an5 = num_corners_an5 - num_nnface_avgcorner_an5;
+
+% %%
+% plotBinData(diff_fc_nnfc_an4, mig_svm_proj(:,2), [-20, 20], [-1e4, 1e4], 1, 'C - <Cnn>, an4', 'Migration, \mum', false, false)
+% hold on
+% plotBinData(diff_fc_nnfc_an4, mig_normal_proj(:,3), [-20, 20], [-1e4, 1e4], 1, 'C - <Cnn>, an4', 'Migration, \mum', false, false)
+% plotBinData(diff_fc_nnfc_an4, mig_normal_proj(:,4), [-20, 20], [-1e4, 1e4], 1, 'C - <Cnn>, an4', 'Migration, \mum', true, false)
+% legend('svm projection', 'normal\_an4 projection', 'normal\_an5 projection', 'Location','northwest')
+% print('C_Cnn_an4_Migration', '-dpng','-r300')
+
+
+
+
+
+%% ###########################################  Geometry Plots ########################################### 
 % --- single plot should use font 1.1 & 19 ---
 set(0,'defaultAxesLabelFontSize',1.1)
 set(0,'defaultAxesFontSize',14)
@@ -206,20 +263,8 @@ print('FItgCurvDiff_CentrDiff', '-dpng','-r300')
 
 
 
-%% ########################################### Migration Correlations ########################################### 
-load('181028_migration.mat')
-load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/181025_mig_input.mat', 'face_to_calc')
-
-face_itg_curv_an4 = face_itg_curv_an4(face_to_calc, :);
-face_itg_curv_an5 = face_itg_curv_an5(face_to_calc, :);
-diff_tmp = face_itg_curv_an5 - face_itg_curv_an4;
-face_area_diff = diff_tmp(:,1);
-face_itg_curv_diff = diff_tmp(:,2);
-
-set(0,'defaultAxesLabelFontSize',1.1)
-set(0,'defaultAxesFontSize',14)
-
-%% ----- migration v.s. area -----
+%% ########################################### Migration Plots ########################################### 
+% ----- migration v.s. area -----
 subplot(3,2,1)
 plotBinData(face_itg_curv_an4(:,1), mig_svm_proj(:,2), [0, 5000], [-1e4, 1e4], 100, 'Area\_an4, \mum^2', 'Migration\_svm, \mum', true, false)
 subplot(3,2,2)
@@ -267,26 +312,6 @@ subplot(3,1,3)
 plotBinData(face_itg_curv_diff, mig_normal_proj(:,4), [0, 500], [-1e4, 1e4], 10, 'Itg\_Curv\_diff, \mum', 'Migration\_normal\_an5, \mum', true, false)
 % print('Migration_ItgCurvDiff', '-dpng','-r300')
 
-
-%% ----- migration v.s topologies -----
-load('../Topologies/181101_Ni_TopologyResult_uniqiue.mat', 'num_corners_an4', 'num_corners_an5', 'num_edges_an4', 'num_edges_an5');
-load('181028_migration.mat');
-load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/181025_mig_input.mat', 'face_to_calc', ...
-    'tracked_uniqueface_an4', 'tracked_uniqueface_an5');
-load('../Topologies/181101_Ni_faceConnection.mat')
-
-num_corners_an4 = num_corners_an4(face_to_calc, :);
-num_corners_an5 = num_corners_an5(face_to_calc, :);
-num_edges_an4 = num_edges_an4(face_to_calc, :);
-num_edges_an5 = num_edges_an5(face_to_calc, :);
-corner_diff = num_corners_an5 - num_corners_an4;
-
-% plotBinData(corner_diff, mig_svm_proj(:,2), [-20, 20], [-1e4, 1e4], 1, 'Corner Diff', 'Migration, \mum', false, false)
-% hold on
-% plotBinData(corner_diff, mig_normal_proj(:,3), [-20, 20], [-1e4, 1e4], 1, 'Corner Diff', 'Migration, \mum', false, false)
-% plotBinData(corner_diff, mig_normal_proj(:,4), [-20, 20], [-1e4, 1e4], 1, 'Corner Diff', 'Migration, \mum', true, false)
-% legend('svm projection', 'normal\_an4 projection', 'normal\_an5 projection', 'Location','northwest')
-% print('Migration_CornerDiff', '-dpng','-r300')
 
 
 

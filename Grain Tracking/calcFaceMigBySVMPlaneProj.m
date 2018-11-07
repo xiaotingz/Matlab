@@ -197,6 +197,8 @@ end
 
 
 
+% mahal_dist = mahal(face_tri_normal_an4, face_tri_normal_an4);
+% prob = 1 - chi2cdf(mahal_dist,3);
 
 
 
