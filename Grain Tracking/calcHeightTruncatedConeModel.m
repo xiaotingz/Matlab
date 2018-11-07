@@ -1,4 +1,4 @@
-function h = heightUsingTruncatedConeModel(area1, area2, v)
+function h = calcHeightTruncatedConeModel(area1, area2, v)
 % ############################################################################
 % Given two surface areas and the volume, calculate heigt as if the
 % geometry is truncated cone

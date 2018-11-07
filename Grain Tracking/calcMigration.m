@@ -53,7 +53,7 @@
 eps = 0.2;
 % parfor i = 1:length(mig_svm_proj)
 % [idx, ~] = find(face_to_calc == 2945);
-idx = idx_svm_nan(4);
+% idx = 1;
 for i = idx
     feature = [];
     x_to_y = X_to_Y_onepiece{i};
@@ -129,8 +129,9 @@ end
 % ############################# Visualization #############################
 % figure
 plotSVMPlane(features, face_tri_node_an4, face_tri_node_an5, x_to_y);
-face_node_info = getSingleFaceNodes(tracked_uniqueface_an4(face_to_calc(idx),:), tracked_uniqueface_an5(face_to_calc(idx),:));
-visualizeFace(face_node_info, x_to_y)
+
+% face_node_info = getSingleFaceNodes(tracked_uniqueface_an4(face_to_calc(idx),:), tracked_uniqueface_an5(face_to_calc(idx),:));
+% visualizeFace(face_node_info, x_to_y)
 % unique(model.BoxConstraints)
 % plotSingleFaceWithNormal(file_an4, obj_facelabel_an4, 0);
 % hold on

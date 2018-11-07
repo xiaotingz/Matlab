@@ -8,7 +8,7 @@ function [points_proj_2d, native2d_x] = project3DPointsTo2DPlane(points, origin,
 %          If cond == 'bp', the points are on the basis plane, the native2d_x should
 %             be calced. The choice native2d_x is not unique, can be chose randomly as long as it's 
 %             consistent for all points projected onto this basis plane. 
-%          If the native_x is specified, then use it.
+%          If the native_x is specified by cond, then use it.
 % * Output
 %     - points_proj = [n, 2], coordinates of the projected points
 %     - native2d_x = [3, 1], x-axis of the local coordinate frame being used.
@@ -34,8 +34,8 @@ if strcmp(cond, 'bp')
 % --- This choice of native_x is rather random ---
     native2d_x = points_proj_3d(1,:) - origin;
     native2d_x = native2d_x/norm(native2d_x);
-elseif isa(class(native2d_x), 'double') && length(native2d_x) == 3
-    native2d_x = native2d_x/norm(native2d_x);
+elseif isvector(cond) && length(cond) == 3
+    native2d_x = cond/norm(cond);
 else
     warning('There is a problem with the cond parameter of projectPointsTo2DPlane.');
     warning('cond has to be a string bp or a [3,1] vector');

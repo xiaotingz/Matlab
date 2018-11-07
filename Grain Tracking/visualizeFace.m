@@ -80,6 +80,7 @@ elseif nargin == 5 && strcmp(obj, 'distort_tri')
 end
 
 
+daspect([1 1 1])
 
 end
 

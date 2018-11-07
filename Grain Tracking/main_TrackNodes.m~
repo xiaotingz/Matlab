@@ -141,7 +141,7 @@ tri_area_an5 = tri_area_an5(mask_an5, :);
 % idx_face_piecewise = 1;
 % X_to_Y = cell(n,10);
 % Y_to_X = cell(n,10);
-for i = 6879
+for i = 2473
     obj_facelabel_an4 = tracked_uniqueface_an4(i, :);
     obj_facelabel_an5 = tracked_uniqueface_an5(i, :);
 
@@ -196,29 +196,17 @@ for i = 6879
             if idx_fewerpiece == 1
                 group_subgraphid_an4 = useful_subgraph_an4(j);
                 group_subgraphid_an5 = subgraph_corresp(subgraph_corresp(:,1)==group_subgraphid_an4, 2);
-                mask_group_nodes_an4 = (subgraph_id_an4 == group_subgraphid_an4);
-                mask_group_nodes_an5 = ismember(subgraph_id_an5, group_subgraphid_an5);
-                subgraph_nodeid_an4 = facenode_id_an4(mask_group_nodes_an4, :);
-                subgraph_nodeid_an5 = facenode_id_an5(mask_group_nodes_an5, :);
-                subgraph_coord_an4 = facenode_coord_an4(mask_group_nodes_an4, :);
-                subgraph_coord_an5 = facenode_coord_an5(mask_group_nodes_an5, :);
+                mask_group_nodes_an4 = (subgraph_id_an4 == j, :);
+                mask_group_nodes_an5 = facenode_coord_an5(ismember(subgraph_id_an5, group_subgraphid_an5), :);
+                subgraph_coord_an4 = facenode_coord_an4(mask_group_nodes_an4);
+                subgraph_coord_an5 = 
             else
-                group_subgraphid_an5 = useful_subgraph_an5(j);
-                group_subgraphid_an4 = subgraph_corresp(subgraph_corresp(:,2)==group_subgraphid_an5, 1);
-                mask_group_nodes_an5 = (subgraph_id_an5 == group_subgraphid_an5);
-                mask_group_nodes_an4 = ismember(subgraph_id_an4, group_subgraphid_an4);
-                subgraph_nodeid_an4 = facenode_id_an4(mask_group_nodes_an4, :);
-                subgraph_nodeid_an5 = facenode_id_an5(mask_group_nodes_an5, :);
-                subgraph_coord_an4 = facenode_coord_an4(mask_group_nodes_an4, :);
-                subgraph_coord_an5 = facenode_coord_an5(mask_group_nodes_an5, :);
+                
             end
-            
             % ----- Find node corresp between the subgraph groups -----
-%             [x_to_y, y_to_x] = solveNodeCorresp(subgraph_coord_an4, subgraph_coord_an5);
-%             X_to_Y{i, j} = int32(x_to_y);
-%             Y_to_X{i, j} = int32(y_to_x)';
-%             id_X_to_Y{i, j} = int32([subgraph_nodeid_an4(x_to_y), subgraph_nodeid_an5])
-%             id_Y_to_X{i, j} = 
+            [x_to_y, y_to_x] = solveNodeCorresp(subgraph_coord_an4, subgraph_coord_an5);
+            X_to_Y{i, j} = int32(x_to_y);
+            Y_to_X{i, j} = int32(y_to_x)';
         end
         
         % ----- Record id of the piece_wise faces-----
