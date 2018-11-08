@@ -1,4 +1,4 @@
-function [mig_svm_proj, features]  = calcFaceMigBySVMPlaneProj(features, x_to_y, eps)
+function [dist_proj_sign, dist_proj_abs, bad_fit, features]  = calcFaceMigBySVMPlaneProj(features, eps)
 % ############################################################################
 % Input
 %     - features = [n+m, 9], [face_id, node_id, coordinates, normals, cluster_id] 
@@ -39,8 +39,9 @@ function [mig_svm_proj, features]  = calcFaceMigBySVMPlaneProj(features, x_to_y,
 % ##### Prepare to Start #####
 max_kmeans_loop = 1000;
 coord_1 = features(features(:,1)==1, 3:5);
-coord_2 = features(features(:,1)==2, 3:5);
-coord_1_corresp = coord_2(x_to_y, :); 
+% coord_2 = features(features(:,1)==2, 3:5);
+% coord_1_corresp = coord_2(x_to_y, :); 
+coord_1_corresp = features(features(:,1)==2, 3:5);
 dist_direct = vecnorm(coord_1 - coord_1_corresp, 2, 2);
 max_num_cluster = 10;
 
@@ -167,10 +168,10 @@ while need_another_cluster
             + bias*ones(sum(mask_cluster_i_1), 1)) ./ norm(normal);
         dist_proj_2 = (sum(coord_1_corresp(mask_cluster_i_1, :).*normal', 2) ...
             + bias*ones(sum(mask_cluster_i_1), 1)) ./ norm(normal);
-        dist_proj_abs = abs(dist_proj_1) + abs(dist_proj_2);
+        dist_proj_abs1 = abs(dist_proj_1) + abs(dist_proj_2);
          
          % ----- Project to see if num_clusters is enough -----
-        this_cluster_bad =  (sum(dist_direct(mask_cluster_i_1) - dist_proj_abs < 0) ...
+        this_cluster_bad =  (sum(dist_direct(mask_cluster_i_1) - dist_proj_abs1 < 0) ...
             / length(dist_direct(mask_cluster_i_1))) > eps;
         
         if this_cluster_bad == true
@@ -185,9 +186,10 @@ while need_another_cluster
     end 
 end
 
-mig_sign = sum(dist_proj_sign)/length(dist_proj_sign);
-mig_abs = sum(abs(dist_proj_sign))/length(dist_proj_sign);
-mig_svm_proj = [mig_sign, mig_abs, bad_fit];
+dist_proj_abs = abs(dist_proj_sign);
+% mig_sign = sum(dist_proj_sign)/length(dist_proj_sign);
+% mig_abs = sum(abs(dist_proj_sign))/length(dist_proj_sign);
+% mig_svm_proj = [mig_sign, mig_abs, bad_fit];
 
 end
 

@@ -65,6 +65,7 @@ sum(any(amp_asym_size < 10, 2))
 
 
 
+
 %% ############################### Check, Visualize Subgraph ###############################
 x_to_y = X_to_Y{idx};
 face_node_info = getSingleFaceNodes(tracked_uniqueface_an4(idx,:), tracked_uniqueface_an5(idx,:));
@@ -118,12 +119,13 @@ daspect([1 1 1])
 rotate3d on
 
 %% ##################### 2D nodes & boundary #####################
-% i = 2;
-% bound_cp_i = boundary(node_proj2d_cp{i}(:,1), node_proj2d_cp{i}(:,2));
-% pgon_cp{i} = polyshape(node_proj2d_cp{i}(bound_cp_i, 1), node_proj2d_cp{i}(bound_cp_i, 2));
+bound_cp_i = boundary(node_proj2d_cp{i}(:,1), node_proj2d_cp{i}(:,2));
+for i = 1:length(pgon_cp)
+%     pgon_cp{i} = polyshape(node_proj2d_cp{i}(bound_cp_i, 1), node_proj2d_cp{i}(bound_cp_i, 2))
+    plot(pgon_cp{i})
+end
 % scatter(node_proj2d_cp{i}(:,1), node_proj2d_cp{i}(:,2))
-% hold on
-% plot(pgon_cp{i})
+hold on
 
 
 

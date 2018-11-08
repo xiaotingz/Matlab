@@ -64,15 +64,6 @@ face_itg_curv_an5 = calcFaceItgCurv(file_an5, tracked_uniqueface_an5, 'unique_fa
 [rfvecs_an4]  = getFaceRFvecs(file_an4, tracked_uniqueface_an4);
 [rfvecs_an5]  = getFaceRFvecs(file_an5, tracked_uniqueface_an5);
 
-axis = [1,1,1];
-axis = axis/norm(axis);
-angle = 60;
-rfvec_twin = axis*tand(angle/2);
-rfvec_twin = repmat(rfvec_twin, length(rfvecs_an4), 1);
-
-mask_an4_twin = vecnorm(rfvecs_an4 - rfvec_twin, 2, 2) < 0.05;
-mask_an5_twin = vecnorm(rfvecs_an5 - rfvec_twin, 2, 2) < 0.05;
-
 %% ########################################### One-piece face_to_calc ########################################### 
 load('181028_migration.mat')
 load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/181025_mig_input.mat', 'face_to_calc')

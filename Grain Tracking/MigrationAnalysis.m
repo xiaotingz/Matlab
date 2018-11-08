@@ -42,11 +42,11 @@ idx_svm_nan = idx_array(mask_svm_nan);
 
 
 %% ##### Compare mig_sign & mig_abs #####
-h1 = cdfplot(mig_svm_proj(:,2) - abs(mig_svm_proj(:,1)));
+cdf1 = cdfplot(mig_svm_proj(:,2) - abs(mig_svm_proj(:,1)));
 hold on
 h2 = cdfplot(mig_normal_proj(:,3) - abs(mig_normal_proj(:,1)));
 h3 = cdfplot(mig_normal_proj(:,4) - abs(mig_normal_proj(:,2)));
-set(h1, 'LineWidth', 3);
+set(cdf1, 'LineWidth', 3);
 set(h2, 'LineWidth', 3);
 set(h3, 'LineWidth', 3);
 set(gca,'FontSize', 18, 'LineWidth', 2)
@@ -74,59 +74,73 @@ mig_svm_proj(idx, :)
 
 
 %% ##### Migration of Coherent Twins #####
-[rfvecs_an4]  = getFaceRFvecs(file_an4, tracked_uniqueface_an4);
-[rfvecs_an5]  = getFaceRFvecs(file_an5, tracked_uniqueface_an5);
-
+% [rfvecs_an4]  = getFaceRFvecs(file_an4, tracked_uniqueface_an4);
+% [rfvecs_an5]  = getFaceRFvecs(file_an5, tracked_uniqueface_an5);
+% 
 axis = [1,1,1];
 axis = axis/norm(axis);
 angle = 60;
-rfvec_twin = axis*tand(angle/2);
-rfvec_twin = repmat(rfvec_twin, length(rfvecs_an4), 1);
+rfvec_ctwin = axis*tand(angle/2);
+rfvec_ctwin = repmat(rfvec_ctwin, length(rfvecs_an4), 1);
 
-mask_an4_twin = vecnorm(rfvecs_an4 - rfvec_twin, 2, 2) < 0.05;
-mask_an5_twin = vecnorm(rfvecs_an5 - rfvec_twin, 2, 2) < 0.05;
-% mask_an4_twin = mask_an4_twin(face_to_calc);
-% mask_an5_twin = mask_an5_twin(face_to_calc);
+mask_an4_twin = vecnorm(rfvecs_an4 - rfvec_ctwin, 2, 2) < 0.06;
+mask_an5_twin = vecnorm(rfvecs_an5 - rfvec_ctwin, 2, 2) < 0.06;
 if sum(mask_an4_twin == mask_an5_twin) ~= length(mask_an4_twin)
     warning('twins are not the same in the two states')
+else 
+    mask_twin = mask_an4_twin;
+    clear mask_an4_ctwin mask_an5_ctwin axis angle 
 end
-mask_twin = mask_an4_twin(face_to_calc);
-mask_not_twin = ~ mask_twin;
+
 
 mig_svm_twin = mig_svm_proj(mask_twin, :);
-mig_svm_not_twin = mig_svm_proj(mask_not_twin, :);
+mig_svm_not_twin = mig_svm_proj(~mask_twin, :);
 
-mig_normal_twin = mig_normal_proj(mask_twin, :);
-mig_normal_not_twin = mig_normal_proj(mask_not_twin, :);
+mig_normal_twin = (mig_normal_proj(mask_twin, 3) + mig_normal_proj(mask_twin, 4))/2;
+mig_normal_not_twin = (mig_normal_proj(~mask_twin, 3) + mig_normal_proj(~mask_twin, 4))/2;
 
 bin_edges = 0:0.5:50;
 
 figure
-histogram(mig_svm_not_twin(:,2), bin_edges)
+% histogram(mig_svm_not_twin(:,2), bin_edges)
+% histogram(mig_svm_twin(:,2), bin_edges)
+cdf1 = cdfplot(mig_svm_not_twin(:,2));
 hold on
-histogram(mig_svm_twin(:,2), bin_edges)
-xlabel('Migration by svm', 'FontSize', 18)
-ylabel('# Faces', 'FontSize', 18)
+cdf2 = cdfplot(mig_svm_twin(:,2));
+cdf3 = cdfplot(mig_normal_not_twin);
+cdf4 = cdfplot(mig_normal_twin);
+cdf1.LineWidth = 3; cdf1.LineStyle = '--';
+cdf2.LineWidth = 3; cdf2.LineStyle = '--';
+cdf3.LineWidth = 3;
+cdf4.LineWidth = 3;
+xlabel('Migration Distance, \mum', 'FontSize', 20)
+ylabel('Fraction of Data', 'FontSize', 20)
 set(gca,'FontSize', 18, 'LineWidth', 2)
-legend('usual', 'twin')
-xlim([0, 15])
+legend('Proj\_svm\_notTwin', 'Proj\_svm\_Twin', 'Proj\_normal\_notTwin', 'Proj\_normal\_Twin',...
+    'Location', 'southeast')
+xlim([0, 20])
+print('migration_PieceCorrespAllData_OptCover_CDF','-dpng','-r300')
 
 %% ##### Mobile Coherent Twins #####
-load('180822_FaceCorresp.mat')
+% load('180822_FaceCorresp.mat')
 
 mask_mobile_twin = (mask_twin & (mig_normal_proj(:,3) > 5));
-idx_array = (1:length(face_to_calc))';
+idx_array = (1:length(mig_normal_proj))';
 idx_mobile_twin = idx_array(mask_mobile_twin);
 
 idx = idx_mobile_twin(randi(length(idx_mobile_twin), 1))
-x_to_y = X_to_Y{face_to_calc(idx)};
-face_node_info = getSingleFaceNodes(tracked_uniqueface_an4(face_to_calc(idx),:), tracked_uniqueface_an5(face_to_calc(idx),:));
+x_to_y = X_to_Y_piece_corresp{idx};
+if iscell(x_to_y)
+    x_to_y = cell2mat(X_to_Y_piece_corresp{idx});
+end
+face_node_info = getSingleFaceNodes(tracked_uniqueface_an4(idx,:), tracked_uniqueface_an5(idx,:));
 visualizeFace(face_node_info, x_to_y)
 mig_normal_proj(idx, :)
 mig_svm_proj(idx, :)
 
 
-file_name = ['mobile_twin_pair_', num2str(face_to_calc(idx))];
+% file_name = ['mobile_twin_pair_', num2str(face_to_calc(idx))];
+
 
 
 
