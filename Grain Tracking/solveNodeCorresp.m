@@ -27,8 +27,8 @@ coeff = optimvar('coeff', m, n, 'LowerBound', 0);
 
 prob = optimproblem('Objective', sum(sum(coeff .* norm_diff)));
 
-prob.Constraints.cons1 = sum(coeff,1) == (ones(1,n) * m/n);
-prob.Constraints.cons2 = sum(coeff,2) == ones(m,1);
+prob.Constraints.cons1 = sum(coeff,2) == ones(m,1);
+% prob.Constraints.cons2 = sum(coeff,1) == (ones(1,n) * m/n);
 [linsol, fval] = solve(prob);
 node_corresp = linsol.coeff;
 

@@ -24,8 +24,8 @@ for i = 1:length(tracked_uniqueface_an4)
     face_unique_nodeid_an5 = unique(face_tri_nodeid_an5);
     [subgraph_an4, subgraph_an5] = findSubgraph(face_unique_nodeid_an4, face_unique_nodeid_an5, face_tri_nodeid_an4, face_tri_nodeid_an5);
     
-    m = length(unique(subgraph_1));
-    n = length(unique(subgraph_2));
+    m = length(unique(subgraph_an4));
+    n = length(unique(subgraph_an5));
     if m > 1 || n > 1
         face_piecewise = [face_piecewise; i];
         num_pieces = [num_pieces; max(subgraph_an4), max(subgraph_an5)];
@@ -65,46 +65,68 @@ sum(any(amp_asym_size < 10, 2))
 
 
 
+
 %% ############################### Check, Visualize Subgraph ###############################
-
-
-
-% ##################### Detail Subgraphs #####################colors = get(gca,'colororder');
 x_to_y = X_to_Y{idx};
 face_node_info = getSingleFaceNodes(tracked_uniqueface_an4(idx,:), tracked_uniqueface_an5(idx,:));
 visualizeFace(face_node_info, x_to_y)
 hold on
 
-mask_1 = mask_tri_subgraph_1==1;
-mask_2 = mask_tri_subgraph_2==2;
+% ----- subgraph corresps -----
+coord = facenode_coord_an4;
+id = subgraph_id_an4;
+obj = 1;
+scatter3(coord(id==obj, 1), coord(id==obj, 2), coord(id==obj, 3), 'MarkerFaceColor', 'r')
+coord = facenode_coord_an5;
+id = subgraph_id_an5;
+obj = 1;
+scatter3(coord(id==obj, 1), coord(id==obj, 2), coord(id==obj, 3), 'MarkerFaceColor', 'r')
 
-trisurf(facetri_nodeid_1(mask_1, :), node_coord_1(:,1), node_coord_1(:,2), node_coord_1(:,3),'Facecolor',colors(1, :), 'Facealpha', 0.3, 'edgealpha', 0.3);
-hold on
-pos_1 = node_coord_1(facetri_nodeid_1(mask_1, 1), :);
-norm_1 = facetri_normal_1(mask_1, :);
-quiver3(pos_1(:,1), pos_1(:,2), pos_1(:,3), norm_1(:,1), norm_1(:,2), norm_1(:,3), 'color',colors(1, :))
-trisurf(facetri_nodeid_2(mask_2, :), node_coord_2(:,1), node_coord_2(:,2), node_coord_2(:,3),'Facecolor',colors(3, :), 'Facealpha', 0.3, 'edgealpha', 0.3);
-hold on
-pos_2 = node_coord_2(facetri_nodeid_2(mask_2, 1), :);
-norm_2 = facetri_normal_2(mask_2, :);
-quiver3(pos_2(:,1), pos_2(:,2), pos_2(:,3), norm_2(:,1), norm_2(:,2), norm_2(:,3), 'color',colors(3, :))
+coord = facenode_coord_an4;
+id = subgraph_id_an4;
+obj = 2;
+scatter3(coord(id==obj, 1), coord(id==obj, 2), coord(id==obj, 3), 'MarkerFaceColor', 'g')
+coord = facenode_coord_an5;
+id = subgraph_id_an5;
+obj = 1;
+scatter3(coord(id==obj, 1), coord(id==obj, 2), coord(id==obj, 3), 'MarkerFaceColor', 'g')
 
-% a = sum(facetri_normal_2(mask_tri_subgraph_2==2, :))/2;
-% b = sum(facetri_normal_1(mask_tri_subgraph_1==1, :))/sum(mask_tri_subgraph_1==1);
-% quiver3(pos_1(1,1), pos_1(1,2), pos_1(1,3),a(1),a(2),a(3), 3)
-% quiver3(pos_2(1,1), pos_2(1,2), pos_2(1,3),b(1),b(2),b(3), 3)
+daspect([1 1 1])
+
+%% ##################### Detail Subgraphs, Normal Direction #####################
+colors = get(gca,'colororder');
+mask_an4 = mask_tri_subgraph_an4==1;
+mask_an5 = mask_tri_subgraph_an5==2;
+
+figure
+trisurf(facetri_nodeid_an4(mask_an4, :), node_coord_an4(:,1), node_coord_an4(:,2), node_coord_an4(:,3),'Facecolor',colors(1, :), 'Facealpha', 0.3, 'edgealpha', 0.3);
+hold on
+pos_an4 = node_coord_an4(facetri_nodeid_an4(mask_an4, 1), :);
+norm_an4 = facetri_normal_an4(mask_an4, :);
+quiver3(pos_an4(:,1), pos_an4(:,2), pos_an4(:,3), norm_an4(:,1), norm_an4(:,2), norm_an4(:,3), 'color',colors(1, :))
+trisurf(facetri_nodeid_an5(mask_an5, :), node_coord_an5(:,1), node_coord_an5(:,2), node_coord_an5(:,3),'Facecolor',colors(3, :), 'Facealpha', 0.3, 'edgealpha', 0.3);
+hold on
+pos_an5 = node_coord_an5(facetri_nodeid_an5(mask_an5, 1), :);
+norm_an5 = facetri_normal_an5(mask_an5, :);
+quiver3(pos_an5(:,1), pos_an5(:,2), pos_an5(:,3), norm_an5(:,1), norm_an5(:,2), norm_an5(:,3), 'color',colors(3, :))
+
+% a = sum(facetri_normal_an5(mask_tri_subgraph_an5==2, :))/2;
+% b = sum(facetri_normal_an4(mask_tri_subgraph_an4==1, :))/sum(mask_tri_subgraph_an4==1);
+% quiver3(pos_an4(1,1), pos_an4(1,2), pos_an4(1,3),a(1),a(2),a(3), 3)
+% quiver3(pos_an5(1,1), pos_an5(1,2), pos_an5(1,3),b(1),b(2),b(3), 3)
 
 daspect([1 1 1])
 rotate3d on
 
-% ##################### 2D nodes & boundary #####################
-% i = 2;
-% bound_cp_i = boundary(node_proj2d_cp{i}(:,1), node_proj2d_cp{i}(:,2));
-% pgon_cp{i} = polyshape(node_proj2d_cp{i}(bound_cp_i, 1), node_proj2d_cp{i}(bound_cp_i, 2));
-% scatter(node_proj2d_cp{i}(:,1), node_proj2d_cp{i}(:,2))
-% hold on
-% plot(pgon_cp{i})
-
+%% ##################### 2D nodes & boundary #####################
+bound_cp_i = boundary(node_proj2d_cp{i}(:,1), node_proj2d_cp{i}(:,2));
+for i = 1:length(pgon_cp)
+    pgon_cp{i} = polyshape(node_proj2d_cp{i}(bound_cp_i, 1), node_proj2d_cp{i}(bound_cp_i, 2))
+    
+end
+scatter(node_proj2d_cp{i}(:,1), node_proj2d_cp{i}(:,2))
+hold on
+plot(pgon_cp{i})
 
 
 

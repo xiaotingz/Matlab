@@ -137,17 +137,17 @@ tri_area_an4 = tri_area_an4(mask_an4, :);
 tri_area_an5 = tri_area_an5(mask_an5, :);
 
 n = length(tracked_uniqueface_an4);
-X_to_Y = cell(n,1);
-corresp_localid = cell(n,1);
-corresp_globalid = cell(n,1);
+X_to_Y_nearest = cell(n,2);
+corresp_localid_nearest = cell(n,2);
+corresp_globalid_nearest = cell(n,2);
 
-mig_svm_proj = zeros(n, 3);
-mig_normal_proj = zeros(n, 4);
+mig_svm_proj_nearest = zeros(n, 3);
+mig_normal_proj_nearest = zeros(n, 4);
 %%
 % load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/181107.mat')
 
 % parpool(8)
-for i = 6694
+for i = 2
     disp(i)
     
     obj_facelabel_an4 = tracked_uniqueface_an4(i, :);
@@ -213,9 +213,9 @@ for i = 6694
     if length(unique(subgraph_id_an4)) == 1 && length(unique(subgraph_id_an5)) == 1
         % ----- Solve node corresp -----
         [x_to_y, y_to_x] = solveNodeCorresp(facenode_coord_an4, facenode_coord_an5);
-        X_to_Y{i} = int32(x_to_y);
-        corresp_localid{i} = int32([subgraph_nodeid_local_an4, subgraph_nodeid_local_an5(x_to_y)]);
-        corresp_globalid{i} = int32([facenode_id_an4, facenode_id_an5(x_to_y)]);
+        X_to_Y_nearest{i} = int32(x_to_y);
+        corresp_localid_nearest{i} = int32([subgraph_nodeid_local_an4, subgraph_nodeid_local_an5(x_to_y)]);
+        corresp_globalid_nearest{i} = int32([facenode_id_an4, facenode_id_an5(x_to_y)]);
         
         % ----- Calculate migration distance -----
          % ##### calculate normal of a node as the average of all its resident triangles' nomral #####
@@ -256,8 +256,8 @@ for i = 6694
         mig_2_sign_avg = sum(mig_2_sign)/length(mig_2_sign);
         mig_1_abs_avg = sum(abs(mig_1_abs))/length(mig_1_abs);
         mig_2_abs_avg = sum(abs(mig_2_abs))/length(mig_2_abs);
-        mig_svm_proj(i, :) = [mig_svm_sign_avg, mig_svm_abs_avg, bad_fit];
-        mig_normal_proj(i, :)  = [mig_1_sign_avg, mig_2_sign_avg, mig_1_abs_avg, mig_2_abs_avg];
+        mig_svm_proj_nearest(i, :) = [mig_svm_sign_avg, mig_svm_abs_avg, bad_fit];
+        mig_normal_proj_nearest(i, :)  = [mig_1_sign_avg, mig_2_sign_avg, mig_1_abs_avg, mig_2_abs_avg];
         
     
     % ##################################### If Multiple-pieces  #####################################
@@ -348,9 +348,9 @@ for i = 6694
         end
         
         % ----- average migration for the piece-wise face -----
-        X_to_Y{i} = X_to_Y_tmp;
-        corresp_localid{i} = corresp_localid_tmp;
-        corresp_globalid{i} = corresp_globalid_tmp;
+        X_to_Y_nearest{i} = X_to_Y_tmp;
+        corresp_localid_nearest{i} = corresp_localid_tmp;
+        corresp_globalid_nearest{i} = corresp_globalid_tmp;
         
         % ----- average migration for the piece-wise face -----
         mig_svm_sign_avg = sum(mig_svm_sign)/length(mig_svm_sign);
@@ -359,8 +359,8 @@ for i = 6694
         mig_2_sign_avg = sum(mig_2_sign)/length(mig_2_sign);
         mig_1_abs_avg = sum(abs(mig_1_abs))/length(mig_1_abs);
         mig_2_abs_avg = sum(abs(mig_2_abs))/length(mig_2_abs);
-        mig_svm_proj(i, :) = [mig_svm_sign_avg, mig_svm_abs_avg, bad_fit];
-        mig_normal_proj(i, :)  = [mig_1_sign_avg, mig_2_sign_avg, mig_1_abs_avg, mig_2_abs_avg];
+        mig_svm_proj_nearest(i, :) = [mig_svm_sign_avg, mig_svm_abs_avg, bad_fit];
+        mig_normal_proj_nearest(i, :)  = [mig_1_sign_avg, mig_2_sign_avg, mig_1_abs_avg, mig_2_abs_avg];
 
         % ----- Record id of the piece_wise faces-----
 %         face_piecewise = [face_piecewise, i, max(subgraph_id_an4), max(subgraph_id_an5)];
@@ -368,10 +368,8 @@ for i = 6694
     
 end
 
+x_to_y = X_to_Y_nearest{i};
+face_node_info = getSingleFaceNodes(tracked_uniqueface_an4(i,:), tracked_uniqueface_an5(i,:));
+visualizeFace(face_node_info, x_to_y)
 
-
-% % ######################################## Visual Check ########################################
-% x_to_y = X_to_Y_nearest{i};
-% face_node_info = getSingleFaceNodes(tracked_uniqueface_an4(i,:), tracked_uniqueface_an5(i,:));
-% visualizeFace(face_node_info, x_to_y)
 

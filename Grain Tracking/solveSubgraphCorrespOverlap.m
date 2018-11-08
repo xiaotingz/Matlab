@@ -1,6 +1,6 @@
-function subgraph_corresp = solveSubgraphCorrespOverlap(subgraph_id_1,subgraph_id_2, ...
-facetri_normal_1, facetri_normal_2, facetri_nodeid_1, facetri_nodeid_2, facenode_id_1, facenode_id_2, ...
-facenode_coord_1, facenode_coord_2, facetri_area_1, facetri_area_2)
+function subgraph_corresp = solveSubgraphCorrespOverlap(subgraph_id_an4,subgraph_id_an5, ...
+facetri_normal_an4, facetri_normal_an5, facetri_nodeid_an4, facetri_nodeid_an5, facenode_id_an4, facenode_id_an5, ...
+facenode_coord_an4, facenode_coord_an5, facetri_area_an4, facetri_area_an5)
 % ############################################################################
 % * Input 
 %     - see main_TrackNodes.m
@@ -19,63 +19,63 @@ thres_dup = 0.2;
 thres_keepN = 0.5;
 
 % ######################################## Section I, One Face Has Only One Piece ########################################
-if max(subgraph_id_1) == 1 || max(subgraph_id_2) == 1
+if max(subgraph_id_an4) == 1 || max(subgraph_id_an5) == 1
     % ##### determine the basis plane and the candidate planes #####
-    if max(subgraph_id_1) == 1 && max(subgraph_id_2) > 1
+    if max(subgraph_id_an4) == 1 && max(subgraph_id_an5) > 1
         % ----- convert node subgraph info to triangles -----
-        map_1 = containers.Map(facenode_id_2, subgraph_id_2);
-        mask_tri_subgraph_2 = zeros(length(facetri_nodeid_2), 1);
-        for i = 1:length(facetri_nodeid_2)
+        map_an4 = containers.Map(facenode_id_an5, subgraph_id_an5);
+        mask_tri_subgraph_an5 = zeros(length(facetri_nodeid_an5), 1);
+        for i = 1:length(facetri_nodeid_an5)
             % -- because all nodes of a triangle should belong to the same subgraph, no need to loop them all --
-            mask_tri_subgraph_2(i) = map_1(facetri_nodeid_2(i));
+            mask_tri_subgraph_an5(i) = map_an4(facetri_nodeid_an5(i));
         end
 
         % ----- write infomation information to basis plane and candidate plane -----        
-        node_coord_bp = facenode_coord_1;
-        tri_normal_bp = facetri_normal_1;
+        node_coord_bp = facenode_coord_an4;
+        tri_normal_bp = facetri_normal_an4;
         normal_avg_bp = sum(tri_normal_bp);
         normal_avg_bp = normal_avg_bp/norm(normal_avg_bp);
-        area_bp = sum(facetri_area_1);
-        n_sg_cp = max(subgraph_id_2);
+        area_bp = sum(facetri_area_an4);
+        n_sg_cp = max(subgraph_id_an5);
         node_coord_cp = cell(n_sg_cp, 1);
         normal_avg_cp = zeros(n_sg_cp, 3);
         area_cp = zeros(n_sg_cp, 1);
         for i = 1:n_sg_cp
-            node_coord_cp{i} = facenode_coord_2(subgraph_id_2 == i, :);
-            tri_normal_cp_i = facetri_normal_2(mask_tri_subgraph_2==i, :);
+            node_coord_cp{i} = facenode_coord_an5(subgraph_id_an5 == i, :);
+            tri_normal_cp_i = facetri_normal_an5(mask_tri_subgraph_an5==i, :);
             normal_avg_cp(i,:) = sum(tri_normal_cp_i)/length(tri_normal_cp_i);
             normal_avg_cp(i,:) = normal_avg_cp(i,:)/norm(normal_avg_cp(i,:));
-            area_cp(i) = sum(facetri_area_2(mask_tri_subgraph_2==i, :));
+            area_cp(i) = sum(facetri_area_an5(mask_tri_subgraph_an5==i, :));
         end
 
         % ----- record the basis plane is in which state ----- 
         basis_state = 1;
 
-    elseif max(subgraph_id_1) > 1 && max(subgraph_id_2) == 1
+    elseif max(subgraph_id_an4) > 1 && max(subgraph_id_an5) == 1
         % ----- convert node subgraph info to triangles -----
-        map_1 = containers.Map(facenode_id_1, subgraph_id_1);
-        mask_tri_subgraph_1 = zeros(length(facetri_nodeid_1), 1);
-        for i = 1:length(facetri_nodeid_1)
+        map_an4 = containers.Map(facenode_id_an4, subgraph_id_an4);
+        mask_tri_subgraph_an4 = zeros(length(facetri_nodeid_an4), 1);
+        for i = 1:length(facetri_nodeid_an4)
             % -- because all nodes of a triangle should belong to the same subgraph, no need to loop them all --
-            mask_tri_subgraph_1(i) = map_1(facetri_nodeid_1(i));
+            mask_tri_subgraph_an4(i) = map_an4(facetri_nodeid_an4(i));
         end
 
         % ----- write infomation information to basis plane and candidate plane -----        
-        node_coord_bp = facenode_coord_2;
-        tri_normal_bp = facetri_normal_2;
+        node_coord_bp = facenode_coord_an5;
+        tri_normal_bp = facetri_normal_an5;
         normal_avg_bp = sum(tri_normal_bp);
         normal_avg_bp = normal_avg_bp/norm(normal_avg_bp);
-        area_bp = sum(facetri_area_2);
-        n_sg_cp = max(subgraph_id_1);
+        area_bp = sum(facetri_area_an5);
+        n_sg_cp = max(subgraph_id_an4);
         node_coord_cp = cell(n_sg_cp, 1);
         normal_avg_cp = zeros(n_sg_cp, 3);
         area_cp = zeros(n_sg_cp, 1);
         for i = 1:n_sg_cp
-            node_coord_cp{i} = facenode_coord_1(subgraph_id_1 == i, :);
-            tri_normal_cp_i = facetri_normal_1(mask_tri_subgraph_1==i, :);
+            node_coord_cp{i} = facenode_coord_an4(subgraph_id_an4 == i, :);
+            tri_normal_cp_i = facetri_normal_an4(mask_tri_subgraph_an4==i, :);
             normal_avg_cp(i,:) = sum(tri_normal_cp_i)/length(tri_normal_cp_i);
             normal_avg_cp(i,:) =  normal_avg_cp(i,:)/norm(normal_avg_cp(i,:));
-            area_cp(i) = sum(facetri_area_1(mask_tri_subgraph_1==i, :));
+            area_cp(i) = sum(facetri_area_an4(mask_tri_subgraph_an4==i, :));
         end
 
         % ----- record the basis plane is in which state ----- 
@@ -142,9 +142,9 @@ if max(subgraph_id_1) == 1 || max(subgraph_id_2) == 1
     cp_dup_checklist = combnk(1:n_sg_cp, 2);
     cp_dup_score = zeros(size(cp_dup_checklist, 1), 1);
     for i = 1:size(cp_dup_score, 1)
-        idx_1 = cp_dup_checklist(i, 1);
-        idx_2 = cp_dup_checklist(i, 2);
-        cp_dup_score(i) = area(intersect(pgon_cp{idx_1},pgon_cp{idx_2}))/min(area(pgon_cp{idx_1}), area(pgon_cp{idx_2}));
+        idx_an4 = cp_dup_checklist(i, 1);
+        idx_an5 = cp_dup_checklist(i, 2);
+        cp_dup_score(i) = area(intersect(pgon_cp{idx_an4},pgon_cp{idx_an5}))/min(area(pgon_cp{idx_an4}), area(pgon_cp{idx_an5}));
     end
 
     mask_keep = score > thres_keepN;
@@ -214,29 +214,29 @@ if max(subgraph_id_1) == 1 || max(subgraph_id_2) == 1
 else
     % ##### Determine A Basis State by The Largest Single Piece #####
     % ----- convert node subgraph info to triangles -----
-    map_1 = containers.Map(facenode_id_1, subgraph_id_1);
-    mask_tri_subgraph_1 = zeros(length(facetri_nodeid_1), 1);
-    for i = 1:length(facetri_nodeid_1)
-        mask_tri_subgraph_1(i) = map_1(facetri_nodeid_1(i));
+    map_an4 = containers.Map(facenode_id_an4, subgraph_id_an4);
+    mask_tri_subgraph_an4 = zeros(length(facetri_nodeid_an4), 1);
+    for i = 1:length(facetri_nodeid_an4)
+        mask_tri_subgraph_an4(i) = map_an4(facetri_nodeid_an4(i));
     end
-    map_2 = containers.Map(facenode_id_2, subgraph_id_2);
-    mask_tri_subgraph_2 = zeros(length(facetri_nodeid_2), 1);
-    for i = 1:length(facetri_nodeid_2)
-        mask_tri_subgraph_2(i) = map_2(facetri_nodeid_2(i));
+    map_an5 = containers.Map(facenode_id_an5, subgraph_id_an5);
+    mask_tri_subgraph_an5 = zeros(length(facetri_nodeid_an5), 1);
+    for i = 1:length(facetri_nodeid_an5)
+        mask_tri_subgraph_an5(i) = map_an5(facetri_nodeid_an5(i));
     end
     % ----- calculate area of each piece (subgraph) -----
-    n_sg_1 = max(subgraph_id_1);
-    n_sg_2 = max(subgraph_id_2);
-    area_1 = zeros(n_sg_1, 1);
-    area_2 = zeros(n_sg_2, 1);
-    for i = 1:n_sg_1
-        area_1(i) = sum(facetri_area_1(mask_tri_subgraph_1==i));
+    n_sg_an4 = max(subgraph_id_an4);
+    n_sg_an5 = max(subgraph_id_an5);
+    area_an4 = zeros(n_sg_an4, 1);
+    area_an5 = zeros(n_sg_an5, 1);
+    for i = 1:n_sg_an4
+        area_an4(i) = sum(facetri_area_an4(mask_tri_subgraph_an4==i));
     end
-    for i = 1:n_sg_2
-        area_2(i) = sum(facetri_area_2(mask_tri_subgraph_2==i));
+    for i = 1:n_sg_an5
+        area_an5(i) = sum(facetri_area_an5(mask_tri_subgraph_an5==i));
     end
     % ----- determine a basis state -----
-    if max(area_1) > max(area_2)
+    if max(area_an4) > max(area_an5)
         basis_state = 1;
     else
         basis_state = 2;
@@ -244,17 +244,17 @@ else
     
     % ##### Repeat Section I for Every Piece of The Basis State #####
     if basis_state == 1
-        n_sg_bp = n_sg_1;
-        n_sg_cp = n_sg_2;
-        area_bp = area_1;
-        area_cp = area_2;
+        n_sg_bp = n_sg_an4;
+        n_sg_cp = n_sg_an5;
+        area_bp = area_an4;
+        area_cp = area_an5;
         % ----- collect data for basis planes -----
         node_coord_bp = cell(n_sg_bp, 1);
         normal_avg_bp = zeros(n_sg_bp, 3);
         centroid_bp = zeros(n_sg_bp, 3);
         for i = 1:n_sg_bp
-            node_coord_bp{i} = facenode_coord_1(subgraph_id_1 == i, :);
-            tri_normal_bp_i = facetri_normal_1(mask_tri_subgraph_1==i, :);
+            node_coord_bp{i} = facenode_coord_an4(subgraph_id_an4 == i, :);
+            tri_normal_bp_i = facetri_normal_an4(mask_tri_subgraph_an4==i, :);
             normal_avg_bp(i, :) = sum(tri_normal_bp_i)/length(tri_normal_bp_i);
             centroid_bp(i, :) = sum(node_coord_bp{i})/size(node_coord_bp{i}, 1);
         end
@@ -262,23 +262,23 @@ else
         node_coord_cp = cell(n_sg_cp, 1);
         normal_avg_cp = zeros(n_sg_cp, 3);
         for i = 1:n_sg_cp
-            node_coord_cp{i} = facenode_coord_2(subgraph_id_2 == i, :);
-            tri_normal_cp_i = facetri_normal_2(mask_tri_subgraph_2==i, :);
+            node_coord_cp{i} = facenode_coord_an5(subgraph_id_an5 == i, :);
+            tri_normal_cp_i = facetri_normal_an5(mask_tri_subgraph_an5==i, :);
             normal_avg_cp(i, :) = sum(tri_normal_cp_i)/length(tri_normal_cp_i);
         end 
         
     else
-        n_sg_bp = n_sg_2;
-        n_sg_cp = n_sg_1;
-        area_bp = area_2;
-        area_cp = area_1;
+        n_sg_bp = n_sg_an5;
+        n_sg_cp = n_sg_an4;
+        area_bp = area_an5;
+        area_cp = area_an4;
         % ----- collect data for basis planes -----
         node_coord_bp = cell(n_sg_bp, 1);
         normal_avg_bp = zeros(n_sg_bp, 3);
         centroid_bp = zeros(n_sg_bp, 3);
         for i = 1:n_sg_bp
-            node_coord_bp{i} = facenode_coord_2(subgraph_id_2 == i, :);
-            tri_normal_bp_i = facetri_normal_2(mask_tri_subgraph_2==i, :);
+            node_coord_bp{i} = facenode_coord_an5(subgraph_id_an5 == i, :);
+            tri_normal_bp_i = facetri_normal_an5(mask_tri_subgraph_an5==i, :);
             normal_avg_bp(i, :) = sum(tri_normal_bp_i)/length(tri_normal_bp_i);
             centroid_bp(i, :) = sum(node_coord_bp{i})/size(node_coord_bp{i}, 1);
         end
@@ -286,8 +286,8 @@ else
         node_coord_cp = cell(n_sg_cp, 1);
         normal_avg_cp = zeros(n_sg_cp, 3);
         for i = 1:n_sg_cp
-            node_coord_cp{i} = facenode_coord_1(subgraph_id_1 == i, :);
-            tri_normal_cp_i = facetri_normal_1(mask_tri_subgraph_1==i, :);
+            node_coord_cp{i} = facenode_coord_an4(subgraph_id_an4 == i, :);
+            tri_normal_cp_i = facetri_normal_an4(mask_tri_subgraph_an4==i, :);
             normal_avg_cp(i, :) = sum(tri_normal_cp_i)/length(tri_normal_cp_i);
         end
     end
@@ -337,9 +337,9 @@ else
         cp_dup_checklist = combnk(1:n_sg_cp, 2);
         cp_dup_score = zeros(size(cp_dup_checklist, 1), 1);
         for i = 1:size(cp_dup_score, 1)
-            idx_1 = cp_dup_checklist(i, 1);
-            idx_2 = cp_dup_checklist(i, 2);
-            cp_dup_score(i) = area(intersect(pgon_cp{idx_1},pgon_cp{idx_2}))/min(area(pgon_cp{idx_1}), area(pgon_cp{idx_2}));
+            idx_an4 = cp_dup_checklist(i, 1);
+            idx_an5 = cp_dup_checklist(i, 2);
+            cp_dup_score(i) = area(intersect(pgon_cp{idx_an4},pgon_cp{idx_an5}))/min(area(pgon_cp{idx_an4}), area(pgon_cp{idx_an5}));
         end
         
         % ----- if overlap, adjust the scores to assure keep only one corresp -----
@@ -394,8 +394,8 @@ end
 % face_node_info = getSingleFaceNodes(tracked_uniqueface_an4(idx,:), tracked_uniqueface_an5(idx,:));
 % visualizeFace(face_node_info, x_to_y)
 % hold on
-% coord = facenode_coord_2;
-% id = subgraph_id_2;
+% coord = facenode_coord_an5;
+% id = subgraph_id_an5;
 % scatter3(coord(id==1, 1), coord(id==1, 2), coord(id==1, 3), 'MarkerFaceColor', 'r')
 
 
@@ -409,7 +409,7 @@ end
 
 % %% ----- visual check: the 2d projection local coordinates consistent -----
 % figure
-% [test1, ~] = project3DPointsTo2DPlane(facenode_coord_2, centroid_bp, normal_bp, native2d_x);
+% [test1, ~] = project3DPointsTo2DPlane(facenode_coord_an5, centroid_bp, normal_bp, native2d_x);
 % scatter(test1(:,1), test1(:,2), 'MarkerFaceColor', colors(1, :))
 % hold on
 % test2 = project3DPointsTo2DPlane(node_coord_cp{1}, centroid_bp, normal_bp, native2d_x);

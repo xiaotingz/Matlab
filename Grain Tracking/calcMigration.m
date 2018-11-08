@@ -53,12 +53,13 @@
 eps = 0.2;
 % parfor i = 1:length(mig_svm_proj)
 % [idx, ~] = find(face_to_calc == 2945);
-% idx = 1;
-for i = idx
-    feature = [];
-    x_to_y = X_to_Y_onepiece{i};
-    obj_facelabel_an4 = trackedface_an4_onepiece(i, :);
-    obj_facelabel_an5 = trackedface_an5_onepiece(i, :);
+idx = 1;
+
+%     x_to_y = X_to_Y_onepiece{i};
+%     obj_facelabel_an4 = trackedface_an4_onepiece(i, :);
+%     obj_facelabel_an5 = trackedface_an5_onepiece(i, :);
+    obj_facelabel_an4 = tracked_uniqueface_an4(idx, :);
+    obj_facelabel_an5 = tracked_uniqueface_an5(idx, :);
 
     % """
     % Note it's not legal to apply mask_half1 and mask_half2 seperately,
@@ -69,24 +70,22 @@ for i = idx
     mask_an5 = (facelabel_an5(:,1) == obj_facelabel_an5(1) & facelabel_an5(:,2) == obj_facelabel_an5(2)) ... 
          | (facelabel_an5(:,1) == obj_facelabel_an5(2) & facelabel_an5(:,2) == obj_facelabel_an5(1));
 
-    face_tri_node_an4 = tri_node_an4(mask_an4, :);
-    face_tri_node_an5 = tri_node_an5(mask_an5, :);
-    face_node_id_an4 = unique(face_tri_node_an4);
-    face_node_id_an5 = unique(face_tri_node_an5);
-    face_node_coord_an4 = node_coord_an4(face_node_id_an4, :);
-    face_node_coord_an5 = node_coord_an5(face_node_id_an5, :);
-    face_tri_normal_an4 = tri_normal_an4(mask_an4, :);
-    face_tri_normal_an5 = tri_normal_an5(mask_an5, :);
-%     face_tri_centroid_an4 = tri_centroid_an4(mask_an4, :);
-%     face_tri_centroid_an5 = tri_centroid_an5(mask_an5, :);
+    facetri_node_an4 = tri_node_an4(mask_an4, :);
+    facetri_node_an5 = tri_node_an5(mask_an5, :);
+    facetri_normal_an4 = tri_normal_an4(mask_an4, :);
+    facetri_normal_an5 = tri_normal_an5(mask_an5, :);
+    facenode_id_an4 = unique(facetri_node_an4);
+    facenode_id_an5 = unique(facetri_node_an5);
+    facenode_coord_an4 = node_coord_an4(facenode_id_an4, :);
+    facenode_coord_an5 = node_coord_an5(facenode_id_an5, :);
     % ----- note triangle normal direction has to be consistent -----
     mask_reverse_an4 = facelabel_an4(mask_an4,1) > facelabel_an4(mask_an4,2);
     mask_reverse_an5 = facelabel_an5(mask_an5,1) > facelabel_an5(mask_an5,2);
-    face_tri_normal_an4(mask_reverse_an4, :) = - face_tri_normal_an4(mask_reverse_an4, :);
-    face_tri_normal_an5(mask_reverse_an5, :) = - face_tri_normal_an5(mask_reverse_an5, :);
+    facetri_normal_an4(mask_reverse_an4, :) = - facetri_normal_an4(mask_reverse_an4, :);
+    facetri_normal_an5(mask_reverse_an5, :) = - facetri_normal_an5(mask_reverse_an5, :);
 
-    coord_1 = face_node_coord_an4;
-    coord_2 = face_node_coord_an5;
+    coord_1 = facenode_coord_an4;
+    coord_2 = facenode_coord_an5;
 
     % ##### calculate normal of a node as the average of all its resident triangles' nomral #####
     % """
@@ -95,32 +94,48 @@ for i = idx
     % """
     normal_an4 = zeros(length(coord_1), 3);
     normal_an5 = zeros(length(coord_2), 3);
-    for j = 1:length(face_node_id_an4)
-        mask = any(face_tri_node_an4 == face_node_id_an4(j), 2);
-        normal_tmp = face_tri_normal_an4(mask, :);
+    for j = 1:length(facenode_id_an4)
+        mask = any(facetri_node_an4 == facenode_id_an4(j), 2);
+        normal_tmp = facetri_normal_an4(mask, :);
         if size(normal_tmp,1) > 1
             normal_tmp = sum(normal_tmp);
         end
         normal_an4(j,:) = normal_tmp/norm(normal_tmp);
     end
-    for j = 1:length(face_node_id_an5)
-        mask = any(face_tri_node_an5 == face_node_id_an5(j), 2);
-        normal_tmp = face_tri_normal_an5(mask, :);
+    for j = 1:length(facenode_id_an5)
+        mask = any(facetri_node_an5 == facenode_id_an5(j), 2);
+        normal_tmp = facetri_normal_an5(mask, :);
         if size(normal_tmp,1) > 1
             normal_tmp = sum(normal_tmp);
         end
         normal_an5(j,:) = normal_tmp/norm(normal_tmp);
     end
+    
+    % ##### x_to_y  #####
+%     m = size(coord_1, 1);
+%     n = size(coord_2, 1);
+%     features = [[ones(m, 1); 2*ones(n, 1)], [face_node_id_an4; face_node_id_an5], ...
+%         [face_node_coord_an4; face_node_coord_an5], [normal_an4; normal_an5], ones(m+n, 1)];
+% %     mig_svm_proj(i, :) = calcFaceMigBySVMPlaneProj(features, x_to_y, eps)
+% %     mig_normal_proj(i, :) = calcFaceMigByLocalNormProj(features, x_to_y)
+    % ##### corresp_localid #####
+    % """
+    % See main_TrackNodes.m for the making of corresp_localid. Basically,
+    % nodes_an4 are kept the way they are, nodes_an5 are formulated as
+    % correspondence of nodes_an4.
+    % """
+    id_use_an4 = corresp_localid{idx, 1}(:,1);
+    id_use_an5 = corresp_localid{idx, 1}(:,2);
+    m = length(id_use_an4);
+    n = length(id_use_an5);
+    features = [[ones(m, 1); 2*ones(n, 1)], [facenode_id_an4(id_use_an4); facenode_id_an5(id_use_an5)], ...
+        [facenode_coord_an4(id_use_an4, :); facenode_coord_an5(id_use_an5, :)], [normal_an4(id_use_an4, :); normal_an5(id_use_an5, :)], ones(m+n, 1)];
+    mig_svm_proj = calcFaceMigBySVMPlaneProj(features, eps);
+    mig_normal_proj = calcFaceMigByLocalNormProj(features);
 
-    m = size(coord_1, 1);
-    n = size(coord_2, 1);
-    features = [[ones(m, 1); 2*ones(n, 1)], [face_node_id_an4; face_node_id_an5], ...
-        [face_node_coord_an4; face_node_coord_an5], [normal_an4; normal_an5], ones(m+n, 1)];
 
-%     mig_svm_proj(i, :) = calcFaceMigBySVMPlaneProj(features, x_to_y, eps);
-%     mig_normal_proj(i, :) = calcFaceMigByLocalNormProj(features, x_to_y);
 %     disp(i);
-    [mig_svm, features] = calcFaceMigBySVMPlaneProj(features, x_to_y, eps);
+%     [mig_svm, features] = calcFaceMigBySVMPlaneProj(features, x_to_y, eps);
 
 end
 
@@ -128,7 +143,7 @@ end
 
 % ############################# Visualization #############################
 % figure
-plotSVMPlane(features, face_tri_node_an4, face_tri_node_an5, x_to_y);
+% plotSVMPlane(features, face_tri_node_an4, face_tri_node_an5, x_to_y);
 
 % face_node_info = getSingleFaceNodes(tracked_uniqueface_an4(face_to_calc(idx),:), tracked_uniqueface_an5(face_to_calc(idx),:));
 % visualizeFace(face_node_info, x_to_y)
