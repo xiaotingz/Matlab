@@ -147,7 +147,8 @@ mig_normal_proj_nearest = zeros(n, 4);
 % load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/181107.mat')
 
 % parpool(8)
-for i = 2
+for i = 6
+    i = 6;
     disp(i)
     
     obj_facelabel_an4 = tracked_uniqueface_an4(i, :);
@@ -175,7 +176,7 @@ for i = 2
     facetri_area_an5 = tri_area_an5(mask_an5, :);
     facenode_id_an5 = unique(facetri_nodeid_an5);
     facenode_coord_an5 = node_coord_an5(facenode_id_an5,:);
-
+%%
     % ##### Find Disconnected Subgraphs and Solve Subgraph Correp #####
     [subgraph_id_an4, subgraph_id_an5] = findSubgraph(facenode_id_an4, facenode_id_an5, facetri_nodeid_an4, facetri_nodeid_an5);
     subgraph_nodeid_local_an4 = (1:length(subgraph_id_an4))';
@@ -367,9 +368,9 @@ for i = 2
     end
     
 end
-
-x_to_y = X_to_Y_nearest{i};
-face_node_info = getSingleFaceNodes(tracked_uniqueface_an4(i,:), tracked_uniqueface_an5(i,:));
+%%
+% x_to_y = solveNodeCorresp_Nearest(facenode_coord_an4, facenode_coord_an5);
+face_node_info = getSingleFaceNodes(obj_facelabel_an4, obj_facelabel_an5);
 visualizeFace(face_node_info, x_to_y)
 
 

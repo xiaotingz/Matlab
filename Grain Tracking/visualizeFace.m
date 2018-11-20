@@ -1,4 +1,4 @@
-function visualizeFace(obj_face, x_to_y, obj_node_an4, obj_node_an5, obj)
+function visualizeFace(obj_face, x_to_y, corresp, obj_node_an4, obj_node_an5, obj)
 % ############################################################################
 % Input
 %     - obj_face = {4, 2}, wrote by getSingleFaceNodes.m
@@ -41,7 +41,6 @@ hold on
 trisurf(tri_connect_2, obj_face{4,2}(:,1), obj_face{4,2}(:,2), obj_face{4,2}(:,3),'Facecolor',color2, 'Facealpha', 0.3, 'edgealpha', 0.3);
 rotate3d on
 
-
 % ##### If No obj_node Specified, Default Will Use All Nodes On Surface #####
 if nargin == 2
     obj_node_an4 = obj_face{4,1};
@@ -49,8 +48,28 @@ if nargin == 2
     scatter3(obj_node_an4(:,1), obj_node_an4(:,2), obj_node_an4(:,3), 20, 'filled', 'MarkerFaceColor',color1, 'MarkerEdgeColor',color1);
     scatter3(obj_node_an5(:,1), obj_node_an5(:,2), obj_node_an5(:,3), 20, 'filled', 'MarkerFaceColor',color2, 'MarkerEdgeColor',color2);
     for i = 1:length(x_to_y)
-        plot3([obj_node_an4(i,1), obj_node_an5(x_to_y(i),1)], [obj_node_an4(i,2), obj_node_an5(x_to_y(i),2)], [obj_node_an4(i,3), obj_node_an5(x_to_y(i),3)], 'k', 'LineWidth', 1);
+        if ~isnan(x_to_y(i))
+            plot3([obj_node_an4(i,1), obj_node_an5(x_to_y(i),1)], [obj_node_an4(i,2), obj_node_an5(x_to_y(i),2)], [obj_node_an4(i,3), obj_node_an5(x_to_y(i),3)], 'k', 'LineWidth', 1);
 %         text(obj_point_smooth_an4(i,1), obj_point_smooth_an4(i,2), obj_point_smooth_an4(i,3),[' ', num2str(int32(i))],'FontSize',16, 'Color', color1);
+        end
+    end
+
+% ##### In the case of node corresp by min_dist, only some nodes will have corresps #####
+elseif nargin == 3
+    obj_node_an4 = obj_face{4,1};
+    obj_node_an5 = obj_face{4,2};
+    use_an4 = corresp(:,1);
+    use_an5 = corresp(:,2);
+    obj_node_an4_use = obj_node_an4(use_an4, :);
+    obj_node_an5_use = obj_node_an5(use_an5, :);
+    scatter3(obj_node_an4_use(:,1), obj_node_an4_use(:,2), obj_node_an4_use(:,3), 20, 'filled', 'MarkerFaceColor',color1, 'MarkerEdgeColor',color1);
+    scatter3(obj_node_an5_use(:,1), obj_node_an5_use(:,2), obj_node_an5_use(:,3), 20, 'filled', 'MarkerFaceColor',color2, 'MarkerEdgeColor',color2);
+    
+    for i = 1:length(x_to_y)
+        if ~isnan(x_to_y(i))
+            plot3([obj_node_an4(i,1), obj_node_an5(x_to_y(i),1)], [obj_node_an4(i,2), obj_node_an5(x_to_y(i),2)], [obj_node_an4(i,3), obj_node_an5(x_to_y(i),3)], 'k', 'LineWidth', 1);
+%         text(obj_point_smooth_an4(i,1), obj_point_smooth_an4(i,2), obj_point_smooth_an4(i,3),[' ', num2str(int32(i))],'FontSize',16, 'Color', color1);
+        end
     end
     
 % ##### Specified obj_node, corresp #####
@@ -58,7 +77,9 @@ elseif nargin == 5 && strcmp(obj, 'corresp')
     scatter3(obj_node_an4(:,1), obj_node_an4(:,2), obj_node_an4(:,3), 20, 'filled', 'MarkerFaceColor',color1, 'MarkerEdgeColor',color1);
     scatter3(obj_node_an5(:,1), obj_node_an5(:,2), obj_node_an5(:,3), 20, 'filled', 'MarkerFaceColor',color2, 'MarkerEdgeColor',color2);
     for i = 1:length(obj_node_an4)
-        plot3([obj_node_an4(i,1), obj_node_an5(x_to_y(i),1)], [obj_node_an4(i,2), obj_node_an5(x_to_y(i),2)], [obj_node_an4(i,3), obj_node_an5(x_to_y(i),3)], 'k', 'LineWidth', 1);
+        if ~isnan(x_to_y(i))
+            plot3([obj_node_an4(i,1), obj_node_an5(x_to_y(i),1)], [obj_node_an4(i,2), obj_node_an5(x_to_y(i),2)], [obj_node_an4(i,3), obj_node_an5(x_to_y(i),3)], 'k', 'LineWidth', 1);
+        end
     end
     
 % ##### Specified obj_node, distort_tri #####
