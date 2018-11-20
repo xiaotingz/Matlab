@@ -7,7 +7,8 @@ function [x_to_y, y_to_x] = solveNodeCorresp(X, Y)
 %     - x_to_y = [m, 1], for each node in X, id of the corresponding node in Y
 %     - y_to_x = [n, 1], for each node in Y, id of the corresponding node in X
 % * NOTE
-%     - make sure samples are aligned by changing ORIGIN.
+%     - Make sure samples are aligned by changing ORIGIN.
+%     - This script implements Sid's algorithm.
 % ##########################################################################
 % ----------------------- load debug data -----------------------
 % X = center_an4;
@@ -28,7 +29,8 @@ coeff = optimvar('coeff', m, n, 'LowerBound', 0);
 prob = optimproblem('Objective', sum(sum(coeff .* norm_diff)));
 
 prob.Constraints.cons1 = sum(coeff,2) == ones(m,1);
-% prob.Constraints.cons2 = sum(coeff,1) == (ones(1,n) * m/n);
+prob.Constraints.cons2 = sum(coeff,1) == (ones(1,n) * m/n);
+
 [linsol, fval] = solve(prob);
 node_corresp = linsol.coeff;
 

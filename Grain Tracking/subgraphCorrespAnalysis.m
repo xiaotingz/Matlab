@@ -39,7 +39,7 @@ all_multipiece_sym = all_multipiece(tmp(:,1) == tmp(:,2));
 
 %% ----- the many-piece faces, are all pieces small -----
 amp_asym_size = ones(length(all_multipiece_asym), 2);
-for i = 1:length(all_multipiece_asym)    
+for i = 1:length(all_multipiece_asym)
     idx = all_multipiece_asym(i);
     obj_facelabel_an4 = tracked_uniqueface_an4(idx, :);
     obj_facelabel_an5 = tracked_uniqueface_an5(idx, :);

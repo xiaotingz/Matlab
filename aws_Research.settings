@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings name="parallel" xmlns="urn:mathworks.matlab.settings" xsi:schemaLocation="urn:mathworks.matlab.settings settings.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <settings name="profiles">
+        <settings name="Research" visible="true">
+            <key name="Alias" visible="true">
+                <string>
+                    <value><![CDATA[Research]]></value>
+                </string>
+            </key>
+            <key name="Description" visible="true">
+                <string>
+                    <value><![CDATA[Research - created by xiaotinz@andrew.cmu.edu]]></value>
+                </string>
+            </key>
+            <key name="SchedulerComponent" visible="true">
+                <string>
+                    <value><![CDATA[Research]]></value>
+                </string>
+            </key>
+        </settings>
+    </settings>
+    <settings name="schedulercomponents">
+        <settings name="MJSComputeCloud" visible="true">
+            <settings name="Research" visible="true">
+                <key name="Alias" visible="true">
+                    <string>
+                        <value><![CDATA[Research]]></value>
+                    </string>
+                </key>
+                <key name="Certificate" visible="true">
+                    <string>
+                        <value><![CDATA[-----BEGIN CERTIFICATE-----
+MIICJTCCAY6gAwIBAgIIHYPHM9D4otMwDQYJKoZIhvcNAQEFBQAwVTEJMAcGA1UEBhMAMQkwBwYDVQQIEwAxCTAHBgNVBAcTADESMBAGA1UEChMJTWF0aFdvcmtzMQwwCgYDVQQLEwNNSlMxEDAOBgNVBAMTB3NlcnZpY2UwHhcNMTgxMDIzMDIwMjU3WhcNMjgxMDIwMDIwMjU3WjBVMQkwBwYDVQQGEwAxCTAHBgNVBAgTADEJMAcGA1UEBxMAMRIwEAYDVQQKEwlNYXRoV29ya3MxDDAKBgNVBAsTA01KUzEQMA4GA1UEAxMHc2VydmljZTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAoXO226xjR0xEk15MH/GNsesofw6lkYtXe8jSzy1Wejr1tR5RDyyv92IMhkRCt5/saWYFa7VI7pvTu8tXC9K9+s//CHIPx2EilTjHOP7jIDHvYtYMs4E9VMkJ7U7SMVzar39FO+7o6x1YqJOdmcYCPxLTsWuN++mw9COpkw7yp3cCAwEAATANBgkqhkiG9w0BAQUFAAOBgQAoH1fwuyE4Gp0n+oSSDIO7PMDj7jHX/gKEqKeooxfKxV+ZM6OLOF/M5fKBuCyshglXDGmSGo9BCJAjpwBbg8E8xYl3dUjaiYHPqwcKbXQTX8XLhJ7D4q5mpLcUpsbXvcVWhmYCuVbG6Nn1S2tYXa/XMzsckG++wPRvvsaXNcXVww==
+-----END CERTIFICATE-----]]></value>
+                    </string>
+                </key>
+                <key name="Identifier" visible="true">
+                    <string>
+                        <value><![CDATA[f41e79c7-0c61-48d8-9c26-a13d56f6cb5a]]></value>
+                    </string>
+                </key>
+                <key name="matlabRelease" visible="true">
+                    <string>
+                        <value><![CDATA[R2018a]]></value>
+                    </string>
+                </key>
+            </settings>
+        </settings>
+    </settings>
+</settings>
