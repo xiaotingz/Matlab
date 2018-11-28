@@ -11,15 +11,14 @@
 % ############################################################################
 % % ------------------ load data for debug --------------------
 file = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d');
+load('181107_mig_piececorresp_comb','tracked_uniqueface_an4')
+load('181108_data', 'rfvecs_an4')
 face_to_calc = tracked_uniqueface_an4;
 rfvecs = rfvecs_an4;
 thres_g = 0.06;
 thres_n = 10;
 % %-----------------------------------------------------------
 % ##### Load and Clean Data #####
-normal_ctwin = [1,1,1]';
-normal_ctwin = normal_ctwin/sqrt(3);
-rfvec_twin = normal_ctwin'*tand(60/2);
 facelabel = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
 tri_normal = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceNormals'))';
 EA = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/AvgEulerAngles'))';
@@ -29,54 +28,67 @@ mask_inner = all(facelabel > 0, 2);
 facelabel = facelabel(mask_inner, :);
 tri_normal = tri_normal(mask_inner, :);
 
+%%
+% ##### Prepare Twin #####
+normal_ctwin = [1,1,1]';
+normal_ctwin = normal_ctwin/sqrt(3);
+rfvec_twin = normal_ctwin'*tand(60/2);
+normal_ctwin_vari = zeros(24, 3);
+for i = 1:size(O, 3)
+    normal_ctwin_vari(i, :) = (O(:,:,i) * normal_ctwin)';
+end
+normal_ctwin_vari = unique(normal_ctwin_vari, 'rows');
 
 % ##### First Filter Out non-twin Misorientations #####
 rfvec_twin = repmat(rfvec_twin, size(face_to_calc, 1), 1);
 % [rfvecs]  = getFaceRFvecs(file, face_to_calc);
 mask_ctwin = vecnorm(rfvecs - rfvec_twin, 2, 2) < thres_g;
-%%
 
 % ##### Then Check Plane Normals #####
 angle_diff_list = [];
 angle_diff_cnt = [];
+id_list = [];
 O = CrysSym;
+
 % """
 % Note the symmetry matrixes are transposed this way. But the group should
 % stay the same. 
 % """
-for i = 1:size(face_to_calc, 1)
+for i = 2330
     disp(i)
     if mask_ctwin(i)
         % ----- Get triangle normal in sample frame -----
         mask_objface = (facelabel(:,1) == face_to_calc(i, 1) & facelabel(:,2) == face_to_calc(i, 2) |...
-            facelabel(:,1) == face_to_calc(2) & facelabel(:,2) == face_to_calc(1));
+            facelabel(:,1) == face_to_calc(i, 2) & facelabel(:,2) == face_to_calc(i, 1));
         facetri_normal = tri_normal(mask_objface, :);
         angle_diffs = ones(size(facetri_normal, 1), 1)*90;
 
         % ----- Convert to crystal frame and apply symmetries -----
         g1 = EAtoG(EA(face_to_calc(i, 1), :));
-        g2 = EAtoG(EA(face_to_calc(i, 1), :));
+        g2 = EAtoG(EA(face_to_calc(i, 2), :));
+%         g1 = reshape(G(face_to_calc(i, 1), :), 3,3)';
+%         g2 = reshape(G(face_to_calc(i, 2), :), 3,3)';
         for j = 1:size(facetri_normal, 1)
             normal = facetri_normal(j, :)';
-            for k = 1:size(O, 3)
-                for l = 1:size(O, 3)
-                    normal_vari = (O(:,:,k) * g1) * normal;
-                    normal_ctwin_vari = (O(:,:,l) * g1) * normal_ctwin;
-                    ang_tmp = abs(atand(norm(cross(normal_vari, normal_ctwin_vari))/dot(normal_vari, normal_ctwin_vari)));
-                    if ang_tmp < angle_diffs(j)
-                        angle_diffs(j) = ang_tmp;
-                    end
-                    normal_vari = O(:,:,k) * g2 * normal;
-                    ang_tmp = abs(atand(norm(cross(normal_vari, normal_ctwin_vari))/dot(normal_vari, normal_ctwin_vari)));
-                    if ang_tmp < angle_diffs(j)
-                        angle_diffs(j) = ang_tmp;
-                    end
+            for l = 1:size(O, 3)
+                normal_vari = (O(:,:,l) * g1) * normal;
+                normal_vari = repmat(normal_vari, 1, 8)';
+                ang_diff_tmp = abs(atan2d(vecnorm(cross(normal_vari, normal_ctwin_vari), 2, 2), dot(normal_vari, normal_ctwin_vari, 2)));
+                if min(ang_diff_tmp) < angle_diffs(j)
+                    angle_diffs(j) = min(ang_diff_tmp);
+                end
+                normal_vari = (O(:,:,l) * g2) * normal;
+                normal_vari = repmat(normal_vari, 1, 8)';
+                ang_diff_tmp = abs(atan2d(vecnorm(cross(normal_vari, normal_ctwin_vari), 2, 2), dot(normal_vari, normal_ctwin_vari, 2)));
+                if min(ang_diff_tmp) < angle_diffs(j)
+                    angle_diffs(j) = min(ang_diff_tmp);
                 end
             end
         end
         
         angle_diff_list = [angle_diff_list; angle_diffs];
         angle_diff_cnt = [angle_diff_cnt; sum(mask_objface)];
+        id_list = [id_list; i];
         
         % ##### Check if Angle Within Threshold #####
         if sum(angle_diffs < thres_n) < length(angle_diffs)*0.8
@@ -85,15 +97,38 @@ for i = 1:size(face_to_calc, 1)
     end
 end
     
-    
+figure
 histogram(angle_diff_list,'Normalization','probability')
 set(gca, 'FontSize', 18);
 xlabel('angle between triangle normals & \{111\}', 'FontSize', 18)
-print('plane normal of twins','-dpng','-r300')
+% print('plane normal of twins','-dpng','-r300')
 
 
+% ##### Shown Coherent triangles on twin face #####
+obj_facelabel_an4 = tracked_uniqueface_an4(i, :);
+color1 = [0, 0.4470, 0.7410];
+load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/181107.mat','tri_node_an4', 'node_coord_an4')
+tri_centr = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceCentroids'))';
+tri_centr = tri_centr(mask_inner, :);
+
+tri_connect = tri_node_an4(mask_objface, :);
+
+figure
+trisurf(tri_connect, node_coord_an4(:,1), node_coord_an4(:,2), node_coord_an4(:,3),'Facecolor',color1, 'Facealpha', 0.3, 'edgealpha', 0.3);
+hold on
+trisurf(tri_connect(angle_diffs < 10, :), node_coord_an4(:,1), node_coord_an4(:,2), node_coord_an4(:,3),'Facecolor',color1, 'Facealpha', 1, 'edgealpha', 1);
+rotate3d on
+quiver3(tri_centr(mask_objface,1),tri_centr(mask_objface,2),tri_centr(mask_objface,3), ...
+     facetri_normal(:,1),facetri_normal(:,2),facetri_normal(:,3),1.5,'color','r');
+
+daspect([1 1 1])
 
 
+%%
+file_g = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth_OrientMat.dream3d';
+G = double(h5read(file_g,'/DataContainers/ImageDataContainer/CellFeatureData/AvgOrientMat'))';
+% ----- G in D3D follow row first order -----
+G(1, :) = [];
 
 
 
