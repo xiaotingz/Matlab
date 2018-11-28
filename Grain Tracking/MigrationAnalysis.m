@@ -73,7 +73,7 @@ mig_svm_proj(idx, :)
 % plotSingleFaceWithNormal(file_an5, tracked_uniqueface_an5(face_to_calc(idx),:), 1)
 
 
-%% ##### Migration of Coherent Twins #####
+%% ##### Migration of Twins #####
 % [rfvecs_an4]  = getFaceRFvecs(file_an4, tracked_uniqueface_an4);
 % [rfvecs_an5]  = getFaceRFvecs(file_an5, tracked_uniqueface_an5);
 % 
@@ -121,7 +121,7 @@ legend('Proj\_svm\_notTwin', 'Proj\_svm\_Twin', 'Proj\_normal\_notTwin', 'Proj\_
 xlim([0, 20])
 print('migration_PieceCorrespAllData_OptCover_CDF','-dpng','-r300')
 
-%% ##### Mobile Coherent Twins #####
+%% ##### Mobile Twins #####
 % load('180822_FaceCorresp.mat')
 
 mask_mobile_twin = (mask_twin & (mig_normal_proj(:,3) > 5));
