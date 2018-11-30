@@ -1,0 +1,104 @@
+O = CrysSym;
+normal_ctwin = [1,1,1]';
+normal_ctwin = normal_ctwin/sqrt(3);
+rfvec_twin = normal_ctwin' * tand(60/2);
+normal_ctwin_vari = zeros(24, 3);
+for i = 1:size(O, 3)
+    normal_ctwin_vari(i, :) = (O(:,:,i) * normal_ctwin)';
+end
+normal_ctwin_vari = unique(normal_ctwin_vari, 'rows');
+
+
+% #######################################################################################  
+% V1: normal_vari, always in crystal frame.
+for j = 1:size(facetri_normal, 1)
+            normal = facetri_normal(j, :)';
+            % ##### Min Angle ##### 
+            for l = 1:size(O, 3)
+                normal_vari = (O(:,:,l) * g1) * normal;
+                normal_vari = repmat(normal_vari, 1, 8)';
+                ang_diff_1 = acosd(dot(normal_vari, normal_ctwin_vari, 2));
+                if min(ang_diff_tmp) < angle_diffs(j)
+                    angle_diffs(j) = min(ang_diff_tmp);
+                end
+                normal_vari = (O(:,:,l) * g2) * normal;
+                normal_vari = repmat(normal_vari, 1, 8)';
+                
+                ang_diff_tmp = acosd(dot(normal_vari, normal_ctwin_vari, 2));
+                if min(ang_diff_tmp) < angle_diffs(j)
+                    angle_diffs(j) = min(ang_diff_tmp);
+                end
+            end
+%             % ##### Kryz's way #####
+%             for l = 1:size(O, 3)
+%                 normal_g1 = (O(:,:,l) * g1) * normal;
+%                 normal_g1 = repmat(normal_g1, 1, 8)';
+% %                 ang_diff_tmp = abs(atan2d(vecnorm(cross(normal_vari, normal_ctwin_vari), 2, 2), dot(normal_vari, normal_ctwin_vari, 2)));
+%                 ang_diff_1 = abs(acosd(dot(normal_g1, normal_ctwin_vari, 2)));
+%                 normal_g2 = (O(:,:,l) * g2) * normal;
+%                 normal_g2 = repmat(normal_g2, 1, 8)';
+% %                 ang_diff_tmp = abs(atan2d(vecnorm(cross(normal_vari, normal_ctwin_vari), 2, 2), dot(normal_vari, normal_ctwin_vari, 2)));
+%                 ang_diff_2 = abs(acosd(dot(normal_g2, normal_ctwin_vari, 2)));
+%                 if ang_diff_1^2 + ang_diff_2^2 < thres_n^2
+%                     
+%                 end
+%             end
+        end
+        
+        angle_diff_list = [angle_diff_list; angle_diffs];
+        angle_diff_cnt = [angle_diff_cnt; sum(mask_objface)];
+        id_list = [id_list; i];
+        
+        % ##### Check if Angle Within Threshold #####
+        if sum(angle_diffs < thres_n) < length(angle_diffs)*0.8
+            mask_ctwin(i) = false;            
+        end
+
+        
+% #######################################################################################  
+% V2: normal_vari, n1 = n, n2 = dg'*n1, slow for loop
+for j = 1:size(facetri_normal, 1)
+    normal = facetri_normal(j, :)';
+    % ##### Min Angle ##### 
+    for l = 1:size(O, 3)
+        for k = 1:size(O, 3)
+            gg1 = O(:,:,l) * g1;
+            gg2 = O(:,:,k) * g2;
+            dg = gg1 * gg2'; 
+            normal_vari = gg1 * normal;
+            normal_vari = repmat(normal_vari, 1, 8)';
+            ang_diff_1 = acosd(dot(normal_vari, normal_ctwin_vari, 2));
+            if min(ang_diff_tmp) < angle_diffs(j)
+                angle_diffs(j) = min(ang_diff_tmp);
+            end
+            normal_vari = gg2 * normal;
+            normal_vari = repmat(normal_vari, 1, 8)';
+            normal_ctwin_vari = (dg * normal_ctwin_vari')';
+            ang_diff_tmp = acosd(dot(normal_vari, normal_ctwin_vari, 2));
+            if min(ang_diff_tmp) < angle_diffs(j)
+                angle_diffs(j) = min(ang_diff_tmp);
+            end
+            normal_ctwin_vari = (dg' * normal_ctwin_vari')';
+            ang_diff_tmp = acosd(dot(normal_vari, normal_ctwin_vari, 2));
+            if min(ang_diff_tmp) < angle_diffs(j)
+                angle_diffs(j) = min(ang_diff_tmp);
+            end
+        end
+    end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
