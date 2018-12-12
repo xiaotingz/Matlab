@@ -5,7 +5,7 @@ function [num_nnface_avgcorner] = findGrainFaceNNAvgCorner(file, num_corners)
 %         Has to be for the full unique faces
 % * Notes
 %     - Objective: for each grain face, find the average number of corners
-%     for each grain face's nearest neighbors. Similar to the #neighbor for
+%     for each grain face's nearest neighbor faces. Similar to the #neighbor for
 %     nearest neighbor of grains.
 %     - Dependency: findGrainFaceConnection.m
 % ############################################################################

@@ -90,14 +90,70 @@ end
 
 
 
+% #######################################################################################  
+% V3: normal, n1 = g1*n, n2 = g2*n
+angle_diff_list = []
+for i = 1:length(face_to_calc)
+    disp(i)
+    if mask_ctwin(i)
+        % ----- Get triangle normals in sample frame -----
+        grain_A = face_to_calc(i, 1);
+        grain_B = face_to_calc(i, 2);
+%         grain_A = 590;
+%         grain_B = 729;
+        mask_objface = (facelabel(:,1) == grain_A & facelabel(:,2) == grain_B |...
+            facelabel(:,1) == grain_B & facelabel(:,2) == grain_A);
+        facetri_normal = tri_normal(mask_objface, :);
+        angle_diffs = ones(size(facetri_normal, 1), 1)*90;
+
+        % ----- Convert triangle normals to crystal frame and apply symmetries -----
+%         g1 = reshape(G(face_to_calc(i, 1), :), 3,3)';
+%         g2 = reshape(G(face_to_calc(i, 2), :), 3,3)';
+        g1 = EAtoG(EA(grain_A, :));
+        g2 = EAtoG(EA(grain_B, :));
+        gg1 = O * g1;
+        gg2 = O * g2;
+        
+        for j = 1:size(facetri_normal, 1)
+            normal = facetri_normal(j, :)';
+            % ##### Min Angle ##### 
+            normal_g1 = reshape(gg1 * normal, 3, n_sym)';
+            % ----- dist to (111) -----
+            ang_diff_tmp1 = acosd(dot(normal_g1, fixed_normal_1, 2));
+            if min(ang_diff_tmp1) < angle_diffs(j)
+                angle_diffs(j) = min(ang_diff_tmp1);
+            end 
+            normal_g2 = reshape(gg2 * normal, 3, n_sym)';
+            % ----- dist to (111) -----
+            ang_diff_tmp2 = acosd(dot(normal_g2, fixed_normal_2, 2));
+            if min(ang_diff_tmp2) < angle_diffs(j)
+                angle_diffs(j) = min(ang_diff_tmp2);
+            end
+        end
+        angle_diff_list = [angle_diff_list; angle_diffs];
+
+    end
+end
 
 
 
 
+%% #######################################################################################  
+% Test fixed normal 
+g_fixed = AAToG(60, [1,1,1]);
+fixed_normal_1 = [1,1,1]';
+fixed_normal_1 = fixed_normal_1/norm(fixed_normal_1);
+fixed_normal_2 = zeros(24*24, 3);
 
-
-
-
+O = CrysSym;
+idx = 1;
+for i = 1:24
+    for j = 1:24
+        fixed_normal_2(idx, :) = O(:,:,i) * g_fixed * O(:,:,j) * fixed_normal_1;
+        idx = idx + 1;
+    end
+end
+        
 
 
 
