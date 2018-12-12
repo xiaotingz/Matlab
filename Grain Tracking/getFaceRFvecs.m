@@ -37,7 +37,7 @@ function [RFvecs]  = getFaceRFvecs(file, faces)
 
 % ######################### If Unique Faces #########################
 RFvecs = zeros(length(faces),3);
-for i = 1:length(faces)
+for i = 1:size(faces,1)
     g1 = EAtoG(EAs(faces(i,1),:));
     g2 = EAtoG(EAs(faces(i,2),:));
     [RFvecs(i,:), ~] = dgInFZ(g1, g2, O);

@@ -174,10 +174,12 @@ piecesize_vari_normal = [piecewise_normal, seclarge_piecesize(idx_normal)];
 piecesize_vari_twin = [piecewise_twin, seclarge_piecesize(idx_twin)];
 
 clearvars -except piecesize_vari_normal piecesize_vari_twin
-%% ----- Display face_pair info ----- 
+
+
+%% ############################################# Display face_pair info #################################################
 % idx_piece = 569;
 % idx = piecewise_notwin(idx_piece);
-idx = 1;
+idx = 172;
 
 dispFacePairInfo(file_an4, file_an5, tracked_uniqueface_an4, tracked_uniqueface_an5, idx)
 
@@ -189,6 +191,7 @@ face_node_info = getSingleFaceNodes(obj_facelabel_an4, obj_facelabel_an5);
 visualizeFace(face_node_info, x_to_y)
 hold off
 
+%%
 % x_min = min(face_node_info{4,2}(:,1));
 % x_max = max(face_node_info{4,2}(:,1));
 % y_min = min(face_node_info{4,2}(:,2));
@@ -196,7 +199,20 @@ hold off
 % z_min = min(face_node_info{4,2}(:,3));
 % z_max = max(face_node_info{4,2}(:,3));
 
+% ##### Neighbors of Resident Grains ##### 
+% file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d');
+% file_an5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
+% num_neigh_an4 = h5read(file_an4,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors').';
+% num_neigh_an5 = h5read(file_an5,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors').';
+% num_neigh_an4(1) = [];
+% num_neigh_an5(1) = [];
 
+info_1 = ['nn_an4_g', num2str(tracked_uniqueface_an4(1)),' = ', num2str(num_neigh_an4(tracked_uniqueface_an4(idx, 1))), ';  nn_an4_g', ...
+    num2str(tracked_uniqueface_an4(idx, 2)),' = ', num2str(num_neigh_an4(tracked_uniqueface_an4(idx, 2))) ];
+info_2 = ['nn_an4_g', num2str(tracked_uniqueface_an5(1)),' = ', num2str(num_neigh_an5(tracked_uniqueface_an5(idx, 1))), ';  nn_an4_g', ...
+    num2str(tracked_uniqueface_an5(idx, 2)),' = ', num2str(num_neigh_an5(tracked_uniqueface_an5(idx, 2))) ];
+disp(info_1);
+disp(info_2);
 
 
 

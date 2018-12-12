@@ -330,13 +330,4 @@ plotBinData(abs(face_area_diff), abs(diff_fc_nnfc_an4), [0, 500], [-1e4, 1e4], 2
 subplot(2,2,4)
 plotBinData(abs(face_area_diff), abs(diff_fc_nnfc_an4), [0, 500], [-1e4, 1e4], 20,'Area\_diff, \mum^2',  'C - <Cnn>', false, false)
 % ylim([1, 2.5])
-print('C-Cnn_an4 vs ItgCurvDiff', '-dpng','-r300')
-
-
-
-%%
-subplot(2,1,1)
-plotBinData(diff_fc_nnfc_an4, face_itg_curv_diff, [-10, 10], [-1e4, 1e4], 1, 'C - <Cnn>, an4', 'Itg\_Curv\_diff, \mum', true, false)
-subplot(2,1,2)
-plotBinData(abs(diff_fc_nnfc_an4), face_itg_curv_diff, [0, 10], [-1e4, 1e4], 1, 'C - <Cnn>, and4', 'Itg\_Curv\_diff, \mum', false, false)
-% ylim([120,220])
+% print('Area_diff vs Local Topology Change_crop', '-dpng','-r300')
