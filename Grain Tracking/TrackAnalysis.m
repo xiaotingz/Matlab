@@ -179,7 +179,7 @@ clearvars -except piecesize_vari_normal piecesize_vari_twin
 %% ############################################# Display face_pair info #################################################
 % idx_piece = 569;
 % idx = piecewise_notwin(idx_piece);
-idx = 172;
+idx = 654;
 
 dispFacePairInfo(file_an4, file_an5, tracked_uniqueface_an4, tracked_uniqueface_an5, idx)
 

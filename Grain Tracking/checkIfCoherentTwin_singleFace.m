@@ -195,6 +195,7 @@ tri_normal = tri_normal(istwin, :);
 tri_area = tri_area(istwin, :);
 tri_node = tri_node(istwin, :);
 
+%%
 % ##### Prepare Symmetry Matrix #####
 O_naive = CrysSym;
 n_sym = size(O_naive, 3);
@@ -204,7 +205,7 @@ O = [reshape(O(1:3, :), [], 1), reshape(O(4:6, :), [], 1), reshape(O(7:9, :), []
 % ##### Prepare Coherent Twin Normal #####
 % ----- ref : https://github.com/BlueQuartzSoftware/DREAM3D/blob/develop/Source/Plugins/OrientationAnalysis/OrientationAnalysisFilters/FindGBCDMetricBased.cpp -----
 % fixed_normal_1 = sample_pts(1,:)';
-fixed_normal_1 = [1, 0, 1]';
+fixed_normal_1 = [-1, -1, 1]';
 fixed_normal_1 = fixed_normal_1/norm(fixed_normal_1);
 dg_fixed = AAToG(60, [1,1,1]);
 fixed_normal_2 = dg_fixed' * fixed_normal_1;
@@ -218,7 +219,8 @@ min_angles_2 = [];
 % ########################################
 disp(' ');
 disp('initializing ');
-for i = idxes(775)
+for i = 1
+    
     % ----- Show process -----    
     if rem(i, length(facelabel) * 0.1) == 0
         progress = floor(i/(length(facelabel) * 0.1))*10;
@@ -257,6 +259,7 @@ for i = idxes(775)
                         min_angles_2 = [min_angles_2; min(ang_diff_tmp1, ang_diff_tmp2)];
                     end
 %                     disp([num2str(deg2rad(ang_diff_tmp1)),',  ', num2str(deg2rad(ang_diff_tmp2))]);
+%                     disp([num2str(ang_diff_tmp1),',  ', num2str(ang_diff_tmp2)]);
 %                     disp(['n_g1 = ', num2str(round(normal_g1(1),2)), ', ', num2str(round(normal_g1(2),2)), ', ', num2str(round(normal_g1(3),2))]);
 %                     disp(['n_g2 = ', num2str(round(- normal_g2(1),2)), ', ', num2str(round(- normal_g2(2),2)), ', ', num2str(round(- normal_g2(3),2))]);
                     if min(ang_diff_tmp1, ang_diff_tmp2) < min_angles(i)
@@ -277,6 +280,7 @@ for i = idxes(775)
                         min_angles_2 = [min_angles_2; min(ang_diff_tmp1, ang_diff_tmp2)];
                     end
 %                     disp([num2str(deg2rad(ang_diff_tmp1)),',  ', num2str(deg2rad(ang_diff_tmp2))]);
+%                     disp([num2str(ang_diff_tmp1),',  ', num2str(ang_diff_tmp2)]);
 %                     disp(['n_g1 = ', num2str(round(normal_g1(1),2)), ', ', num2str(round(normal_g1(2),2)), ', ', num2str(round(normal_g1(3),2))]);
 %                     disp(['n_g2 = ', num2str(round(- normal_g2(1),2)), ', ', num2str(round(- normal_g2(2),2)), ', ', num2str(round(- normal_g2(3),2))]);
                     if min(ang_diff_tmp1, ang_diff_tmp2) < min_angles(i)
@@ -324,3 +328,18 @@ xlabel('distance to (1,0,1), all triangles')
 % trisurf(tri_connect(any(angle_diffs < 10), :), node_coord(:,1), node_coord(:,2), node_coord(:,3),'Facecolor',color1, 'Facealpha', 1, 'edgealpha', 1);
 % rotate3d on
 % daspect([1 1 1])
+
+
+
+%%
+% ##### For Each Face, Portion of CTwins #####
+facelabel = sort(facelabel, 2);
+unique_labels = unique(facelabel, 'rows');
+ctwin = zeros(length(unique_labels), 1);
+
+for i = 1:length(unique_labels)
+    mask = (facelabel(:,1) == unique_labels(i,1) & facelabel(:,2) == unique_labels(i,2));
+    min_angles_face = min_angles(mask);
+    ctwin(i) = (sum(min_angles_face < 10) / length(unique_labels) > 0.3);
+end
+    
