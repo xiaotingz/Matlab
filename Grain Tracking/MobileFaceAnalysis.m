@@ -83,11 +83,11 @@ face_label_an4 = sort(face_label_an4, 2);
 face_label_an5 = sort(face_label_an5, 2);
 
 load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/180822.mat', 'tracked_uniqueface_an4', 'tracked_uniqueface_an5');
-list = [2723, 654, 1500, 2158, 3102, 3832, 2945]';
+% obj_face = [2723, 654, 1500, 2158, 3102, 3832, 2945]';
 
 %% ##### Individual Face Info ##### 
 clc
-idx = list(2);
+idx = 6710;
 
 obj_facelabel_an4 = tracked_uniqueface_an4(idx, :);
 obj_facelabel_an5 = tracked_uniqueface_an5(idx, :);

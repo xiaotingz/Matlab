@@ -17,8 +17,8 @@ file_an5 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d';
 % % tl_an5 = findTripleLines(file_an5);
 % [num_corners_an5, num_edges_an5] = getFaceCharacter(face_an5, tl_an5, result_an5{1}, result_an5{2});
 
-[faces_an5, num_neigh_face_an5, neigh_list_faceid_an5] = findGrainFaceConnection(file_an5);
-num_nnface_avgcorner_an5 = findGrainFaceNNAvgCorner(file_an5, num_corners_an5);
+[faces_an5, num_neigh_face_an5, neigh_list_faceid_an5] = findFaceConnection(file_an5);
+num_nnface_avgcorner_an5 = findFaceNNAvgCorner(file_an5, num_corners_an5);
 
 
 

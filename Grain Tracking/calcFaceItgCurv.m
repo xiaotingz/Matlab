@@ -14,11 +14,11 @@ function face_itgcurv = calcFaceItgCurv(file, faces, input)
 % file = file_an4;
 % faces = faces_an4;
 % ---------------------------------------------------------------
-FL = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
-triCurves =  abs(roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5)).';
-triAreas = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'),-5).';
+facelabel = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
+tri_curv =  abs(roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5)).';
+tri_area = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'),-5).';
 
-data_raw = [FL.'; triCurves.'; triAreas.'];
+data_raw = [facelabel.'; tri_curv.'; tri_area.'];
 % """
 % data_face_tmp = [label_1, label_2, area, itg_curv/area]
 % """

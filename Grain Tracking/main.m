@@ -31,8 +31,8 @@ num_cells_an5(1) = [];
 % diff = face_itg_curv_an5(face_corresp(:,2),2)./face_itg_curv_an5(face_corresp(:,2),1) - face_itg_curv_an4(face_corresp(:,1),2)./face_itg_curv_an4(face_corresp(:,1),1);
 % clear diff_tmp
 
-face_itg_curv_an4_uncrop = calcFaceItgCurv(file_an4, tracked_uniqueface_an4, 'unique_faces');
-face_itg_curv_an5_uncrop = calcFaceItgCurv(file_an5, tracked_uniqueface_an5, 'unique_faces');
+face_itg_curv_an4 = calcFaceItgCurv(file_an4, tracked_uniqueface_an4, 'unique_faces');
+face_itg_curv_an5 = calcFaceItgCurv(file_an5, tracked_uniqueface_an5, 'unique_faces');
 % diff_tmp = face_itg_curv_an5 - face_itg_curv_an4;
 % face_area_diff = diff_tmp(:,1);
 % face_itg_curv_diff = diff_tmp(:,2);
@@ -330,13 +330,13 @@ plotBinData(abs(face_area_diff), abs(diff_fc_nnfc_an4), [0, 500], [-1e4, 1e4], 2
 subplot(2,2,4)
 plotBinData(abs(face_area_diff), abs(diff_fc_nnfc_an4), [0, 500], [-1e4, 1e4], 20,'Area\_diff, \mum^2',  'C - <Cnn>', false, false)
 % ylim([1, 2.5])
-print('C-Cnn_an4 vs ItgCurvDiff', '-dpng','-r300')
+% print('C-Cnn_an4 vs ItgCurvDiff', '-dpng','-r300')
 
 
 
 %%
 subplot(2,1,1)
-plotBinData(diff_fc_nnfc_an4, face_itg_curv_diff, [-10, 10], [-1e4, 1e4], 1, 'C - <Cnn>, an4', 'Itg\_Curv\_diff, \mum', true, false)
+plotBinData(diff_fc_nnfc_an4, corner_diff, [-20, 20], [-1e4, 1e4], 1, 'C - <Cnn>, an4', '\Delta C', true, false)
 subplot(2,1,2)
-plotBinData(abs(diff_fc_nnfc_an4), face_itg_curv_diff, [0, 10], [-1e4, 1e4], 1, 'C - <Cnn>, and4', 'Itg\_Curv\_diff, \mum', false, false)
+plotBinData(abs(diff_fc_nnfc_an4), corner_diff, [0, 20], [-1e4, 1e4], 1, 'C - <Cnn>, and4', '\Delta C', false, false)
 % ylim([120,220])

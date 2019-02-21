@@ -25,12 +25,12 @@
 % ##################################################################
 clear
 
-file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311/180311_STO1470sub1_GBCD.dream3d');
-centro_file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311/180311_STO1470sub1_GBCD.dream3d');
+% % file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311/180311_STO1470sub1_GBCD.dream3d');
+% % centro_file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311/180311_STO1470sub1_GBCD.dream3d');
 X=213*0.3; Y=297*0.3; Z=40*0.3;
 % -- criterions in filterGrains: 'centroidPos' | 'touchingFS' |
 % 'numFaces' | 'NN_centoridPos' | 'NN_touchingFS'
-criterion = 'NN_touchingFS';
+criterion = 'none';
 % -- data_grid limits
 start = -80;
 width = 2;
@@ -73,7 +73,9 @@ data_raw = [facelabel; curvature_of_triangle; triangle_area_raw];
 
 %  -------------------------- get the grid bin data -------------------------- 
 data_face = calcFaceCurvature(data_raw);
+% --- grain_ForCal = [ID_ForCal, D_ForCal, NNeigh_ForCal, numEdges_ForCal] ---;
 grain_ForCal = filterGrains(criterion, facelabel, num_of_neigh, neighborList, X,Y,Z, centroids, grain_diameter_raw);
+% --- data_grain = [ID_ForCal, D_ForCal, NNeigh_ForCal, numEdges_ForCal, grain_itg_curv] ---;
 data_grain = calcGrainCurvature(data_face, grain_ForCal);
 
 %%
