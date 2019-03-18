@@ -23,16 +23,16 @@ num_cells_an5(1) = [];
 % ##### calc integral |face curvature| ##### 
 %   --- faceCurvs = [integralArea, integralCurvature] ---
 %   --- data is the order of faces_An but contain just the valid faces ---
-% face_itg_curv_an4 = calcFaceItgCurv(file_an4, faces_an4, 'all_faces');
-% face_itg_curv_an5 = calcFaceItgCurv(file_an5, faces_an5, 'all_faces');
+face_itg_curv_an4 = calcFaceItgCurv(file_an4, faces_an4, 'all_faces');
+face_itg_curv_an5 = calcFaceItgCurv(file_an5, faces_an5, 'all_faces');
 % diff_tmp = face_itg_curv_an5(face_corresp(:,2),:) - face_itg_curv_an4(face_corresp(:,1),:);
 % face_area_diff = diff_tmp(:,1);
 % face_itg_curv_diff = diff_tmp(:,2);
 % diff = face_itg_curv_an5(face_corresp(:,2),2)./face_itg_curv_an5(face_corresp(:,2),1) - face_itg_curv_an4(face_corresp(:,1),2)./face_itg_curv_an4(face_corresp(:,1),1);
 % clear diff_tmp
 
-face_itg_curv_an4 = calcFaceItgCurv(file_an4, tracked_uniqueface_an4, 'unique_faces');
-face_itg_curv_an5 = calcFaceItgCurv(file_an5, tracked_uniqueface_an5, 'unique_faces');
+% face_itg_curv_an4 = calcFaceItgCurv(file_an4, tracked_uniqueface_an4, 'unique_faces');
+% face_itg_curv_an5 = calcFaceItgCurv(file_an5, tracked_uniqueface_an5, 'unique_faces');
 % diff_tmp = face_itg_curv_an5 - face_itg_curv_an4;
 % face_area_diff = diff_tmp(:,1);
 % face_itg_curv_diff = diff_tmp(:,2);

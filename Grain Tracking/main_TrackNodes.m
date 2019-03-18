@@ -369,9 +369,10 @@ for i = 6694
 end
 
 
-
+%%
 % % ######################################## Visual Check ########################################
-% x_to_y = X_to_Y_nearest{i};
-% face_node_info = getSingleFaceNodes(tracked_uniqueface_an4(i,:), tracked_uniqueface_an5(i,:));
-% visualizeFace(face_node_info, x_to_y)
+i = 2023;
+x_to_y = X_to_Y{i};
+face_node_info = getSingleFaceNodes(tracked_uniqueface_an4(i,:), tracked_uniqueface_an5(i,:));
+visualizeFace(face_node_info, x_to_y)
 

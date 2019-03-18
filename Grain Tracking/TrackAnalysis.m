@@ -272,7 +272,7 @@ disp(['FaceLabel in An5:  [', num2str(face_id_an5(idx_an5, :)), ']', ]);
 % unique_facelabel_corresp = trackUniqueFace(unique_facelabel_an4, unique_facelabel_an5, look_up_table);
 
 
-%% ##### Record Distorted Triangles #####
+%% #################################### Record Distorted Triangles ####################################
 % ----- the objective is to check if the an5 triangles found by correspondence are distorted -----
 load('/Users/xiaotingzhong/Dropbox/grainTracking_forCluster/180822_FaceCorresp.mat');
 load('/Users/xiaotingzhong/Dropbox/grainTracking_forCluster/180822.mat');
@@ -339,7 +339,7 @@ parfor i = 1:length(tracked_uniqueface_an4)
     num_tri_minadiff30_all = num_tri_minadiff30_all + sum(min_angle_diff{i}>30);
 end
 
-%% ##### Visualization #####
+%% #################################### Visualization ####################################
 file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d');
 file_an5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
 
