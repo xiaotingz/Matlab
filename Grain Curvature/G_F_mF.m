@@ -23,7 +23,7 @@
 %         2. data_grain = [data_grain_sub1; data_grain_sub2]; 
 %         3. plot with the concatenated data_grain
 % ##################################################################
-clear
+% clear
 
 % % file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311/180311_STO1470sub1_GBCD.dream3d');
 % % centro_file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311/180311_STO1470sub1_GBCD.dream3d');
@@ -54,6 +54,10 @@ step = 80;
 % neighborList = double(h5read(file,'/VoxelDataContainer/FIELD_DATA/NeighborList'));
 % triangle_area_raw = roundn(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas'),-8).';
 
+% file = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
+centro_file = file_an5;
+file = file_an5;
+
 %  -------------------------- load data_v6 -------------------------- 
 centroids = abs(roundn(h5read(centro_file,'/DataContainers/ImageDataContainer/CellFeatureData/Centroids'),-5).');
 grain_diameter_raw = roundn(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/EquivalentDiameters'),-5).';
@@ -73,12 +77,13 @@ data_raw = [facelabel; curvature_of_triangle; triangle_area_raw];
 
 %  -------------------------- get the grid bin data -------------------------- 
 data_face = calcFaceCurvature(data_raw);
+%% 
 % --- grain_ForCal = [ID_ForCal, D_ForCal, NNeigh_ForCal, numEdges_ForCal] ---;
 grain_ForCal = filterGrains(criterion, facelabel, num_of_neigh, neighborList, X,Y,Z, centroids, grain_diameter_raw);
 % --- data_grain = [ID_ForCal, D_ForCal, NNeigh_ForCal, numEdges_ForCal, grain_itg_curv] ---;
 data_grain = calcGrainCurvature(data_face, grain_ForCal);
 
-%%
+
 ID_ForCal = data_grain(:,1);
 F_mF_diff = zeros(size(ID_ForCal));
 for i = 1 : length(ID_ForCal)

@@ -77,7 +77,8 @@ data_face = calcFaceCurvature(data_raw);
 grain_ForCal = filterGrains(criterion, facelabel, num_of_neigh, neighborList, X,Y,Z, centroids, grain_diameter_raw);
 data_grain = calcGrainCurvature(data_face, grain_ForCal);
 
-% %% -------------------------- make G from Ms -------------------------- 
+
+%% -------------------------- make G from Ms -------------------------- 
 % % data_grain = [grainId, grainDiameter, #Faces, #edges, IntegralGrainCurvature];
 % data_grain(:,5) = -data_grain(:,5)./(data_grain(:,2).*((4/3*pi)^(1/3)/2));
 %
