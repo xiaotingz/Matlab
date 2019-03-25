@@ -54,9 +54,15 @@ step = 80;
 % neighborList = double(h5read(file,'/VoxelDataContainer/FIELD_DATA/NeighborList'));
 % triangle_area_raw = roundn(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas'),-8).';
 
+<<<<<<< HEAD
 file = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
 % centro_file = file_an5;
 % file = file_an5;
+=======
+% file = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
+centro_file = file_an5;
+file = file_an5;
+>>>>>>> fae2ef75b86269f646ac36db72f899a21a1050f6
 
 %  -------------------------- load data_v6 -------------------------- 
 % centroids = abs(roundn(h5read(centro_file,'/DataContainers/ImageDataContainer/CellFeatureData/Centroids'),-5).');
@@ -83,7 +89,7 @@ grain_ForCal = filterGrains(criterion, facelabel, num_of_neigh, neighborList, X,
 % --- data_grain = [ID_ForCal, D_ForCal, NNeigh_ForCal, numEdges_ForCal, grain_itg_curv] ---;
 data_grain = calcGrainCurvature(data_face, grain_ForCal);
 
-%%
+
 ID_ForCal = data_grain(:,1);
 F_mF_diff = zeros(size(ID_ForCal));
 for i = 1 : length(ID_ForCal)

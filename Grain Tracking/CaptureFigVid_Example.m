@@ -14,7 +14,12 @@
 % ########################################################
 % Set up recording parameters (optional), and record
 OptionZ.FrameRate=20; OptionZ.Duration=8; OptionZ.Periodic=true;
+<<<<<<< HEAD
 file_name = ['mindist_corresp_', num2str(i)];
+=======
+% file_name = ['mobileCTwin_pair', num2str(idx), ''];
+file_name = 'good_example_pair_';
+>>>>>>> fae2ef75b86269f646ac36db72f899a21a1050f6
 CaptureFigVid([-20,10;-110,10;-190,80;-290,10;-380,10], file_name ,OptionZ)
 
 % CaptureFigVid([-20,10;-110,10;-190,80], file_name, OptionZ)

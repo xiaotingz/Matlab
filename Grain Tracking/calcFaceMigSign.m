@@ -215,6 +215,7 @@ end
  
 
 %% #################################### Write CSV file ####################################
+<<<<<<< HEAD
 % ------------------ identify twins and broken faces ------------------
 load('181108_rfvec', 'rfvecs_an4', 'rfvecs_an5');
 load('181107_mig_piececorresp_comb','face_piecewise')
@@ -239,6 +240,18 @@ for i = 1:length(move_left)
     fprintf(fileID, '%6d, %6d, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6d\n', is_onepiece(i), not_twin(i), ...
         data_grain_an4_diff(i,1), data_grain_an4_diff(i,2), data_grain_an4_diff(i,3), face_itgcurv_an4_left(i), ...
         face_area_an4_m_an5(i), fnnf_maxdec_r_m_l(i), fnnf_avgdec_r_m_l(i), move_left(i));
+=======
+
+
+
+fileID = fopen('190318_mig_signs.txt','w');
+fprintf(fileID,'%s ,%s, %s, %s, %s, %s, %s, %s\n','gsize_diff_an4', 'gf_diff_an4', 'g_itgcurv_diff_an4', ...
+                'face_itgcurv_an4_left', 'face_area_an4_m_an5', 'fnnf_maxdec_r_m_l', 'fnnf_avgdec_r_m_l', 'move_left');
+for i = 1:length(move_left)
+    fprintf(fileID, '%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6d\n', data_grain_an4_diff(i,1), ...
+        data_grain_an4_diff(i,2), data_grain_an4_diff(i,3), face_itgcurv_an4_left(i), face_area_an4_m_an5(i), ...
+        fnnf_maxdec_r_m_l(i), fnnf_avgdec_r_m_l(i), move_left(i));
+>>>>>>> fae2ef75b86269f646ac36db72f899a21a1050f6
 end
 fclose(fileID);
     

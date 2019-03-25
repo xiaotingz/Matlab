@@ -191,11 +191,14 @@ while need_another_cluster
     end 
 end
 
+<<<<<<< HEAD:Grain Tracking/projection/calcFaceMigBySVMPlaneProj.m
 % ################################## Multi-clusters (3) Hierachic Clustering ################################## 
 
 
 
 
+=======
+>>>>>>> fae2ef75b86269f646ac36db72f899a21a1050f6:Grain Tracking/calcFaceMigBySVMPlaneProj.m
 dist_proj_abs = abs(dist_proj_sign);
 % mig_sign = sum(dist_proj_sign)/length(dist_proj_sign);
 % mig_abs = sum(abs(dist_proj_sign))/length(dist_proj_sign);

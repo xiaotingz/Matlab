@@ -78,6 +78,27 @@ elseif nargin == 3
     for i = 1:length(x_to_y)
         if ~isnan(x_to_y(i))
             plot3([obj_node_an4(i,1), obj_node_an5(x_to_y(i),1)], [obj_node_an4(i,2), obj_node_an5(x_to_y(i),2)], [obj_node_an4(i,3), obj_node_an5(x_to_y(i),3)], 'k', 'LineWidth', 1);
+<<<<<<< HEAD:Grain Tracking/projection/visualizeFace.m
+=======
+%         text(obj_point_smooth_an4(i,1), obj_point_smooth_an4(i,2), obj_point_smooth_an4(i,3),[' ', num2str(int32(i))],'FontSize',16, 'Color', color1);
+        end
+    end
+
+% ##### In the case of node corresp by min_dist, only some nodes will have corresps #####
+elseif nargin == 3
+    obj_node_an4 = obj_face{4,1};
+    obj_node_an5 = obj_face{4,2};
+    use_an4 = corresp(:,1);
+    use_an5 = corresp(:,2);
+    obj_node_an4_use = obj_node_an4(use_an4, :);
+    obj_node_an5_use = obj_node_an5(use_an5, :);
+    scatter3(obj_node_an4_use(:,1), obj_node_an4_use(:,2), obj_node_an4_use(:,3), 20, 'filled', 'MarkerFaceColor',color1, 'MarkerEdgeColor',color1);
+    scatter3(obj_node_an5_use(:,1), obj_node_an5_use(:,2), obj_node_an5_use(:,3), 20, 'filled', 'MarkerFaceColor',color2, 'MarkerEdgeColor',color2);
+    
+    for i = 1:length(x_to_y)
+        if ~isnan(x_to_y(i))
+            plot3([obj_node_an4(i,1), obj_node_an5(x_to_y(i),1)], [obj_node_an4(i,2), obj_node_an5(x_to_y(i),2)], [obj_node_an4(i,3), obj_node_an5(x_to_y(i),3)], 'k', 'LineWidth', 1);
+>>>>>>> fae2ef75b86269f646ac36db72f899a21a1050f6:Grain Tracking/visualizeFace.m
 %         text(obj_point_smooth_an4(i,1), obj_point_smooth_an4(i,2), obj_point_smooth_an4(i,3),[' ', num2str(int32(i))],'FontSize',16, 'Color', color1);
         end
     end
