@@ -29,6 +29,7 @@ try
     %  -- remove a outer grain if its centroid is falls within 2<R> from outer frame
     elseif strcmp(criterion,'centroidPos')
         aveD_raw = sum(grain_diameter_raw) / length(grain_diameter_raw);
+%         aveD_raw = 3.33;
         for i = 1:length(centroids)
             if centroids(i,1) < aveD_raw || X - centroids(i,1) < aveD_raw
                 delete_bool(i) = 0;

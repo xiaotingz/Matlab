@@ -13,15 +13,16 @@ function [dist_proj_sign, dist_proj_abs, bad_fit, features]  = calcFaceMigBySVMP
 % Notes
 %     - This script can be compared to the other two projection methods
 %     also: MigrationByLocalNormProj.m and MigrationByPillarHeight.m
+%     - Dependencies: updateKmeansClusterAssign.m and KmeansAsNormalImproved.m
 %     - The logic is as follows: try to find some good median planes
-%     between the two   ore than one median plane would be needed if the 
-%     planes are intersecting, interwining, or curved planes. Details see 
-%     Migration Projection notes.
-%     - If too many (>10) median planes are needed, the program will break.
-%     - This script is used in calcMigrations.m, the result can be compared to 
-%     calcFaceMigByLocalNormProj.m and calcFaceMigByPillarHeight.m.
-%     - This script has two dependencies: updateKmeansClusterAssign.m and
-%     KmeansAsNormalImproved.m
+%     between the two faces and project distance between tracked node pairs
+%     onto the mediam plane. 
+%     - More than one median plane would be needed if the planes are intersecting, 
+%     interwining, or curved planes. In such cases, nodes need to be
+%     clustered and median planes are fitted within each cluster. 
+%     - Two clustering algorithms
+%       -- K-means clustering, break if too many (>10) median planes are needed.
+%       -- Hierarchic clustering, until 90% nodes clustered.
 %     - MATLAB svm paramters to play with 
 %         !!! 'BoxConstraint', 'Standardize', 'OutlierFraction' !!!         
 % ############################################################################
@@ -45,7 +46,13 @@ coord_1_corresp = features(features(:,1)==2, 3:5);
 dist_direct = vecnorm(coord_1 - coord_1_corresp, 2, 2);
 max_num_cluster = 10;
 
-% ##### Initial SVM trial #####
+% ################################## Fit First SVM Plane ##################################
+% """
+% - Good median plane is characterized as most projected migration distance 
+% should be smaller than the direct migration distance. 
+% - If one SVM median plane is not good, needs to cluster nodes and fit
+% median planes within each cluster.
+% """
 % ----- Find SVM plane -----
 X = features(:,3:5);
 Y = features(:,1);
@@ -53,10 +60,8 @@ SVMModel = fitcsvm(X, Y, 'KernelFunction', 'linear');
 normal = SVMModel.Beta;
 bias = SVMModel.Bias;
 
-% ##### Project to see if this plane is good enough #####
-% """
-% - Good median plane is characterized as most projected migration distance 
-% should be smaller than the direct migration distance.  
+% ---- Project to see if this plane is good enough -----
+% """ 
 % - Point-plane distance ref: http://mathworld.wolfram.com/Point-PlaneDistance.html
 % """
 dist_proj_1 = (sum(coord_1.*normal', 2) + bias*ones(size(coord_1, 1), 1)) ./ norm(normal);
@@ -71,7 +76,7 @@ svm_param = [];
 svm_param = [svm_param; normal', bias];
 
 
-% %% ################################## Normal Improved K-means ################################## 
+% %% ################################## Multi-clusters (1) Normal Improved K-means ################################## 
 % % """
 % % Note in each iteration, all nodes are reclustered.
 % % """
@@ -114,7 +119,7 @@ svm_param = [svm_param; normal', bias];
 % title('Weighted K-means')
 % %%
 
-% ################################## Reference: Matlab Naive K-means ################################## 
+% ################################## Multi-clusters (2) Matlab Naive K-means ################################## 
 % """
 % Note in each iteration, only nodes in the imperfect clusters will be reclustered. Nodes that
 % already found a good median plane will maintain their cluster_id. 
@@ -185,6 +190,11 @@ while need_another_cluster
         end
     end 
 end
+
+% ################################## Multi-clusters (3) Hierachic Clustering ################################## 
+
+
+
 
 dist_proj_abs = abs(dist_proj_sign);
 % mig_sign = sum(dist_proj_sign)/length(dist_proj_sign);

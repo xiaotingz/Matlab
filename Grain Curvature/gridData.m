@@ -5,15 +5,15 @@ if strcmp(xAxis, 'D')
     x_data = data_grain(:,2);
     % - Austenite & Ferrite Sample start with 0.9; STO1470 start with 0.8
     start = 0; 
-    width = max(data_grain(:,2))/50;
+    width = max(data_grain(:,2))/80;
 %     width = 0.2;
     step = ceil((max(x_data) - start)/width)+1;
-elseif strcmp(xAxis, 'numFaces')
+elseif strcmp(xAxis, 'F')
     x_data = data_grain(:,3);
     start = 0; 
     width = 1;
     step = ceil((max(x_data) - start)/width)+1;
-elseif strcmp(xAxis, 'numEdges')
+elseif strcmp(xAxis, 'E')
     x_data = data_grain(:,4);
     start = 0; 
     width = 3;

@@ -56,13 +56,17 @@ clc
 % num_of_neigh_1(1) = []; volumes_1(1) = [];
 % num_of_neigh_2(1) = []; volumes_2(1) = [];
 % ----- V6 data -----
-file_1 = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311/180311_STO1470sub1_GBCD_originCorrect.dream3d');
-file_2 = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311/180311_STO1470sub2_GBCD_originCorrect.dream3d');
+% file_1 = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311/180311_STO1470sub1_GBCD_originCorrect.dream3d');
+% file_2 = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311/180311_STO1470sub2_GBCD_originCorrect.dream3d');
+file_1 = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311_STO1470sub1_GBCD_originCorrect.dream3d');
+file_2 = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311_STO1470sub2_GBCD_originCorrect.dream3d');
+
+
 
 X1=232*0.3; Y1=129*0.3; Z1=36*0.3;
 X2=213*0.3; Y2=297*0.3; Z2=40*0.3;
 % % ---- criterion = 'centroidPos' | 'touchingFS' | 'numFaces' | 'NN_centoridPos' | 'NN_touchingFS' ----
-criterion = 'centroidPos';
+criterion = 'no';
 keyWord = 'STO1470 combined - ';
 % zeroG_F = 16;
 
@@ -107,12 +111,12 @@ plot(data_grid(:,1),data_grid(:,3),'k','LineWidth',2)
 % line([zeroG_F, zeroG_F], [0,1], 'LineStyle','--', 'color', [0.5, 0.5, 0.5])
 line([0, 100], [0.5,0.5], 'LineStyle','--', 'color', [0.5, 0.5, 0.5])
 xlabel('F','FontSize',21);
-ylabel('Volume Fraction','FontSize',21);
+ylabel('Cumulative Volume Fraction','FontSize',21);
 set(gca,'fontsize',19)
 
 [~, idx] = min(abs(data_grid(:,3)- 0.5));
 text(max(data_grid(:,1))-20, 0.53, ['cdfV=0.5 at ', num2str(data_grid(idx, 1))],'FontSize',18);
-% xlim([0, 50])
+xlim([0, 50])
 title([keyWord, criterion]);
 figureName = [keyWord, criterion];
 

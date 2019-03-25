@@ -23,22 +23,24 @@
 %         2. data_grain = [data_grain_sub1; data_grain_sub2]; 
 %         3. plot with the concatenated data_grain
 % ##################################################################
-clear
+% clear
 
 % subset1
-% file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311/180311_STO1470sub2_GBCD.dream3d');
-% centro_file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311/180311_STO1470sub2_GBCD.dream3d');
-file = ('/Users/xiaotingzhong/Desktop/Datas/SteelFinal_setTo0/problemData/Jan31_Aa0_CurvDistri10.dream3d');
-centro_file = ('/Users/xiaotingzhong/Desktop/Datas/SteelFinal_setTo0/problemData/Jan31_Aa0_CurvDistri10.dream3d');
-X=434*0.15; Y=267*0.15; Z=100*0.2;
+file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311_STO1470sub2_GBCD.dream3d');
+centro_file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311_STO1470sub2_GBCD_originCorrect.dream3d');
+% X=232*0.3; Y=129*0.3; Z=36*0.3;
+X=213*0.3; Y=297*0.3; Z=40*0.3;
+% file = ('/Users/xiaotingzhong/Desktop/Datas/SteelFinal_setTo0/problemData/Jan31_Aa0_CurvDistri10.dream3d');
+% centro_file = ('/Users/xiaotingzhong/Desktop/Datas/SteelFinal_setTo0/problemData/Jan31_Aa0_CurvDistri10.dream3d');
+% X=434*0.15; Y=267*0.15; Z=100*0.2;
 % subset2
 % file = ('/Users/xiaotingzhong/Desktop/Datas/SteelFinal_setTo0/Jan31_Fca0.dream3d');
 % centro_file = ('/Users/xiaotingzhong/Desktop/Datas/SteelFinal_setTo0/Jan31_Fca0.dream3d');
 % X=234*0.15; Y=267*0.15; Z=68*0.2;
 % -- criterions in filterGrains: 'centroidPos' | 'touchingFS' | 'numFaces'| 'NN_centoridPos' | 'NN_touchingFS'
-criterion = 'NN_centoridPos';
-% -- xAxis in gridData: 'D' | 'numFaces' | 'numEdges'
-xAxis = 'numFaces';
+criterion = 'centroidPos';
+% -- xAxis in gridData: 'D' | 'F' | 'E'
+xAxis = 'D';
 
 %  -------------------------- bounding boxes -------------------------- 
 % Austenite --- X=434*0.15; Y=267*0.15; Z=100*0.2;
@@ -50,21 +52,21 @@ xAxis = 'numFaces';
 % MNK_Ti --- X=431*0.5; Y=109*0.5; Z=104*0.3;
 
 % -------------------------- load data_v4 -------------------------- 
-centroids = roundn(h5read(centro_file,'/VoxelDataContainer/FIELD_DATA/Centroids'),-5).';
-grain_diameter_raw = roundn(h5read(centro_file,'/VoxelDataContainer/FIELD_DATA/EquivalentDiameters'),-5);
-facelabel = double(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceLabels'));
-curvature_of_triangle = h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshMeanCurvatures').';
-num_of_neigh = double(h5read(file,'/VoxelDataContainer/FIELD_DATA/NumNeighbors'));
-neighborList = double(h5read(file,'/VoxelDataContainer/FIELD_DATA/NeighborList'));
-triangle_area_raw = roundn(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas'),-8).';
+% centroids = roundn(h5read(centro_file,'/VoxelDataContainer/FIELD_DATA/Centroids'),-5).';
+% grain_diameter_raw = roundn(h5read(centro_file,'/VoxelDataContainer/FIELD_DATA/EquivalentDiameters'),-5);
+% facelabel = double(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceLabels'));
+% curvature_of_triangle = h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshMeanCurvatures').';
+% num_of_neigh = double(h5read(file,'/VoxelDataContainer/FIELD_DATA/NumNeighbors'));
+% neighborList = double(h5read(file,'/VoxelDataContainer/FIELD_DATA/NeighborList'));
+% triangle_area_raw = roundn(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas'),-8).';
 %  -------------------------- load data_v6 -------------------------- 
-% centroids = abs(roundn(h5read(centro_file,'/DataContainers/ImageDataContainer/CellFeatureData/Centroids'),-5).');
-% grain_diameter_raw = roundn(h5read(centro_file,'/DataContainers/ImageDataContainer/CellFeatureData/EquivalentDiameters'),-5).';
-% num_of_neigh = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors')).';
-% neighborList = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NeighborList'));
-% facelabel = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels'));
-% curvature_of_triangle = h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures');
-% triangle_area_raw = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'),-8);
+centroids = abs(roundn(h5read(centro_file,'/DataContainers/ImageDataContainer/CellFeatureData/Centroids'),-5).');
+grain_diameter_raw = roundn(h5read(centro_file,'/DataContainers/ImageDataContainer/CellFeatureData/EquivalentDiameters'),-5).';
+num_of_neigh = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors')).';
+neighborList = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NeighborList'));
+facelabel = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels'));
+curvature_of_triangle = h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures');
+triangle_area_raw = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'),-8);
 
 centroids(1,:) = [];
 grain_diameter_raw(1) = [];
@@ -83,6 +85,7 @@ data_grain = calcGrainCurvature(data_face, grain_ForCal);
 % data_grain(:,5) = -data_grain(:,5)./(data_grain(:,2).*((4/3*pi)^(1/3)/2));
 %
 %  -------------------------- plot average bin data & the standard deviations -------------------------- 
+xAxis = 'D';
 data_grid = gridData(xAxis, data_grain);
 scatter(data_grid(:,3),data_grid(:,4),50,'filled','o','k');
 % -- plot line: standard mean deviation
@@ -95,17 +98,22 @@ for i = 1:length(data_grid)
 end
 
 %  -------------------------- plot parameters -------------------------- 
-if strcmp (xAxis, 'numFaces')
+if strcmp (xAxis, 'F')
     ax = gca;
     % ax.XTick = [0:5:40];
     xlabel('F','FontSize',21);
-%     xlim([0,40]);
-%     ylim([-40,10]);
+    xlim([0,40]);
+    ylim([-40,10]);
     % text(0.55,-26,'(a)','FontWeight','bold','FontSize',30)
     line([0,max(data_grain(:,3))+50],[0,0],'LineStyle','--', 'Color',[0.5 0.5 0.5])
 elseif strcmp (xAxis, 'D')
     ax = gca;
-    % ax.XTick = [0:5:40];
+    xlim([0, 10]);
+    ylim([-70,10]);
+    set(gca,'xTick',0:2:10);
+%     xticklabels({'0', '2', '4', '6', '8', '10'});
+
+    xticks([0:3:15]);
     xlabel('D (\mum)','FontSize',21);
     % text(0.55,-26,'(a)','FontWeight','bold','FontSize',30)
     line([0,max(data_grain(:,2))+3],[0,0],'LineStyle','--', 'Color',[0.5 0.5 0.5])
@@ -139,6 +147,7 @@ ylabel('M_{S} (\mum)','FontSize',21);
 % disable tick on top and right of the box
     % get handle to current axes
 a = gca;
+set(a,'xTick',0:2:10);
     % set box property to off and remove background color
 set(a,'box','off','color','none')
     % create new, empty axes with box but without ticks

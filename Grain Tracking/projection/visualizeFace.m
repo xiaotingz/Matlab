@@ -45,10 +45,20 @@ rotate3d on
 if nargin == 2
     obj_node_an4 = obj_face{4,1};
     obj_node_an5 = obj_face{4,2};
-    scatter3(obj_node_an4(:,1), obj_node_an4(:,2), obj_node_an4(:,3), 20, 'filled', 'MarkerFaceColor',color1, 'MarkerEdgeColor',color1);
-    scatter3(obj_node_an5(:,1), obj_node_an5(:,2), obj_node_an5(:,3), 20, 'filled', 'MarkerFaceColor',color2, 'MarkerEdgeColor',color2);
+    if any(isnan(x_to_y)) || ismember(0, x_to_y)
+        obj_node_an4_use = obj_node_an4(~isnan(x_to_y), :);
+        obj_node_an4_use = obj_node_an4_use((x_to_y ~= 0), :);
+        node_id_an5 = setdiff(unique(x_to_y), 0);
+        node_id_an5 = node_id_an5(~isnan(node_id_an5));
+        obj_node_an5_use = obj_node_an5(node_id_an5, :);
+    else
+        obj_node_an4_use = obj_node_an4;
+        obj_node_an5_use = obj_node_an5;
+    end
+    scatter3(obj_node_an4_use(:,1), obj_node_an4_use(:,2), obj_node_an4_use(:,3), 20, 'filled', 'MarkerFaceColor',color1, 'MarkerEdgeColor',color1);
+    scatter3(obj_node_an5_use(:,1), obj_node_an5_use(:,2), obj_node_an5_use(:,3), 20, 'filled', 'MarkerFaceColor',color2, 'MarkerEdgeColor',color2);
     for i = 1:length(x_to_y)
-        if ~isnan(x_to_y(i))
+        if ~isnan(x_to_y(i)) && x_to_y(i)~= 0 
             plot3([obj_node_an4(i,1), obj_node_an5(x_to_y(i),1)], [obj_node_an4(i,2), obj_node_an5(x_to_y(i),2)], [obj_node_an4(i,3), obj_node_an5(x_to_y(i),3)], 'k', 'LineWidth', 1);
 %         text(obj_point_smooth_an4(i,1), obj_point_smooth_an4(i,2), obj_point_smooth_an4(i,3),[' ', num2str(int32(i))],'FontSize',16, 'Color', color1);
         end

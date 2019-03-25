@@ -54,18 +54,18 @@ step = 80;
 % neighborList = double(h5read(file,'/VoxelDataContainer/FIELD_DATA/NeighborList'));
 % triangle_area_raw = roundn(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas'),-8).';
 
-% file = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
-centro_file = file_an5;
-file = file_an5;
+file = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
+% centro_file = file_an5;
+% file = file_an5;
 
 %  -------------------------- load data_v6 -------------------------- 
-centroids = abs(roundn(h5read(centro_file,'/DataContainers/ImageDataContainer/CellFeatureData/Centroids'),-5).');
-grain_diameter_raw = roundn(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/EquivalentDiameters'),-5).';
+% centroids = abs(roundn(h5read(centro_file,'/DataContainers/ImageDataContainer/CellFeatureData/Centroids'),-5).');
+% grain_diameter_raw = roundn(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/EquivalentDiameters'),-5).';
 num_of_neigh = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors')).';
 neighborList = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NeighborList'));
-facelabel = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels'));
-curvature_of_triangle = h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures');
-triangle_area_raw = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'),-8);
+% facelabel = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels'));
+% curvature_of_triangle = h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures');
+% triangle_area_raw = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'),-8);
 % surfGrains = logical(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures'));
 
 % surfGrains(1) = [];
@@ -83,7 +83,7 @@ grain_ForCal = filterGrains(criterion, facelabel, num_of_neigh, neighborList, X,
 % --- data_grain = [ID_ForCal, D_ForCal, NNeigh_ForCal, numEdges_ForCal, grain_itg_curv] ---;
 data_grain = calcGrainCurvature(data_face, grain_ForCal);
 
-
+%%
 ID_ForCal = data_grain(:,1);
 F_mF_diff = zeros(size(ID_ForCal));
 for i = 1 : length(ID_ForCal)
@@ -100,8 +100,22 @@ end
 
 curv_FmF = [F_mF_diff, data_grain(:,5)./(data_grain(:,2).*((4/3*pi)^(1/3)/2))];
 
+%% ------------------------------ filter STO data ------------------------------
+% load(G_FmF_STO1470_allGrains.mat)
+% load(data_grain_STO1470combined_thresCentroid.mat)
+curv_FmF_1 = curv_FmF(1:720, :);
+curv_FmF_2 = curv_FmF(721:end, :);
+curv_FmF_1 = curv_FmF_1(data_grain(1:134, 1), :);
+curv_FmF_2 = curv_FmF_2(data_grain(135:end, 1), :);
+curv_FmF = [curv_FmF_1; curv_FmF_2];
+
+%%
 scatter(curv_FmF(:,1),curv_FmF(:,2),10,[0.5,0.5,0.5],'filled');
 hold on
+
+start = -80;
+width = 1;
+step = 160;
 
 data_grid = zeros(step,3);
 cnt = 0;

@@ -10,70 +10,66 @@
 %                 One possible refine is to sample a set of evenly
 %                 distributed nodes instead of using all nodes
 % % ############################################################################
-% file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d');
-% file_an5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
-% load('look_up_table_an4_an5.mat')
-% facelabel_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
-% facelabel_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
-% tri_normal_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceNormals'))';
-% tri_normal_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceNormals'))';
-%     % -- NOTE triNodes are indexes starting from zero 
-% tri_node_an4 = 1 + double(h5read(file_an4,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList'))';
-% tri_node_an5 = 1 + double(h5read(file_an5,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList'))';
-% node_coord_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedVertexList'))';
-% node_coord_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedVertexList'))';
-% mask_inner_an4 = all(facelabel_an4 > 0, 2);
-% mask_inner_an5 = all(facelabel_an5 > 0, 2);
-% facelabel_an4 = facelabel_an4(mask_inner_an4, :);
-% facelabel_an5 = facelabel_an5(mask_inner_an5, :);
-% facelabel_an4 = sort(facelabel_an4, 2);
-% facelabel_an5 = sort(facelabel_an5, 2);
-% tri_node_an4 = tri_node_an4(mask_inner_an4, :);
-% tri_node_an5 = tri_node_an5(mask_inner_an5, :);
-% tri_normal_an4 = tri_normal_an4(mask_inner_an4, :);
-% tri_normal_an5 = tri_normal_an5(mask_inner_an5, :);
-% 
-% % --- tracked_unique_face = trackUniqueFace(file_an4, file_an5, look_up_table, complete) ---
-% [tracked_uniqueface_an4, tracked_uniqueface_an5] = trackUniqueFace(file_an4, file_an5, look_up_table, 1);
-% n = length(tracked_uniqueface_an);
-% % X_to_Y = cell(n,1);
-% % Y_to_X = cell(n,1);
+file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d');
+file_an5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
+load('look_up_table_an4_an5.mat')
+facelabel_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
+facelabel_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
+tri_normal_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceNormals'))';
+tri_normal_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceNormals'))';
+    % -- NOTE triNodes are indexes starting from zero 
+tri_node_an4 = 1 + double(h5read(file_an4,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList'))';
+tri_node_an5 = 1 + double(h5read(file_an5,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList'))';
+node_coord_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedVertexList'))';
+node_coord_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedVertexList'))';
+mask_inner_an4 = all(facelabel_an4 > 0, 2);
+mask_inner_an5 = all(facelabel_an5 > 0, 2);
+facelabel_an4 = facelabel_an4(mask_inner_an4, :);
+facelabel_an5 = facelabel_an5(mask_inner_an5, :);
+facelabel_an4 = sort(facelabel_an4, 2);
+facelabel_an5 = sort(facelabel_an5, 2);
+tri_node_an4 = tri_node_an4(mask_inner_an4, :);
+tri_node_an5 = tri_node_an5(mask_inner_an5, :);
+tri_normal_an4 = tri_normal_an4(mask_inner_an4, :);
+tri_normal_an5 = tri_normal_an5(mask_inner_an5, :);
 
-% %% ############################################################################
+% --- tracked_unique_face = trackUniqueFace(file_an4, file_an5, look_up_table, complete) ---
+[tracked_uniqueface_an4, tracked_uniqueface_an5] = trackUniqueFace(file_an4, file_an5, look_up_table, 1);
+n = length(tracked_uniqueface_an4);
+X_to_Y = cell(n,1);
+Y_to_X = cell(n,1);
+
+%% ############################################################################
 % (1) Dicret Corresp
 % % ############################################################################
-% %% ##### (1.1) Corresp of The Small Faces #####
-% large_face_id = [];
-% for i = 1:length(tracked_uniqueface_an4)
-%     obj_facelabel_an4 = tracked_uniqueface_an4(i, :);
-%     obj_facelabel_an5 = tracked_uniqueface_an5(i, :);
-%     
-%     % ##### Get Objective Triangles on the Objective Face #####
-%     mask_objface_an4 = (facelabel_an4(:,1) == obj_facelabel_an4(1) & facelabel_an4(:,2) == obj_facelabel_an4(2));
-%     mask_objface_an5 = (facelabel_an5(:,1) == obj_facelabel_an5(1) & facelabel_an5(:,2) == obj_facelabel_an5(2));
-% 
-%     % ##### Get Id and Coord of the Objective Triangles #####
-%     face_tri_nodeid_an4 = tri_node_an4(mask_objface_an4, :);
-%     face_unique_nodeid_an4 = unique(face_tri_nodeid_an4);
-%     face_node_coord_an4 = face_node_coord_an4(face_unique_nodeid_an4,:);
-%     face_tri_nodeid_an5 = tri_node_an5(mask_objface_an5, :);
-%     face_unique_nodeid_an5 = unique(face_tri_nodeid_an5);
-%     face_node_coord_an5 = face_node_coord_an5(face_unique_nodeid_an5,:);
-%     
-%     if (length(face_unique_nodeid_an4) < 1000) && (length(face_unique_nodeid_an5) < 1000)
-%         [x_to_y, y_to_x] = solveNodeCorresp(face_node_coord_an4, face_node_coord_an5);
-%         X_to_Y{i} = int32(x_to_y);
-%         Y_to_X{i} = int32(y_to_x)';
-%     else 
-%         large_face_id = [large_face_id, i];
-%         X_to_Y{i} = NaN;
-%         Y_to_X{i} = NaN;
-%     end
-%     disp(['small faces: ', num2str(i), '/7004']);
-% end
-% save('180820_smallFaces.mat', 'X_to_Y', 'Y_to_X', 'large_id');
-% 
-% 
+%% ##### (1.1) Corresp of The Small Faces #####
+n = length(tracked_uniqueface_an4);
+X_to_Y = cell(n,1);
+
+facelabel_an4 = sort(facelabel_an4, 2);
+facelabel_an5 = sort(facelabel_an5, 2);
+
+large_face_id = [];
+parfor i = 1:length(tracked_uniqueface_an4)
+    % ##### Get Objective Triangles on the Objective Face #####
+    mask_objface_an4 = (facelabel_an4(:,1) == tracked_uniqueface_an4(i, 1) & facelabel_an4(:,2) == tracked_uniqueface_an4(i, 2));
+    mask_objface_an5 = (facelabel_an5(:,1) == tracked_uniqueface_an5(i, 1) & facelabel_an5(:,2) == tracked_uniqueface_an5(i, 2));
+
+    % ##### Get Id and Coord of the Objective Triangles #####
+    face_tri_nodeid_an4 = tri_node_an4(mask_objface_an4, :);
+    face_unique_nodeid_an4 = unique(face_tri_nodeid_an4);
+    face_node_coord_an4 = node_coord_an4(face_unique_nodeid_an4,:);
+    face_tri_nodeid_an5 = tri_node_an5(mask_objface_an5, :);
+    face_unique_nodeid_an5 = unique(face_tri_nodeid_an5);
+    face_node_coord_an5 = node_coord_an5(face_unique_nodeid_an5,:);
+    
+    X_to_Y{i} = int32(solveNodeCorresp_Nearest(face_node_coord_an4, face_node_coord_an5));
+
+    disp(['processing: ', num2str(i), '/7004']);
+end
+save('190322_nearestMatch.mat', 'X_to_Y');
+
+
 % %% ##### (1.2) Corresp of The Large Faces #####
 % for i = 1:length(large_face_id)
 %     idx = large_face_id(i);
@@ -137,17 +133,18 @@ tri_area_an4 = tri_area_an4(mask_an4, :);
 tri_area_an5 = tri_area_an5(mask_an5, :);
 
 n = length(tracked_uniqueface_an4);
-X_to_Y = cell(n,1);
-corresp_localid = cell(n,1);
-corresp_globalid = cell(n,1);
+X_to_Y_nearest = cell(n,2);
+corresp_localid_nearest = cell(n,2);
+corresp_globalid_nearest = cell(n,2);
 
-mig_svm_proj = zeros(n, 3);
-mig_normal_proj = zeros(n, 4);
+mig_svm_proj_nearest = zeros(n, 3);
+mig_normal_proj_nearest = zeros(n, 4);
 %%
 % load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/181107.mat')
 
 % parpool(8)
-for i = 6694
+for i = 6
+    i = 6;
     disp(i)
     
     obj_facelabel_an4 = tracked_uniqueface_an4(i, :);
@@ -175,7 +172,7 @@ for i = 6694
     facetri_area_an5 = tri_area_an5(mask_an5, :);
     facenode_id_an5 = unique(facetri_nodeid_an5);
     facenode_coord_an5 = node_coord_an5(facenode_id_an5,:);
-
+%%
     % ##### Find Disconnected Subgraphs and Solve Subgraph Correp #####
     [subgraph_id_an4, subgraph_id_an5] = findSubgraph(facenode_id_an4, facenode_id_an5, facetri_nodeid_an4, facetri_nodeid_an5);
     subgraph_nodeid_local_an4 = (1:length(subgraph_id_an4))';
@@ -213,9 +210,9 @@ for i = 6694
     if length(unique(subgraph_id_an4)) == 1 && length(unique(subgraph_id_an5)) == 1
         % ----- Solve node corresp -----
         [x_to_y, y_to_x] = solveNodeCorresp(facenode_coord_an4, facenode_coord_an5);
-        X_to_Y{i} = int32(x_to_y);
-        corresp_localid{i} = int32([subgraph_nodeid_local_an4, subgraph_nodeid_local_an5(x_to_y)]);
-        corresp_globalid{i} = int32([facenode_id_an4, facenode_id_an5(x_to_y)]);
+        X_to_Y_nearest{i} = int32(x_to_y);
+        corresp_localid_nearest{i} = int32([subgraph_nodeid_local_an4, subgraph_nodeid_local_an5(x_to_y)]);
+        corresp_globalid_nearest{i} = int32([facenode_id_an4, facenode_id_an5(x_to_y)]);
         
         % ----- Calculate migration distance -----
          % ##### calculate normal of a node as the average of all its resident triangles' nomral #####
@@ -256,8 +253,8 @@ for i = 6694
         mig_2_sign_avg = sum(mig_2_sign)/length(mig_2_sign);
         mig_1_abs_avg = sum(abs(mig_1_abs))/length(mig_1_abs);
         mig_2_abs_avg = sum(abs(mig_2_abs))/length(mig_2_abs);
-        mig_svm_proj(i, :) = [mig_svm_sign_avg, mig_svm_abs_avg, bad_fit];
-        mig_normal_proj(i, :)  = [mig_1_sign_avg, mig_2_sign_avg, mig_1_abs_avg, mig_2_abs_avg];
+        mig_svm_proj_nearest(i, :) = [mig_svm_sign_avg, mig_svm_abs_avg, bad_fit];
+        mig_normal_proj_nearest(i, :)  = [mig_1_sign_avg, mig_2_sign_avg, mig_1_abs_avg, mig_2_abs_avg];
         
     
     % ##################################### If Multiple-pieces  #####################################
@@ -348,9 +345,9 @@ for i = 6694
         end
         
         % ----- average migration for the piece-wise face -----
-        X_to_Y{i} = X_to_Y_tmp;
-        corresp_localid{i} = corresp_localid_tmp;
-        corresp_globalid{i} = corresp_globalid_tmp;
+        X_to_Y_nearest{i} = X_to_Y_tmp;
+        corresp_localid_nearest{i} = corresp_localid_tmp;
+        corresp_globalid_nearest{i} = corresp_globalid_tmp;
         
         % ----- average migration for the piece-wise face -----
         mig_svm_sign_avg = sum(mig_svm_sign)/length(mig_svm_sign);
@@ -359,20 +356,17 @@ for i = 6694
         mig_2_sign_avg = sum(mig_2_sign)/length(mig_2_sign);
         mig_1_abs_avg = sum(abs(mig_1_abs))/length(mig_1_abs);
         mig_2_abs_avg = sum(abs(mig_2_abs))/length(mig_2_abs);
-        mig_svm_proj(i, :) = [mig_svm_sign_avg, mig_svm_abs_avg, bad_fit];
-        mig_normal_proj(i, :)  = [mig_1_sign_avg, mig_2_sign_avg, mig_1_abs_avg, mig_2_abs_avg];
+        mig_svm_proj_nearest(i, :) = [mig_svm_sign_avg, mig_svm_abs_avg, bad_fit];
+        mig_normal_proj_nearest(i, :)  = [mig_1_sign_avg, mig_2_sign_avg, mig_1_abs_avg, mig_2_abs_avg];
 
         % ----- Record id of the piece_wise faces-----
 %         face_piecewise = [face_piecewise, i, max(subgraph_id_an4), max(subgraph_id_an5)];
     end
     
 end
-
-
 %%
-% % ######################################## Visual Check ########################################
-i = 2023;
-x_to_y = X_to_Y{i};
-face_node_info = getSingleFaceNodes(tracked_uniqueface_an4(i,:), tracked_uniqueface_an5(i,:));
+% x_to_y = solveNodeCorresp_Nearest(facenode_coord_an4, facenode_coord_an5);
+face_node_info = getSingleFaceNodes(obj_facelabel_an4, obj_facelabel_an5);
 visualizeFace(face_node_info, x_to_y)
+
 

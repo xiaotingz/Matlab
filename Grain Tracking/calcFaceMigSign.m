@@ -215,16 +215,30 @@ end
  
 
 %% #################################### Write CSV file ####################################
+% ------------------ identify twins and broken faces ------------------
+load('181108_rfvec', 'rfvecs_an4', 'rfvecs_an5');
+load('181107_mig_piececorresp_comb','face_piecewise')
 
+is_onepiece = ones(size(tracked_uniqueface_an4, 1), 1);
+is_onepiece(face_piecewise) = 0;
 
+not_twin = ones(size(tracked_uniqueface_an4, 1), 1);
+rfvec_twin = [1,1,1]/norm([1,1,1]) * tand(60/2);
+eps_twin = 0.05;
+for i = 1:length(rfvecs_an4)
+    if norm(rfvecs_an4(i,:) - rfvec_twin) < eps_twin || norm(rfvecs_an5(i,:) - rfvec_twin) < eps_twin
+        not_twin(i) = 0;
+    end
+end
 
+% ------------------ write file ------------------
 fileID = fopen('190318_mig_signs.txt','w');
-fprintf(fileID,'%s ,%s, %s, %s, %s, %s, %s, %s\n','gsize_diff_an4', 'gf_diff_an4', 'g_itgcurv_diff_an4', ...
+fprintf(fileID,'%s ,%s, %s ,%s, %s, %s, %s, %s, %s, %s\n','is_onepiece', 'not_twin', 'gsize_diff_an4', 'gf_diff_an4', 'g_itgcurv_diff_an4', ...
                 'face_itgcurv_an4_left', 'face_area_an4_m_an5', 'fnnf_maxdec_r_m_l', 'fnnf_avgdec_r_m_l', 'move_left');
 for i = 1:length(move_left)
-    fprintf(fileID, '%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6d\n', data_grain_an4_diff(i,1), ...
-        data_grain_an4_diff(i,2), data_grain_an4_diff(i,3), face_itgcurv_an4_left(i), face_area_an4_m_an5(i), ...
-        fnnf_maxdec_r_m_l(i), fnnf_avgdec_r_m_l(i), move_left(i));
+    fprintf(fileID, '%6d, %6d, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6d\n', is_onepiece(i), not_twin(i), ...
+        data_grain_an4_diff(i,1), data_grain_an4_diff(i,2), data_grain_an4_diff(i,3), face_itgcurv_an4_left(i), ...
+        face_area_an4_m_an5(i), fnnf_maxdec_r_m_l(i), fnnf_avgdec_r_m_l(i), move_left(i));
 end
 fclose(fileID);
     

@@ -72,3 +72,58 @@ fclose('all');
 
 
 
+
+%% ################################ Combining triangles in two volumes ################################ 
+file_1 = '/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311_STO1470sub1_GBCD.dream3d';
+file_2 = '/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311_STO1470sub2_GBCD.dream3d';
+
+EA_1 = h5read(file_1, '/DataContainers/ImageDataContainer/CellFeatureData/AvgEulerAngles').';
+EA_2 = h5read(file_2, '/DataContainers/ImageDataContainer/CellFeatureData/AvgEulerAngles').';
+EA_1(1, :) = [];
+EA_2(1, :) = [];
+
+fl_1 = h5read(file_1, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels').';
+normal_1 = h5read(file_1, '/DataContainers/TriangleDataContainer/FaceData/FaceNormals').';
+area_1 = h5read(file_1, '/DataContainers/TriangleDataContainer/FaceData/FaceAreas').';
+curv_1 = abs(h5read(file_1, '/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures').');
+fl_2 = h5read(file_2, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels').';
+normal_2 = h5read(file_2, '/DataContainers/TriangleDataContainer/FaceData/FaceNormals').';
+area_2 = h5read(file_2, '/DataContainers/TriangleDataContainer/FaceData/FaceAreas').';
+curv_2 = abs(h5read(file_2, '/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures').');
+
+mask = all(fl_1 > 0, 2) & curv_1 < 100;
+fl_1 = fl_1(mask, :);
+normal_1 = normal_1(mask, :);
+area_1 = area_1(mask, :);
+curv_1 = curv_1(mask, :);
+mask = all(fl_2 > 0, 2) & curv_2 < 100;
+fl_2 = fl_2(mask, :);
+normal_2 = normal_2(mask, :);
+area_2 = area_2(mask, :);
+curv_2 = curv_2(mask, :);
+
+format = '%7.4f    %7.4f    %7.4f    %7.4f    %7.4f  %7.4f  %7.4f  %7.4f  %7.4f   %7.4f   %7.4f\n';
+fileID = fopen('STO_GBHDtris_combined.txt','w');
+for i = 1:length(fl_1)
+    g1 = fl_1(i, 1);
+    g2 = fl_1(i, 2);
+    fprintf(fileID, format, EA_1(g1, 1),EA_1(g1, 2),EA_1(g1, 3),EA_1(g2, 1),EA_1(g2, 2),EA_1(g2, 3), ...
+            normal_1(i, 1), normal_1(i, 2), normal_1(i, 3), area_1(i), curv_1(i));
+end
+
+for i = 1:length(fl_2)
+    g1 = fl_2(i, 1);
+    g2 = fl_2(i, 2);
+    fprintf(fileID, format, EA_2(g1, 1),EA_2(g1, 2),EA_2(g1, 3),EA_2(g2, 1),EA_2(g2, 2),EA_2(g2, 3), ...
+            normal_2(i, 1), normal_2(i, 2), normal_2(i, 3), area_2(i), curv_2(i));
+end
+fclose(fileID);
+
+
+
+
+
+
+
+
+

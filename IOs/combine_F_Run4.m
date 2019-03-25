@@ -4,6 +4,7 @@ clear
 Ferrite_1 = ('/Users/xiaotingzhong/Desktop/Datas/SteelFinal_setTo0/Jan31_F_Run4_CurvDistri10.dream3d');
 Run4_2 = ('/Users/xiaotingzhong/Desktop/Datas/SteelFinal_setTo0/Jan31_Fca0_curDistri10.dream3d');
 
+
 CurvDistri1 = h5read(Ferrite_1,'/SurfaceMeshDataContainer/ENSEMBLE_DATA/GBCD');
 Counter1 = h5read(Ferrite_1,'/SurfaceMeshDataContainer/ENSEMBLE_DATA/GBCDCounters');
 CurvDistri2 = h5read(Run4_2,'/SurfaceMeshDataContainer/ENSEMBLE_DATA/GBCD');
