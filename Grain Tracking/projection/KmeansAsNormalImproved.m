@@ -1,4 +1,4 @@
-function [features, cluster_id_new] = KmeansAsNormalImproved(features, num_cluster, tri_node_1, tri_node_2)
+function [features, cluster_id_new] = KmeansAsNormalImproved(features, mask_to_cluster, num_cluster, tri_node_1, tri_node_2)
 % ############################################################################
 % NOTES
 %   - This function is to be used in calcFaceMigBySVMPlaneProj.m
@@ -9,10 +9,29 @@ function [features, cluster_id_new] = KmeansAsNormalImproved(features, num_clust
 % ############################################################################
 max_kmeans_loop = 1000;
 
+% ############################### Pepare tri_node_clusterid and the part of features that needs re-cluster ###############################
+nodeid_to_clusterid_1 = containers.Map(features(features(:,1) == 1, 2), features(features(:,1) == 1, end));
+nodeid_to_clusterid_2 = containers.Map(features(features(:,1) == 2, 2), features(features(:,1) == 2, end));
+tri_node_clusterid_1 = zeros(size(tri_node_1));
+tri_node_clusterid_2 = zeros(size(tri_node_2));
+for j = 1:size(tri_node_1, 1)
+    for l = 1:3
+        tri_node_clusterid_1(j, l) = nodeid_to_clusterid_1(tri_node_1(j, l));
+    end
+end
+for j = 1:size(tri_node_2, 1)
+    for l = 1:3
+        tri_node_clusterid_2(j, l) = nodeid_to_clusterid_2(tri_node_2(j, l));
+    end
+end
+
+features = features(mask_to_cluster, :);
+nodes_recluster_1 = features(features(:,1)==1, 2);
+nodes_recluster_2 = features(features(:,1)==2, 2);
 m = sum(features(:,1) == 1);
 n = sum(features(:,1) == 2);
 
-% ----- Kmeans++, Initialize cluster centers -----
+% ############################### Kmeans++, Initialize cluster centers ###############################
 % """
 % ref: https://www.mathworks.com/help/stats/kmeans.html#bueftl4-1
 % """
@@ -33,15 +52,36 @@ if num_cluster > 2
     end
 end
 
-% ----- Cluster nodes by Kmeans -----
+% ############################### Cluster nodes by Kmeans ###############################
 kmeans_not_converge = true;
 num_loop = 1;
 while kmeans_not_converge 
     % ----- Update cluster assignment -----
     cluster_id_old = features(:, end);
-    cluster_id_new = updateKmeansClusterAssign(cluster_center, features, tri_node_1, tri_node_2);
+    cluster_id_new = updateKmeansClusterAssign(cluster_center, features, tri_node_1, tri_node_2, tri_node_clusterid_1, tri_node_clusterid_2);
     features(:, end) = cluster_id_new;
-
+    
+    % ----- Update tri_node_cluster_id -----
+    % """
+    % For connectivity problem and eroding in updateKmeansClusterAssign
+    % """
+    nodeid_to_clusterid_1 = containers.Map(nodes_recluster_1, cluster_id_new(features(:,1) == 1));
+    nodeid_to_clusterid_2 = containers.Map(nodes_recluster_2, cluster_id_new(features(:,1) == 2));
+    for i = 1:size(tri_node_1, 1)
+        for j = 1:3
+            if ismember( tri_node_1(i, j), nodes_recluster_1 )
+                tri_node_clusterid_1(i, j) = nodeid_to_clusterid_1(tri_node_1(i, j));
+            end
+        end
+    end
+    for i = 1:1:size(tri_node_2, 1)
+        for j = 1:3
+            if ismember( tri_node_2(i, j), nodes_recluster_2 )
+                tri_node_clusterid_2(i, j) = nodeid_to_clusterid_2(tri_node_2(i, j));
+            end
+        end
+    end
+        
     % ----- Update cluster centers -----
     % """
     % notice the first two columns of cluster center are meaningless

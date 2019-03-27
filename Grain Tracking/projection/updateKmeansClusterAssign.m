@@ -1,4 +1,4 @@
-function cluster_id_new = updateKmeansClusterAssign(cluster_center, feature_member, tri_node_1, tri_node_2)
+function cluster_id_new = updateKmeansClusterAssign(cluster_center, feature_member, tri_node_1, tri_node_2, tri_node_clusterid_1, tri_node_clusterid_2)
 % ############################################################################
 % * Input 
 %     - feature_obj = [n, 9]
@@ -80,23 +80,28 @@ for i = 1:2
     % """
     if i == 1
         tri_node = tri_node_1;
+        tri_node_clusterid = tri_node_clusterid_1;
+        nodes_id_tocluster = feature_member(feature_member(:,1)==1, 2);
     else
         tri_node = tri_node_2;
+        tri_node_clusterid = tri_node_clusterid_2;
+        nodes_id_tocluster = feature_member(feature_member(:,1)==2, 2);
     end
     mask_face = (feature_member(:,1) == i);
     nodeid_local = (1:size(feature_member, 1))';
     nodeid_to_clusterid = containers.Map(feature_member(mask_face, 2), cluster_id_new(mask_face));
     nodeid_to_local = containers.Map(feature_member(mask_face, 2), nodeid_local(mask_face));
-    tri_node_clusterid = zeros(size(tri_node));
     tri_nodeid_local = zeros(size(tri_node));
     for j = 1:size(tri_node, 1)
         for l = 1:3
-            tri_node_clusterid(j, l) = nodeid_to_clusterid(tri_node(j, l));
-            tri_nodeid_local(j, l) = nodeid_to_local(tri_node(j, l));
+            if ismember(tri_node(j, l), nodes_id_tocluster)
+                tri_node_clusterid(j, l) = nodeid_to_clusterid(tri_node(j, l));
+                tri_nodeid_local(j, l) = nodeid_to_local(tri_node(j, l));
+            end
         end
     end
     mask_candidates = (tri_node_clusterid(:,1) + tri_node_clusterid(:,2) ~= 2*tri_node_clusterid(:,3));
-    cand_localid = unique(tri_nodeid_local(mask_candidates, :));
+    cand_localid = setdiff(unique(tri_nodeid_local(mask_candidates, :)), 0);
     
     % ----- Order the candidates by their distance to cluster center ----- 
     cand_coord = feature_member(cand_localid, 3:5);
@@ -106,6 +111,7 @@ for i = 1:2
     
     % ----- Do the erosion ----- 
     % """
+    % Start from nodes close to cluster center. 
     % Within the neighborhood of the node, if no more than 2 nodes share
     % the same clusterid with it, erode its cluster id to be its neighbors'
     % """
@@ -113,10 +119,9 @@ for i = 1:2
         node_id = cand_localid(idx_dist_ordered(j));
         node_clusterid = cluster_id_new(node_id);
         mask_node_connect = any(tri_nodeid_local == node_id, 2);
-        node_neigh_id = unique(tri_nodeid_local(mask_node_connect, :));
-        neigh_clusterid = cluster_id_new(node_neigh_id);
+        neigh_clusterid = tri_node_clusterid(mask_node_connect, :);
         if ( sum(neigh_clusterid == node_clusterid) < 3 )
-            cluster_id_new(node_id) = mode(neigh_clusterid);
+            cluster_id_new(node_id) = mode(neigh_clusterid(:));
         end
     end
     
