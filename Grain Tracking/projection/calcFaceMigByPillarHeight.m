@@ -1,7 +1,7 @@
 function [dist_proj_abs, dist_proj_sign, fit_ratio] = calcFaceMigByPillarHeight(features, eps_min_angle, x_to_y, tri_node_1, y_to_x, tri_node_2)
 % ############################################################################
 % Input
-%     - features = [n+n', 9], [face_id, node_id, coordinates, normals, cluster_id] 
+%     - features = [n+n', 10], [face_id, node_id, coordinates, normals, curves, cluster_id] 
 %         including nodes of both faces
 %     - x_to_y = [n, 1], a mapping from nodes_1 to nodes_2
 %         this is to calculate direct node_pair_distance, for determining good median planes.

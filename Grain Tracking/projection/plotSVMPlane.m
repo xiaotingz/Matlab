@@ -1,4 +1,4 @@
-function plotSVMPlane(features, face_tri_node_1, face_tri_node_2, x_to_y, normal, bias, x_range, y_range, scale, color)
+function plotSVMPlane(features, face_tri_node_1, face_tri_node_2, x_to_y, median_plane_info)
 % ############################################################################
 % NOTES
 %   - use together with visualizeFace.m, plotTriNormals.m, calcFaceMigBySVMPlaneProj.m
@@ -7,16 +7,14 @@ function plotSVMPlane(features, face_tri_node_1, face_tri_node_2, x_to_y, normal
 %         To plot several SVM planes, given input = [features]
 % Inputs
 %   Either
-%   - features = [n, 9], [face_id, node_id, coordinates, normals, cluster_id]
-%       see calcFaceMigBySVMPlaneProj.m
-%   - face_tri_node_ = [m, 3], node_ids on face triangles
-%   - x_to_y = [m, 1], returned by solveNodeCorresp.m
-%   Or
-%   - normal = [3, 1], the plane normal direction
-%   - bias, scalar, the bias term
-%   - x_range, [2, 1], [x_min, x_max]
-%   - y_range, [2, 1], [y_min, y_max]
-%   - scale, the scale for the plane normal arrow
+%   - features = [n+n', 9]
+%         [face_id, node_id, coordinates, normals, cluster_id], see main_distProjections.m
+%   - face_tri_node_ = [m, 3], 
+%         node_ids on face triangles
+%   - x_to_y = [n, 1]
+%         returned by solveNodeCorresp.m
+%   - median_plane_info = [k, 5]
+%         [cluster_id, normal, bias]
 % ############################################################################
 % ------------------ load data for debug --------------------
 % normal = SVMModel.Beta;

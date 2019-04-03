@@ -1,7 +1,7 @@
 function [mig_1_abs, mig_2_abs, mig_1_sign, mig_2_sign] = calcFaceMigByLocalNormProj(features, x_to_y)
 % ############################################################################
 % Input
-%     - features = [n+n', 9], [face_id, node_id, coordinates, normals, cluster_id] 
+%     - features = [n+n', 10], [face_id, node_id, coordinates, normals, curves, cluster_id] 
 %         see calcMigration.m for details
 % Output
 %     - mig_normal_proj = [mig_1_sign, mig_2_sign, mig_1_abs, mig_2_abs]

@@ -8,8 +8,8 @@
 % % ############################################################################
 
 load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/180822.mat', 'tracked_uniqueface_an4', 'tracked_uniqueface_an5');
-load('180822_FaceCorresp.mat', 'X_to_Y');
-load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/face_piecewise.mat', 'face_piecewise');
+load('/Volumes/XIAOTING/Ni/190328/180822_FaceCorresp.mat', 'X_to_Y', 'Y_to_X')
+load('/Volumes/XIAOTING/Ni/190328/181107_mig_piececorresp_comb.mat', 'face_onepiece')
 file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d');
 file_an5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
 
@@ -18,6 +18,8 @@ facelabel_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/Fa
 facelabel_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
 tri_normal_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceNormals'))';
 tri_normal_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceNormals'))';
+tri_curv_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'))';
+tri_curv_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'))';
 tri_area_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'))';
 tri_area_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'))';
     % -- NOTE triNodes are indexes starting from zero --
@@ -34,6 +36,8 @@ tri_node_an4 = tri_node_an4(mask_an4, :);
 tri_node_an5 = tri_node_an5(mask_an5, :);
 tri_normal_an4 = tri_normal_an4(mask_an4, :);
 tri_normal_an5 = tri_normal_an5(mask_an5, :);
+tri_curv_an4 = tri_curv_an4(mask_an4, :);
+tri_curv_an5 = tri_curv_an5(mask_an5, :);
 tri_area_an4 = tri_area_an4(mask_an4, :);
 tri_area_an5 = tri_area_an5(mask_an5, :);
 
@@ -41,24 +45,33 @@ n = length(tracked_uniqueface_an4);
 corresp_localid = cell(n,1);
 corresp_globalid = cell(n,1);
 
+clear mask_an4 mask_an5
 %%
-% load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/181107.mat')
+% load('/Volumes/XIAOTING/Ni/190328/181107.mat')
 % % X_to_Y = X_to_Y_nearest; clear X_to_Y_nearest;
-% load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/180822_FaceCorresp.mat', 'X_to_Y', 'Y_to_X')
-% load('/Users/xiaotingzhong/Documents/Matlab/Grain Tracking/data/181107_mig_piececorresp_comb.mat', 'face_onepiece')
-% eps = 0.2;
+% load('/Volumes/XIAOTING/Ni/190328/180822_FaceCorresp.mat', 'X_to_Y', 'Y_to_X')
+% load('/Volumes/XIAOTING/Ni/190328/181107_mig_piececorresp_comb.mat', 'face_onepiece')
+% load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/181107.mat');
+% load('/Users/xiaotingzhong/Documents/Matlab/Grain Tracking/data/180822_FaceCorresp.mat', 'X_to_Y', 'Y_to_X');
+% load('/Users/xiaotingzhong/Documents/Matlab/Grain Tracking/data/181107_mig_piececorresp_comb.mat', 'face_onepiece');
+eps = 0.2;
 
 % tracked_uniqueface_an4 = tracked_uniqueface_an4(face_onepiece,:);
 % tracked_uniqueface_an5 = tracked_uniqueface_an5(face_onepiece,:);
-% 
+% X_to_Y = X_to_Y(face_onepiece);
+% Y_to_X = Y_to_X(face_onepiece);
+
+
+n = length(tracked_uniqueface_an4);
 mig_localnorm_proj = zeros(n, 4);
-mig_svm_proj = zeros(n, 2);
+mig_svm_proj_naivekmeans = zeros(n, 2);
+mig_svm_proj_improve = zeros(n, 2);
 mig_lr_proj = zeros(n, 2);
 mig_pillar_proj = zeros(n, 3);
 
 % ###################################### Distance Projection ######################################
 % parfor i = 1:size(tracked_uniqueface_an4,1)
-    i = 654;
+    i = 886;
     disp(['working on pair ', num2str(i)]);
     obj_facelabel_an4 = tracked_uniqueface_an4(i, :);
     obj_facelabel_an5 = tracked_uniqueface_an5(i, :);
@@ -76,12 +89,16 @@ mig_pillar_proj = zeros(n, 3);
     facetri_nodeid_an4 = tri_node_an4(mask_an4, :);
     facetri_normal_an4 = tri_normal_an4(mask_an4, :);
     facetri_normal_an4(mask_reverse_an4, :) = - facetri_normal_an4(mask_reverse_an4, :);
+    facetri_curv_an4 = tri_curv_an4(mask_an4, :);
+    facetri_curv_an4(mask_reverse_an4, :) = - facetri_curv_an4(mask_reverse_an4, :);
     facetri_area_an4 = tri_area_an4(mask_an4, :);
     facenode_id_an4 = unique(facetri_nodeid_an4);
     facenode_coord_an4 = node_coord_an4(facenode_id_an4,:);
     facetri_nodeid_an5 = tri_node_an5(mask_an5, :);
     facetri_normal_an5 = tri_normal_an5(mask_an5, :);
     facetri_normal_an5(mask_reverse_an5, :) = - facetri_normal_an5(mask_reverse_an5, :);
+    facetri_curv_an5 = tri_curv_an5(mask_an5, :);
+    facetri_curv_an5(mask_reverse_an5, :) = - facetri_curv_an5(mask_reverse_an5, :);
     facetri_area_an5 = tri_area_an5(mask_an5, :);
     facenode_id_an5 = unique(facetri_nodeid_an5);
     facenode_coord_an5 = node_coord_an5(facenode_id_an5,:);
@@ -104,7 +121,9 @@ mig_pillar_proj = zeros(n, 3);
         
         % ----- Calculate normal of a node as the average of all its resident triangles' nomral -----
         normal_an4 = zeros(length(facenode_coord_an4), 3);
+        curv_an4 =  zeros(length(facenode_coord_an4), 1);
         normal_an5 = zeros(length(facenode_coord_an5), 3);
+        curv_an5 =  zeros(length(facenode_coord_an5), 1);
         for j = 1:length(facenode_id_an4)
             mask = any(facetri_nodeid_an4 == facenode_id_an4(j), 2);
             normal_tmp = facetri_normal_an4(mask, :);
@@ -112,6 +131,7 @@ mig_pillar_proj = zeros(n, 3);
                 normal_tmp = sum(normal_tmp);
             end
             normal_an4(j,:) = normal_tmp/norm(normal_tmp);
+            curv_an4(j) = sum(facetri_curv_an4(mask, :)) / sum(mask);
         end
         for j = 1:length(facenode_id_an5)
             mask = any(facetri_nodeid_an5 == facenode_id_an5(j), 2);
@@ -120,28 +140,32 @@ mig_pillar_proj = zeros(n, 3);
                 normal_tmp = sum(normal_tmp);
             end
             normal_an5(j,:) = normal_tmp/norm(normal_tmp);
+            curv_an5(j) = sum(facetri_curv_an5(mask, :)) / sum(mask);
         end
         
         % ----- Calculate migration distance -----
         m = length(facenode_id_an4);
         n = length(facenode_id_an5);
         features = [[ones(m, 1); 2*ones(n, 1)], [facenode_id_an4; facenode_id_an5], ...
-            [facenode_coord_an4; facenode_coord_an5], [normal_an4; normal_an5], ones(m+n, 1)];
+            [facenode_coord_an4; facenode_coord_an5], [normal_an4; normal_an5], [curv_an4; curv_an5], ones(m+n, 1)];
+        %%
         [mig_1_abs, mig_2_abs, mig_1_sign, mig_2_sign] = calcFaceMigByLocalNormProj(features, x_to_y);
         mig_localnorm_proj(i, :) = [mig_1_abs, mig_2_abs, mig_1_sign, mig_2_sign];
         [mig_pillar_abs, mig_pillar_sign, fit_ratio] = calcFaceMigByPillarHeight(features, 10, x_to_y, facetri_nodeid_an4, y_to_x, facetri_nodeid_an5);
         mig_pillar_proj(i, :) = [mig_pillar_abs, mig_pillar_sign, fit_ratio];
-        [mig_svm_abs, mig_svm_sign, ~] = calcFaceMigBySVMPlaneProj(features, 0.2, x_to_y);
-        mig_svm_proj(i, :) =  [mig_svm_abs, mig_svm_sign];
-        [mig_lr_abs, mig_lr_sign, ~] = calcFaceMigByLinearRegPlaneProj(features, 0.1, x_to_y);
+        [mig_svm_abs_naive, mig_svm_sign_naive, features_svm_naive, svm_plane_info_naive] = calcFaceMigBySVMPlaneProj(features, 0.2, x_to_y);
+        mig_svm_proj_naivekmeans(i, :) =  [mig_svm_abs_naive, mig_svm_sign_naive];
+        [mig_svm_abs, mig_svm_sign, features_svm, svm_plane_info] = calcFaceMigBySVMPlaneProj(features, 0.2, x_to_y, facetri_nodeid_an4, facetri_nodeid_an5);
+        mig_svm_proj_improve(i, :) =  [mig_svm_abs, mig_svm_sign];
+        [mig_lr_abs, mig_lr_sign, features_lr, lr_plane_info] = calcFaceMigByLinearRegPlaneProj(features, 0.2, x_to_y);
         mig_lr_proj(i, :) = [mig_lr_abs, mig_lr_sign];
         
         disp('migration_abs: ');
-        disp(['norm_1 = ', num2str(mig_1_abs), ', norm_2 = ',  num2str(mig_2_abs), ...
-            ', svm = ', num2str(mig_svm_abs), ', lr = ', num2str(mig_lr_abs), ', pillar = ', num2str(mig_pillar_abs)]);
+        disp(['norm_1 = ', num2str(mig_1_abs), ', norm_2 = ',  num2str(mig_2_abs), ', svm_naive = ', num2str(mig_svm_abs_naive), ...
+            ', svm_improve = ', num2str(mig_svm_abs), ', lr = ', num2str(mig_lr_abs), ', pillar = ', num2str(mig_pillar_abs)]);
         disp('migration_sign: ');
-        disp(['norm_1 = ', num2str(mig_1_sign), ', norm_2 = ',  num2str(mig_2_sign), ...
-            ', svm = ', num2str(mig_svm_sign), ', lr = ', num2str(mig_lr_sign), ', pillar = ', num2str(mig_pillar_sign)]);
+        disp(['norm_1 = ', num2str(mig_1_sign), ', norm_2 = ',  num2str(mig_2_sign), ', svm_naive = ', num2str(mig_svm_sign_naive), ...
+            ', svm_improve = ', num2str(mig_svm_sign), ', lr = ', num2str(mig_lr_sign), ', pillar = ', num2str(mig_pillar_sign)]);
         
 %     % ---------------------------------------- If Multiple-pieces ---------------------------------------- 
 %     else

@@ -11,3 +11,6 @@ sum(mig_abs) / length(mig_abs)
 
 
 
+
+
+
