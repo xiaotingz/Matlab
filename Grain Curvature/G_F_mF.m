@@ -54,24 +54,21 @@ step = 80;
 % neighborList = double(h5read(file,'/VoxelDataContainer/FIELD_DATA/NeighborList'));
 % triangle_area_raw = roundn(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas'),-8).';
 
-<<<<<<< HEAD
 file = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
 % centro_file = file_an5;
 % file = file_an5;
-=======
 % file = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
-centro_file = file_an5;
-file = file_an5;
->>>>>>> fae2ef75b86269f646ac36db72f899a21a1050f6
+centro_file = file_an4;
+file = file_an4;
 
 %  -------------------------- load data_v6 -------------------------- 
-% centroids = abs(roundn(h5read(centro_file,'/DataContainers/ImageDataContainer/CellFeatureData/Centroids'),-5).');
-% grain_diameter_raw = roundn(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/EquivalentDiameters'),-5).';
+centroids = abs(roundn(h5read(centro_file,'/DataContainers/ImageDataContainer/CellFeatureData/Centroids'),-5).');
+grain_diameter_raw = roundn(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/EquivalentDiameters'),-5).';
 num_of_neigh = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors')).';
 neighborList = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NeighborList'));
-% facelabel = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels'));
-% curvature_of_triangle = h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures');
-% triangle_area_raw = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'),-8);
+facelabel = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels'));
+curvature_of_triangle = h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures');
+triangle_area_raw = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'),-8);
 % surfGrains = logical(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures'));
 
 % surfGrains(1) = [];
@@ -143,11 +140,12 @@ for i = 1:step
     cnt = 0;
 end
 data_grid(data_grid(:,3) <= 3,:) = [];
-scatter(data_grid(:,1), data_grid(:,2), 'r', 'filled', 's')
+scatter(data_grid(:,1), data_grid(:,2), 60, 'r', 'filled', 's')
 % start = -20;
 % width = 1;
 % step = 40;
-
+xlim([-25, 25])
+ylim([-8,8])
 
 xlabel('F - <F_{NN}>','FontSize',21)
 ylabel('$\mathcal{G''}$','Interpreter','latex','FontSize',21);

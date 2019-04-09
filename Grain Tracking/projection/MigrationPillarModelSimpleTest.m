@@ -50,6 +50,7 @@ migration_project = sum(tri_migration_project)/length(tri_migration);
 % ##### Migration by individual volume/surface_area #####
 node_coord_an4 = [x, y, z]; 
 node_coord_an5 = [x, y, -z];
+% node_coord_an5 = [x, y, zeros(size(x, 1), 1)];
 
 migration_trunctedcone_seps = zeros(size(tri, 1), 1);
 area1 = 0;
@@ -58,26 +59,26 @@ v = 0;
 for i = 1:length(migration_trunctedcone_seps)
     tri_top = node_coord_an4(tri(i, :), :);
     tri_bottom = node_coord_an5(tri(i, :), :);
-    DT = delaunayTriangulation([tri_top; tri_bottom]);
-    [C, v_tmp] = convexHull(DT);
-    area1_tmp = calcArea(tri_top);
-    area2_tmp = calcArea(tri_bottom);
-    migration_trunctedcone_seps(i) = heightUsingTruncatedConeModel(area1_tmp, area2_tmp, v_tmp);
-    v= v + v_tmp;
-    area1 = area1 + area1_tmp;
-    area2 = area2 + area2_tmp;
+%     DT = delaunayTriangulation([tri_top; tri_bottom]);
+%     [C, v_tmp] = convexHull(DT);
+%     area1_tmp = calcArea(tri_top);
+%     area2_tmp = calcArea(tri_bottom);
+%     migration_trunctedcone_seps(i) = heightUsingTruncatedConeModel(area1_tmp, area2_tmp, v_tmp);
+    migration_trunctedcone_seps(i) = calcHeightTruncatedConeModel(tri_top, tri_bottom);
+%     v= v + v_tmp;
+%     area1 = area1 + area1_tmp;
+%     area2 = area2 + area2_tmp;
 end
 migration_trunctedcone_sep = sum(migration_trunctedcone_seps)/length(migration_trunctedcone_seps);
-
+migration_trunctedcone_sep
 
 % ##### Migration by entire volume/surface_area #####
-migration_trunctedcone_itg = heightUsingTruncatedConeModel(area1, area2, v);
+% migration_trunctedcone_itg = heightUsingTruncatedConeModel(area1, area2, v);
 
 % ----- the volume by convex hull is actually larger than the real volume -----
 % DT = delaunayTriangulation([x_full, y_full, z_full]);
 % [C, v] = convexHull(DT);
 % trisurf(C,DT.Points(:,1),DT.Points(:,2),DT.Points(:,3), 'Facecolor', [0.4660, 0.6740, 0.1880], 'edgecolor', 'k');
-
 
 
 % ##### Visualize Mesh #####
@@ -94,6 +95,23 @@ trisurf(tri, node_coord_an5(:,1), node_coord_an5(:,2), node_coord_an5(:,3), 'Fac
 % idx = 573;
 % plot3([x(idx), x(idx)], [y(idx), y(idx)], [0, z(idx)], 'k', 'LineWidth', 1);
 
+
+% ######################################### Test calcFaceMigByPillarHeight #########################################
+% """
+% Test the function by faking the data and see if the results returned by the
+% function matches the calculation by the simple model.
+% """
+features = ones(size(node_coord_an4, 1)*2, 10);
+features(size(node_coord_an4, 1)+1 : end, 1) = 2; 
+features(:, 3:5) = [node_coord_an4; node_coord_an5];
+eps_min_angle = 0;
+x_to_y = (1:size(node_coord_an4, 1))';
+y_to_x = (1:size(node_coord_an4, 1))';
+features(:,2) = [x_to_y; x_to_y];
+tri_node_1 = tri;
+tri_node_2 = tri;
+[dist_proj_abs, dist_proj_sign, fit_ratio] = calcFaceMigByPillarHeight(features, eps_min_angle, x_to_y, tri_node_1, y_to_x, tri_node_2);
+dist_proj_abs
 
 %% ############################################################################
 % Simple Examples 2). Shrinkage and Expansion

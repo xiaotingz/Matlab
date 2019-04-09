@@ -18,6 +18,7 @@ function [dist_proj_abs, dist_proj_sign, fit_ratio] = calcFaceMigByPillarHeight(
 %     - fit_ratio
 %        fit_ratio % of the triangles contributed to the pillar height model.
 % Notes
+%     - Test see MigrationPillarModelSimpleTest.m
 %     - Usually, working from small face towards large face, or working from large toward small
 %       , is not important since the distances would be similar so is just a scaling factor.
 %       However, it's should work from large face towards small face in this pillar model, 
@@ -41,31 +42,30 @@ mask_on_face1 = (features(:,1)==1);
 mask_on_face2 = (features(:,1)==2);
 node_id_global_1 = features(mask_on_face1, 2);
 node_id_global_2 = features(mask_on_face2, 2);
-map_1_local = containers.Map(node_id_global_1, (1:length(x_to_y)));
-map_2_local = containers.Map(node_id_global_2, (1:length(y_to_x)));
-map_1_corresp = containers.Map(node_id_global_1, x_to_y);
-map_2_corresp = containers.Map(node_id_global_2, y_to_x);
-tri_node_1_corresp = zeros(size(tri_node_1));
-for i = 1:size(tri_node_1, 1)
-    for j = 1:3
-        tri_node_1_corresp(i,j) = map_1_corresp(tri_node_1(i,j));
-        tri_node_1(i,j) = map_1_local(tri_node_1(i,j));
-    end
+if min(x_to_y) == 0
+    mask_tracked = (x_to_y > 0);
+    x_to_y = x_to_y(mask_tracked);
+    node_id_global_1 = node_id_global_1(mask_tracked);
+    mask_tri = all(ismember(tri_node_1, node_id_global_1), 2);
+    tri_node_1 = tri_node_1(mask_tri, :);
 end
-tri_node_2_corresp = zeros(size(tri_node_2));
-for i = 1:size(tri_node_2, 1)
-    for j = 1:3
-        tri_node_2_corresp(i,j) = map_2_corresp(tri_node_2(i,j));
-        tri_node_2(i,j) = map_2_local(tri_node_2(i,j));
-    end
-end
-
 
 %  -----------------  working from an4 to an5  -----------------
 if nargin == 4 || ( nargin == 6 && length(x_to_y) >= length(y_to_x) )
+    map_1_local = containers.Map(node_id_global_1, (1:length(x_to_y)));
+    map_1_corresp = containers.Map(node_id_global_1, x_to_y);
+    tri_node_1_corresp = zeros(size(tri_node_1));
+    for i = 1:size(tri_node_1, 1)
+        for j = 1:3
+            tri_node_1_corresp(i,j) = map_1_corresp(tri_node_1(i,j));
+            tri_node_1(i,j) = map_1_local(tri_node_1(i,j));
+        end
+    end
+
     tri_node = tri_node_1;
     tri_node_corresp = tri_node_1_corresp;
     coords = features(mask_on_face1, 3:5);
+    curvs = features(mask_on_face1, 9);
     coords_other = features(mask_on_face2, 3:5);
     normals = features(mask_on_face1, 6:8);
     num_tris = size(tri_node, 1);
@@ -77,9 +77,20 @@ if nargin == 4 || ( nargin == 6 && length(x_to_y) >= length(y_to_x) )
 
 %  -----------------  working from an5 to an4  -----------------
 else
+    map_2_local = containers.Map(node_id_global_2, (1:length(y_to_x)));
+    map_2_corresp = containers.Map(node_id_global_2, y_to_x);
+    tri_node_2_corresp = zeros(size(tri_node_2));
+    for i = 1:size(tri_node_2, 1)
+        for j = 1:3
+            tri_node_2_corresp(i,j) = map_2_corresp(tri_node_2(i,j));
+            tri_node_2(i,j) = map_2_local(tri_node_2(i,j));
+        end
+    end
+
     tri_node = tri_node_2;
     tri_node_corresp = tri_node_2_corresp;
     coords = features(mask_on_face2, 3:5);
+    curvs = features(mask_on_face2, 9);
     coords_other = features(mask_on_face1, 3:5);
     normals = features(mask_on_face2, 6:8);
     num_tris = size(tri_node, 1);
@@ -114,16 +125,15 @@ for i = 1:size(tri_node, 1)
         mig_avgvec = sum(tri_coords - tri_coords_corresp)/3;
         normal_avg = sum(normals(tri_node(i,:),:))/3;
         ang_diff = abs( atan2d(norm(cross(mig_avgvec,normal_avg)), dot(mig_avgvec,normal_avg)) );
-        if ang_diff < 90
-            dist_proj_sign = dist_proj_sign + h;
-        else
-            dist_proj_sign = dist_proj_sign - h;
-        end
+        move_along_normal = sign(ang_diff - 90);
+        is_convex = sign(sum(curvs(tri_node(i,:))));
+        sign_proj = move_along_normal * is_convex;
+        dist_proj_sign = dist_proj_sign + sign_proj*h;
     end
 end
 
 dist_proj_abs = dist_proj_abs / num_good_pillars;
-dist_proj_sign = abs(dist_proj_sign) / num_good_pillars;
+dist_proj_sign = dist_proj_sign / num_good_pillars;
 fit_ratio = num_good_pillars / num_tris;
 
 

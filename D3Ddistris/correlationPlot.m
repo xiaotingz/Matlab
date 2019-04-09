@@ -3,8 +3,9 @@
 % ###############################################################
 % There are 36 copies for each bin in the reduced zone. 
 % Set default thres = 3*36
-% obj = GBCD_GBCurvD;
-objName = 'GBCD_energy';
+
+obj = energy_GBCurvD;
+objName = 'energy_GBCurvD';
 thres = 36*3;
 
 x = obj(:,1);

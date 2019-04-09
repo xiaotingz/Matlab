@@ -53,7 +53,9 @@ trisurf(tri_connect_1, node_coords_1(:,1), node_coords_1(:,2), node_coords_1(:,3
 trisurf(tri_connect_2, node_coords_2(:,1), node_coords_2(:,2), node_coords_2(:,3),'Facecolor',colors(3,:), 'Facealpha', 0.3, 'edgealpha', 0.3);
 rotate3d on
 for i = 1:length(x_to_y)
-    plot3([node_coords_1(i,1), node_coords_2(x_to_y(i),1)], [node_coords_1(i,2), node_coords_2(x_to_y(i),2)], [node_coords_1(i,3), node_coords_2(x_to_y(i),3)], 'k', 'LineWidth', 1);
+    if x_to_y(i) > 0
+        plot3([node_coords_1(i,1), node_coords_2(x_to_y(i),1)], [node_coords_1(i,2), node_coords_2(x_to_y(i),2)], [node_coords_1(i,3), node_coords_2(x_to_y(i),3)], 'k', 'LineWidth', 1);
+    end
 end
 
 % ##### Plot SVM plane #####

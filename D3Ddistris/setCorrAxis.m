@@ -1,21 +1,26 @@
 function [xlabelName, ylabelName] = setCorrAxis(objName)
     if strcmp(objName, 'energy_GBCD')
-        xlabelName = 'Grain Boundary Energy (a.u.)';
-        ylabelName = 'Relative Grain Boundary Area (MRD)';
+%         xlabelName = 'Grain Boundary Energy (a.u.)';
+%         ylabelName = 'Relative Grain Boundary Area (MRD)';
+        xlabelName = 'Energy Range (r.u.)';
+        ylabelName = 'Average Population (MRD)';
+    elseif strcmp(objName, 'energy_ln_GBCD')
+        xlabelName = 'Energy Range (r.u.)';
+        ylabelName = 'Ln(Average Population, MRD)';
     elseif strcmp(objName, 'GBCD_energy')
-        xlabelName = 'Relative Grain Boundary Area (MRD)';
-        ylabelName = 'Grain Boundary Energy (a.u.)';
+        xlabelName = 'Average Population (MRD)';
+        ylabelName = 'Energy Range (r.u.)';
     elseif strcmp(objName, 'GBCD_GBCurvD')
-        xlabelName = 'Relative Grain Boundary Area (MRD)';
-        ylabelName = 'Grain Boundary Curvature (\mum^{-1})';
+        xlabelName = 'Average Population (MRD)';
+        ylabelName = 'Average Mean Curvature (\mum^{-1})';
     elseif strcmp(objName, 'GBCD_GBCurvD')
-        xlabelName = 'Grain Boundary Curvature (\mum^{-1})';
-        ylabelName = 'Relative Grain Boundary Area (MRD)';
+        xlabelName = 'Average Mean Curvature (\mum^{-1})';
+        ylabelName = 'Average Population (MRD)';
     elseif strcmp(objName, 'GBCurvD_energy')
-        xlabelName = 'Grain Boundary Curvature (\mum^{-1})';
-        ylabelName = 'Grain Boundary Energy (a.u.)';
+        xlabelName = 'Average Mean Curvature (\mum^{-1})';
+        ylabelName = 'Energy Range (r.u.)';
     elseif strcmp(objName, 'energy_GBCurvD')
-        xlabelName = 'Grain Boundary Energy (a.u.)';
-        ylabelName = 'Grain Boundary Curvature (\mum^{-1})';
+        xlabelName = 'Energy Range (r.u.)';
+        ylabelName = 'Average Mean Curvature (\mum^{-1})';
     end
 end

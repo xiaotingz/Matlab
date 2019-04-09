@@ -58,55 +58,55 @@ if nargin == 4
         plot3([node_coords_1(i,1), node_coords_2(x_to_y(i),1)], [node_coords_1(i,2), node_coords_2(x_to_y(i),2)], [node_coords_1(i,3), node_coords_2(x_to_y(i),3)], 'k', 'LineWidth', 1);
     end
 
-    % ##### Plot SVM plane #####
-    % --- limite the plot range --- 
-    x_limscale = 0.05*(max(features(:,3)) - min(features(:,3)));
-    y_limscale = 0.05*(max(features(:,4)) - min(features(:,4)));
-    z_limscale = 0.05*(max(features(:,5)) - min(features(:,5)));
-    xlim([min(features(:,3)) - x_limscale, max(features(:,3)) + x_limscale]);
-    ylim([min(features(:,4)) - y_limscale, max(features(:,4)) + y_limscale]);
-    zlim([min(features(:,5)) - z_limscale, max(features(:,5)) + z_limscale]);
-    
-    % --- plot all clusters --- 
-    for i = 1:max(features(:,end))
-        % --- if a cluster includes no more than 4 nodes, ignore this cluster ---
-        if sum( features(:,end) == i ) <= 4
-            continue
-        else
-            color = colors(3+i, :);
-
-            % --- color nodes according to its cluster --- 
-            scatter3(features(features(:,end)==i, 3), features(features(:,end)==i, 4), features(features(:,end)==i, 5), ...
-                80, 'filled', 'MarkerFaceColor',color, 'MarkerEdgeColor',color)
-
-            % --- fit SVM plane within cluster --- 
-            mask_cluster_i = (features(:, end) == i);
-            X = features(mask_cluster_i, 3:5);
-            Y = features(mask_cluster_i, 1);
-            % """
-            % paramters: 'BoxConstraint', 'Standardize', 'OutlierFraction'       
-            % """        
-            svm_model = fitcsvm(X, Y,'KernelFunction','linear');
-            normal = svm_model.Beta;
-            bias = svm_model.Bias;
-%             normal = [0.3101, -0.1153, -0.9437];
-%             bias = 122.9822;
-
-            % --- prepare to plot SVM plane  --- 
-            x_range = [min(X(:,1)), max(X(:,1))];
-            y_range = [min(X(:,2)), max(X(:,2))];
-            [xx,yy]=ndgrid(x_range(1) : (x_range(2) - x_range(1))/2 : x_range(2), y_range(1) : (y_range(2) - y_range(1))/2 : y_range(2));
-                % --- calculate corresponding z: Ax + By + Cz + D = 0  --- 
-            z = (-normal(1)*xx - normal(2)*yy - bias)/normal(3);
-            scale = ceil(max(sum(features(:,1)==1), sum(features(:,1)==2))/100);
-            scale = min(scale, 6);
-
-            % --- plot the SVM seperation plane and plane normal--- 
-            surf(xx,yy,z, 'FaceColor', color, 'EdgeColor', color, 'FaceAlpha', 0.3, 'EdgeAlpha', 0.3);
-            idx = 2;
-            quiver3(xx(idx)+0.1, yy(idx), z(idx), normal(1), normal(2), normal(3), scale, 'color', color,  'LineWidth', 3, 'MaxHeadSize', 3);
-            quiver3(xx(idx)+0.1, yy(idx), z(idx), -normal(1), -normal(2), -normal(3), scale, 'color', color, 'LineWidth', 3,'MaxHeadSize', 3);
-        end
+%     % ##### Plot SVM plane #####
+%     % --- limite the plot range --- 
+%     x_limscale = 0.05*(max(features(:,3)) - min(features(:,3)));
+%     y_limscale = 0.05*(max(features(:,4)) - min(features(:,4)));
+%     z_limscale = 0.05*(max(features(:,5)) - min(features(:,5)));
+%     xlim([min(features(:,3)) - x_limscale, max(features(:,3)) + x_limscale]);
+%     ylim([min(features(:,4)) - y_limscale, max(features(:,4)) + y_limscale]);
+%     zlim([min(features(:,5)) - z_limscale, max(features(:,5)) + z_limscale]);
+%     
+%     % --- plot all clusters --- 
+%     for i = 1:max(features(:,end))
+%         % --- if a cluster includes no more than 4 nodes, ignore this cluster ---
+%         if sum( features(:,end) == i ) <= 4
+%             continue
+%         else
+%             color = colors(3+i, :);
+% 
+%             % --- color nodes according to its cluster --- 
+%             scatter3(features(features(:,end)==i, 3), features(features(:,end)==i, 4), features(features(:,end)==i, 5), ...
+%                 80, 'filled', 'MarkerFaceColor',color, 'MarkerEdgeColor',color)
+% 
+%             % --- fit SVM plane within cluster --- 
+%             mask_cluster_i = (features(:, end) == i);
+%             X = features(mask_cluster_i, 3:5);
+%             Y = features(mask_cluster_i, 1);
+%             % """
+%             % paramters: 'BoxConstraint', 'Standardize', 'OutlierFraction'       
+%             % """        
+%             svm_model = fitcsvm(X, Y,'KernelFunction','linear');
+%             normal = svm_model.Beta;
+%             bias = svm_model.Bias;
+% %             normal = [0.3101, -0.1153, -0.9437];
+% %             bias = 122.9822;
+% 
+%             % --- prepare to plot SVM plane  --- 
+%             x_range = [min(X(:,1)), max(X(:,1))];
+%             y_range = [min(X(:,2)), max(X(:,2))];
+%             [xx,yy]=ndgrid(x_range(1) : (x_range(2) - x_range(1))/2 : x_range(2), y_range(1) : (y_range(2) - y_range(1))/2 : y_range(2));
+%                 % --- calculate corresponding z: Ax + By + Cz + D = 0  --- 
+%             z = (-normal(1)*xx - normal(2)*yy - bias)/normal(3);
+%             scale = ceil(max(sum(features(:,1)==1), sum(features(:,1)==2))/100);
+%             scale = min(scale, 6);
+% 
+%             % --- plot the SVM seperation plane and plane normal--- 
+%             surf(xx,yy,z, 'FaceColor', color, 'EdgeColor', color, 'FaceAlpha', 0.3, 'EdgeAlpha', 0.3);
+%             idx = 2;
+%             quiver3(xx(idx)+0.1, yy(idx), z(idx), normal(1), normal(2), normal(3), scale, 'color', color,  'LineWidth', 3, 'MaxHeadSize', 3);
+%             quiver3(xx(idx)+0.1, yy(idx), z(idx), -normal(1), -normal(2), -normal(3), scale, 'color', color, 'LineWidth', 3,'MaxHeadSize', 3);
+%         end
     end
     
 

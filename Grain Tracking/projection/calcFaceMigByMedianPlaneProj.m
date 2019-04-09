@@ -1,6 +1,6 @@
-% function [mig_proj_abs, mig_proj_sign, features, median_plane_info]  = calcFaceMigByMedianPlaneProj(features, eps, x_to_y, ...
-%               tri_node_1, tri_node_2, kmeans, classify_algorithm, effective_nodes)
-% 
+function [mig_proj_abs, mig_proj_sign, features, median_plane_info]  = calcFaceMigByMedianPlaneProj(features, eps, x_to_y, ...
+              tri_node_1, tri_node_2, kmeans_method, classify_algorithm)
+% % 
 % ############################################################################
 % Input
 %     - features = [n+n', 10], [face_id, node_id, coordinates, normals, curves, cluster_id] 
@@ -12,9 +12,7 @@
 %         'naive' | 'improve'
 %             'improve' means normal improved kmeans, may help SVM but probably won't affect LR
 %     - classify_algorithm
-%         'SVM' | 'LR' (Linear Regression)
-%     - effective_nodes
-%         'all' | 'tracked'
+%         'svm' | 'lr' (Linear Regression)
 % Output
 %     - dist_proj_sign & dist_proj_abs
 %         If interwining shouldn't be considered as migration, use
@@ -38,32 +36,64 @@
 %     - MATLAB svm paramters to play with 
 %         !!! 'BoxConstraint', 'Standardize', 'OutlierFraction' !!!         
 % ############################################################################
-% ----------------------- load debug data -----------------------
-% load('181004_SVMcurv_pair1674')
-eps = 0.2;
-kmeans = 'naive';
-classify_algorithm = 'SVM';
-effective_nodes = 'all';
-% ---------------------------------------------------------------
+% % ----------------------- load debug data -----------------------
+% eps = 0.2;
+% kmeans_method = 'naive';
+% classify_algorithm = 'lr';
+% effective_nodes = 'all';
+% tri_node_1 = facetri_nodeid_an4;
+% tri_node_2 = facetri_nodeid_an5;
+% % ---------------------------------------------------------------
 
 % ##### Prepare to Start #####
-max_kmeans_loop = 1000;
+% """
+% The point using tracked nodes only is mainly to deal with the unrealisitc 
+% large area change of twins. In such case, use track_by_nearest_node & effective_nodes = tracked. 
+% """
+max_num_cluster = 10;
+
+if min(x_to_y) > 0
+    all_nodes_effective = true;
+else
+    all_nodes_effective = false;
+    mask_tracked_1 = (x_to_y > 0);
+    x_to_y = (x_to_y(mask_tracked_1));
+    
+    % ----- if face too small -----
+    if sum(mask_tracked_1) < 4
+        mig_proj_abs = NaN;
+        mig_proj_sign = NaN;
+        median_plane_info = [];
+        return
+    end
+        
+    features_init = features;
+    features_1 = features(features(:,1)==1, :);
+    features_1 = features_1(mask_tracked_1, :);
+    features_2 = features(features(:,1)==2, :);
+    features_2 = features_2(x_to_y, :);
+    features = [features_1; features_2];
+end
+
 coord_1 = features(features(:,1)==1, 3:5);
 normal_1 = features(features(:,1)==1, 6:8);
 coord_2 = features(features(:,1)==2, 3:5);
 normal_2 = features(features(:,1)==2, 6:8);
-coord_1_corresp = coord_2(x_to_y, :); 
+if all_nodes_effective
+    coord_1_corresp = coord_2(x_to_y, :);
+else
+    coord_1_corresp = coord_2;
+end
 mig_vec = coord_1_corresp - coord_1;
 dist_direct = vecnorm(mig_vec, 2, 2);
 
 curv_1 = features(features(:,1)==1, 9);
-is_concave = - sign(curv_1);
+is_convex = sign(curv_1);
 angdiff_mig_normal = abs(atan2d(norm(cross(mig_vec,normal_1, 2)), dot(mig_vec,normal_1, 2)));
 mig_along_normal = sign(angdiff_mig_normal - 90);
-sign_proj = is_concave .* mig_along_normal;
-
-max_num_cluster = 10;
-
+sign_proj = is_convex .* mig_along_normal;
+  
+    
 % ################################## Fit First Median Plane ##################################
 % """
 % - Good median plane is characterized as most projected migration distance 
@@ -72,22 +102,18 @@ max_num_cluster = 10;
 % median planes within each cluster.
 % """
 % ----- Find median plane -----
-if strcmp(effective_nodes, 'all')
+if strcmp(classify_algorithm, 'svm')
     X = features(:,3:5);
     Y = features(:,1);
-elseif strcmp(effective_nodes, 'tracked')
-    X = [coord_1; coord_1_corresp];
-    Y = [ones(size(coord_1,1), 1), 2*ones(size(coord_1,1), 1)];
-    normal_2 = normal_2(x_to_y, :);
-end
-
-if strcmp(classify_algorithm, 'SVM')
     SVMModel = fitcsvm(X, Y, 'KernelFunction', 'linear','Standardize',false);
     normal = SVMModel.Beta;
     bias = SVMModel.Bias;
-elseif strcmp(classify_algorithm, 'LR')
-    mdl = fitlm(X, Y);
-    coeffs = mdl.Coefficients.Estimate;
+elseif strcmp(classify_algorithm, 'lr')
+    X = features(:, 3:4);
+    Y = features(:, 5);
+%     mdl = fitlm(X, Y);
+%     coeffs = mdl.Coefficients.Estimate;
+    coeffs = robustfit(X, Y);
     norm_normal = norm([coeffs(2:3); -1]);
     normal = [coeffs(2:3); -1]./norm_normal;
     bias = coeffs(1)/norm_normal;
@@ -128,8 +154,10 @@ if ~ need_another_cluster
     num_nodes_1 = size(coord_1, 1);
     dist_proj_abs = abs(dot(mig_vec, repmat(normal', num_nodes_1, 1), 2)/norm(normal));
     dist_proj_sign = sign_proj .* dist_proj_abs;
+else
+    dist_proj_abs = zeros(size(coord_1, 1), 1);
+    dist_proj_sign = zeros(size(coord_1, 1), 1);
 end
-
 
 % ################################## K-means ################################## 
 % """
@@ -160,9 +188,9 @@ while need_another_cluster
     end
     
     % ----- Recluster nodes in the bad clusters only -----
-    if strcmp(kmeans, 'naive')
+    if strcmp(kmeans_method, 'naive')
         cluster_id_new = kmeans(features(mask_to_cluster, 3:5), num_cluster - num_good_clusters);
-    elseif strcmp(kmeans, 'improve')
+    elseif strcmp(kmeans_method, 'improve')
         [~, cluster_id_new] = KmeansAsNormalImproved(features, mask_to_cluster, num_cluster - num_good_clusters, tri_node_1, tri_node_2);
     else
         warning('kmeans input of calcFaceMigByMedianPlaneProj.m is wrong! only surpport naive & improve')
@@ -182,15 +210,18 @@ while need_another_cluster
             continue
         % --- else, fit a median plane in this cluster ---
         else
-            X = features(mask_cluster_i, 3:5);
-            Y = features(mask_cluster_i, 1);
-            if strcmp(classify_algorithm, 'SVM')
+            if strcmp(classify_algorithm, 'svm')
+                X = features(mask_cluster_i, 3:5);
+                Y = features(mask_cluster_i, 1);
                 SVMModel = fitcsvm(X, Y, 'KernelFunction', 'linear', 'Standardize',false);
                 normal = SVMModel.Beta;
                 bias = SVMModel.Bias;
             else
-                mdl = fitlm(X, Y);
-                coeffs = mdl.Coefficients.Estimate;
+                X = features(mask_cluster_i, 3:4);
+                Y = features(mask_cluster_i, 5);
+%                 mdl = fitlm(X, Y);
+%                 coeffs = mdl.Coefficients.Estimate;
+                coeffs = robustfit(X, Y);
                 norm_normal = norm([coeffs(2:3); -1]);
                 normal = [coeffs(2:3); -1]./norm_normal;
                 bias = coeffs(1)/norm_normal;
@@ -206,15 +237,18 @@ while need_another_cluster
             dist_to_medianplane(mask_cluster_i_1) = abs(dist_proj_1) + abs(dist_proj_2);
             proj_dists_toolong =  (sum(dist_direct(mask_cluster_i_1) - dist_to_medianplane(mask_cluster_i_1) < 0) ...
                 / sum(mask_cluster_i_1)) > eps;
-            avg_normal_1 = sum(normal_1(mask_cluster_i_1,:), 1) / sum(mask_cluster_i_1);
-            avg_normal_2 = sum(normal_2(mask_cluster_i_2,:), 1) / sum(mask_cluster_i_2);
+            avg_normal_1 = sum(normal_1(mask_cluster_i_1,:), 1);
+            avg_normal_2 = sum(normal_2(mask_cluster_i_2,:), 1);
             avg_normal_dists = abs(atand(norm(cross(avg_normal_1,avg_normal_2)) / dot(avg_normal_1,avg_normal_2)));
             median_normal_dist_1 = abs(atand(norm(cross(avg_normal_1,normal)) / dot(avg_normal_1,normal)));
             median_normal_dist_2 = abs(atand(norm(cross(avg_normal_2,normal)) / dot(avg_normal_2,normal)));
             plane_normal_bad = (median_normal_dist_1 > avg_normal_dists*(1+eps) && median_normal_dist_2 > avg_normal_dists*(1+eps));
             only_one_face = (sum(mask_cluster_i_1)==0 || sum(mask_cluster_i_2)==0);
-            this_cluster_bad = proj_dists_toolong || plane_normal_bad || only_one_face;
-
+            if strcmp(classify_algorithm, 'svm')
+                this_cluster_bad = proj_dists_toolong || plane_normal_bad || only_one_face;
+            else
+                this_cluster_bad = proj_dists_toolong || plane_normal_bad ;
+            end
 
             if this_cluster_bad == true
                 mask_to_cluster(mask_cluster_i) = true;
@@ -231,6 +265,7 @@ while need_another_cluster
     end 
 end
 
+% --- calculate projected migration dist, use only nodes for which a median plane has been found ---
 if bad_fit 
     mig_proj_abs = NaN;
     mig_proj_sign = NaN;
@@ -248,7 +283,19 @@ else
     features(mask_bad_clusters, end) = -1;
 end
 
-% end
+% --- always return the initial full node feataures, but with the correct clusters (for debug purpose) ---
+if ~ all_nodes_effective
+    features_init_1 = features_init(features_init(:,1)==1, :);
+    features_init_1(:,end) = -1;
+    features_init_1(mask_tracked_1, end) = features(features(:,1)==1, end);
+    features_init_2 = features_init(features_init(:,1)==2, :);
+    features_init_2(:,end) = -1;
+    features_init_2(x_to_y,end) = features(features(:,1)==2, end);
+    features = [features_init_1; features_init_2];
+end
+
+
+end
 
 % plotSVMPlane(features, face_tri_node_an4, face_tri_node_an5, x_to_y)
 % title('Naive K-means')

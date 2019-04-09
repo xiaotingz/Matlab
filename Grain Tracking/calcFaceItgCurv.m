@@ -8,7 +8,9 @@ function face_itgcurv = calcFaceItgCurv(file, faces, input)
 %         the data was in the same order as faces so the correspodence 
 %         returned by 'TrackFace' can be applied directly. 
 % * NOTE
+%     - face_itgcurv contain duplicates of entire face data, not half face data. 
 %     - integralCurvature = sum(triArea * abs(triCurvature)), direction can't be told without the grain of interest.
+%     - Dependency: calcFaceCurvature.m
 % ##########################################################################
 % ----------------------- load debug data -----------------------
 % file = file_an4;
@@ -26,6 +28,7 @@ data_face_tmp = calcFaceCurvature(data_raw);
 
 if strcmp(input, 'all_faces')
     % ### then make data_face the same format as faces, so that the indexes can be used ###
+    
     data_face = zeros(length(faces),4);
     data_face(:,1:2) = faces;
     idx = 1;
