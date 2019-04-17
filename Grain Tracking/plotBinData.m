@@ -74,8 +74,8 @@ line([xrange(1), xrange(2)], [0,0], 'LineStyle', '--', 'Color', [0.5, 0.5, 0.5])
 % ylim([4, 20]);
 % ------------------------------
 
-xlabel(label_x);
-ylabel(label_y);
+xlabel(label_x,'Interpreter','latex');
+ylabel(label_y,'Interpreter','latex');
 box on
 
 if showCnt

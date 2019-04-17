@@ -1,4 +1,4 @@
-function [rf_vec, misA] = dgInFZ(g1, g2, O)
+function [rf_vec, misA, dg] = dgInFZ(g1, g2, O)
 % ##########################################################################
 % * Input: 
 %     - g1, g2, size = [3, 3]

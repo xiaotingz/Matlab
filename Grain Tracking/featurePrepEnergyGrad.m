@@ -21,15 +21,19 @@
 % """
 % ##########################################################################
 % ----------------------- load debug data -----------------------
-file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixOrigin2_smooth.dream3d');
+% file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixOrigin2_smooth.dream3d');
+file_an4 = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin2_smooth.dream3d';
 % run  /Grain Curvature/G_F_mF.m to get the following data: from data_grain & F_mF_diff 
-data_face_an4 = data_face;
-data_grain_an4 = [data_grain(:,2), data_grain(:,3), curv_FmF(:,1), data_grain(:,5)];
-clearvars -except data_face_an4 data_grain_an4 file_an4 
+% data_face_an4 = data_face;
+% data_grain_an4 = [data_grain(:,2), data_grain(:,3), curv_FmF(:,1), data_grain(:,5)];
+% clearvars -except data_face_an4 data_grain_an4 file_an4 
 
-file_an5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
-load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/181107.mat', 'tracked_uniqueface_an4', 'tracked_uniqueface_an5');
+% file_an5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
+% load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/181107.mat', 'tracked_uniqueface_an4', 'tracked_uniqueface_an5');
+file_an5 = '/Volumes/XIAOTING/Ni/An5new6_smooth.dream3d';
+load('/Volumes/XIAOTING/Ni/working/181107.mat', 'tracked_uniqueface_an4', 'tracked_uniqueface_an5');
 load('look_up_table_an4_an5.mat')
+
 % ---------------------------------------------------------------
 
 
@@ -213,7 +217,7 @@ end
 % - data_grain_diff = [size, F, F-Fnn, integral curvature]
 % - fMs_an4_left: face itg_curv. the most important information being its sign.
 % """
-fileID = fopen('190408_features_energygrad.txt','w');
+fileID = fopen('190408_features_energygrad_new.txt','w');
 fprintf(fileID,'%s ,%s, %s ,%s, %s, %s, %s, %s, %s, %s\n', 'move_left', 'gV_diff_an4', 'gF_diff_an4', 'gFnnF_diff_an4', 'gMs_diff_an4', ...
                 'fMs_an4_left', 'FnnF_A_maxdec', 'FnnF_A_avgdec', 'FnnF_fMs_maxdec', 'FnnF_fMs_avgdec');
 for i = 1:length(data_grain_an4_diff)

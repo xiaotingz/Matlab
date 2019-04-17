@@ -4,6 +4,7 @@
 function dg = AAToG(phi, x)
     phi = deg2rad(phi);
     x = x/norm(x);
+    
     dg = zeros(3);
 	dg(1,1)=cos(phi)+(1.0-cos(phi))*(x(1)^2);
 	dg(1,2)=x(1)*x(2)*(1.0-cos(phi))-x(3)*sin(phi);

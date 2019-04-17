@@ -78,8 +78,6 @@ elseif nargin == 3
     for i = 1:length(x_to_y)
         if ~isnan(x_to_y(i))
             plot3([obj_node_an4(i,1), obj_node_an5(x_to_y(i),1)], [obj_node_an4(i,2), obj_node_an5(x_to_y(i),2)], [obj_node_an4(i,3), obj_node_an5(x_to_y(i),3)], 'k', 'LineWidth', 1);
-<<<<<<< HEAD:Grain Tracking/projection/visualizeFace.m
-=======
 %         text(obj_point_smooth_an4(i,1), obj_point_smooth_an4(i,2), obj_point_smooth_an4(i,3),[' ', num2str(int32(i))],'FontSize',16, 'Color', color1);
         end
     end
@@ -98,7 +96,6 @@ elseif nargin == 3
     for i = 1:length(x_to_y)
         if ~isnan(x_to_y(i))
             plot3([obj_node_an4(i,1), obj_node_an5(x_to_y(i),1)], [obj_node_an4(i,2), obj_node_an5(x_to_y(i),2)], [obj_node_an4(i,3), obj_node_an5(x_to_y(i),3)], 'k', 'LineWidth', 1);
->>>>>>> fae2ef75b86269f646ac36db72f899a21a1050f6:Grain Tracking/visualizeFace.m
 %         text(obj_point_smooth_an4(i,1), obj_point_smooth_an4(i,2), obj_point_smooth_an4(i,3),[' ', num2str(int32(i))],'FontSize',16, 'Color', color1);
         end
     end
