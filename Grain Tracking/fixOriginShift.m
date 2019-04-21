@@ -5,8 +5,6 @@
 %     2. Calculate avg_grain_centroid_shift from the tracked non-surface grains.
 %     3. Apply avg_grain_centroid_shift to sample origin of an4.
 % """
-
-
 load('look_up_table_an4_an5.mat')
 file_An4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/Gstats_recalc_fromAditi/An4new6_recalc.dream3d');
 file_An5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/Gstats_recalc_fromAditi/An5new6_recalc.dream3d');
@@ -17,11 +15,13 @@ surfG_An4 = h5read(file_An4,'/DataContainers/ImageDataContainer/CellFeatureData/
 surfG_An5 = h5read(file_An5,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
 origin_An4 = double(h5read(file_An4,'/DataContainers/ImageDataContainer/_SIMPL_GEOMETRY/ORIGIN'))';
 origin_An5 = double(h5read(file_An5,'/DataContainers/ImageDataContainer/_SIMPL_GEOMETRY/ORIGIN'))';
+step_size = double(h5read(file_An5,'/DataContainers/ImageDataContainer/_SIMPL_GEOMETRY/SPACING'))';
 centroids_An4(1,:) = [];
 centroids_An5(1,:) = [];
 surfG_An4(1,:) = [];
 surfG_An5(1,:) = [];
 
+%% ##### Fix Origin By Average Grain Centroid Difference #####
 diff_origin = origin_An4 - origin_An5;
 
 % -- get corresponding centorid positions
@@ -35,15 +35,24 @@ centroids_An4InAn5Order = centroids_An4InAn5Order(tracked_bulkInBothState,:);
 centroids_An5tracked = centroids_An5tracked(tracked_bulkInBothState,:);
 % -- average origine difference
 diff_centroids = centroids_An4InAn5Order - centroids_An5tracked;
-aveDiffCentr = sum(diff_centroids)/length(diff_centroids)
+aveDiffCentr = sum(diff_centroids)/length(diff_centroids);
 
 file_newOrigin = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/Gstats_recalc_fromAditi/An4new6_fixOrigin2.dream3d';
-newOrigin = origin_An4 - aveDiffCentr;
-h5write(file_newOrigin, '/DataContainers/ImageDataContainer/_SIMPL_GEOMETRY/ORIGIN', newOrigin)
+new_origin = origin_An4 - aveDiffCentr;
+h5write(file_newOrigin, '/DataContainers/ImageDataContainer/_SIMPL_GEOMETRY/ORIGIN', new_origin)
 
 
+%% ##### Fix Origin By Comparing Voxels #####
+% shift = calcVolumeDisplacement(file_An4, file_An5, look_up_table);
+diff_origin = origin_An4 - origin_An5;
+origin_shift = shift .* step_size;
+new_origin = origin_An5 + origin_shift;
 
-%% ############# Visualize grains that are bulk in both states #############
+file_newOrigin = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/Gstats_recalc_fromAditi/An4new6_fixOrigin_voxel.dream3d';
+h5write(file_newOrigin, '/DataContainers/ImageDataContainer/_SIMPL_GEOMETRY/ORIGIN', new_origin)
+
+
+%% ######################################### Visualize grains that are bulk in both states #########################################
 % file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/Gstats_recalc_fromAditi/An4new6_recalc.dream3d');
 % file_an5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/Gstats_recalc_fromAditi/An5new6_recalc.dream3d');
 % 
