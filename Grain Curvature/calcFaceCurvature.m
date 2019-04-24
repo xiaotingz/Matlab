@@ -1,8 +1,10 @@
-function data_face = calcFaceCurvature(data_raw)
+function data_face = calcFaceCurvature(data_raw, eps_curv, eps_area, eps_minang)
 % -- calc integral curvature for each face
 % -- get rid of bad datas
     % 1.facelabel <= 0; 2.extreme curvature value; 3.NaN(sometimes)
-bool1 = data_raw(1,:) > 0 & data_raw(2,:) > 0 & ~isnan(data_raw(3,:)) & data_raw(3,:) < 100 & data_raw(3,:) > -100;
+bool1 = data_raw(1,:) > 0 & data_raw(2,:) > 0 & ~isnan(data_raw(3,:)) ...
+    & data_raw(3,:) < eps_curv & data_raw(3,:) > -eps_curv ...
+    & data_raw(4,:) < eps_area & data_raw(5,:) > eps_minang;
 data_cleared  = data_raw(:,bool1);
 
 % -- prepare for face curvature calculation: sort the data by facelabel

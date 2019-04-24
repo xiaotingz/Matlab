@@ -27,10 +27,10 @@
 
 % % file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311/180311_STO1470sub1_GBCD.dream3d');
 % % centro_file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311/180311_STO1470sub1_GBCD.dream3d');
-X=213*0.3; Y=297*0.3; Z=40*0.3;
+X=398*2.8125; Y=404*2.8125; Z=104*4.0;
 % -- criterions in filterGrains: 'centroidPos' | 'touchingFS' |
 % 'numFaces' | 'NN_centoridPos' | 'NN_touchingFS'
-criterion = 'none';
+criterion = 'centroidPos';
 % -- data_grid limits
 start = -80;
 width = 2;
@@ -54,12 +54,13 @@ step = 80;
 % neighborList = double(h5read(file,'/VoxelDataContainer/FIELD_DATA/NeighborList'));
 % triangle_area_raw = roundn(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas'),-8).';
 
-file = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
-% centro_file = file_an5;
-% file = file_an5;
+file_an4 = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin3_Hsmooth.dream3d';
+file_an5 = '/Volumes/XIAOTING/Ni/An5new6_Hsmooth.dream3d';
+centro_file = file_an5;
+file = centro_file;
 % file = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
-centro_file = file_an4;
-file = file_an4;
+% centro_file = file_an4;
+% file = file_an4;
 
 %  -------------------------- load data_v6 -------------------------- 
 centroids = abs(roundn(h5read(centro_file,'/DataContainers/ImageDataContainer/CellFeatureData/Centroids'),-5).');
@@ -67,20 +68,25 @@ grain_diameter_raw = roundn(h5read(file,'/DataContainers/ImageDataContainer/Cell
 num_of_neigh = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors')).';
 neighborList = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NeighborList'));
 facelabel = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels'));
-curvature_of_triangle = h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures');
-triangle_area_raw = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'),-8);
+curvature_of_triangle = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5)';
+triangle_area_raw = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'),-5);
+triangle_min_ang = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceDihedralAngles'),-5);
 % surfGrains = logical(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures'));
 
 % surfGrains(1) = [];
 centroids(1,:) = [];
 grain_diameter_raw(1) = [];
 num_of_neigh(1) = [];
-data_raw = [facelabel; curvature_of_triangle; triangle_area_raw];
+data_raw = [facelabel; curvature_of_triangle; triangle_area_raw; triangle_min_ang];
 
 
 %  -------------------------- get the grid bin data -------------------------- 
-data_face = calcFaceCurvature(data_raw);
-%% 
+% data_face = calcFaceCurvature(data_raw);
+eps_curv = 1;
+eps_area = 7;
+eps_minang = 10;
+data_face = calcFaceCurvature(data_raw, eps_curv, eps_area, eps_minang);
+
 % --- grain_ForCal = [ID_ForCal, D_ForCal, NNeigh_ForCal, numEdges_ForCal] ---;
 grain_ForCal = filterGrains(criterion, facelabel, num_of_neigh, neighborList, X,Y,Z, centroids, grain_diameter_raw);
 % --- data_grain = [ID_ForCal, D_ForCal, NNeigh_ForCal, numEdges_ForCal, grain_itg_curv] ---;
@@ -144,8 +150,8 @@ scatter(data_grid(:,1), data_grid(:,2), 60, 'r', 'filled', 's')
 % start = -20;
 % width = 1;
 % step = 40;
-xlim([-25, 25])
-ylim([-8,8])
+xlim([-50, 50])
+ylim([-10, 10])
 
 xlabel('F - <F_{NN}>','FontSize',21)
 ylabel('$\mathcal{G''}$','Interpreter','latex','FontSize',21);

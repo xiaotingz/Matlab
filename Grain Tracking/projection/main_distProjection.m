@@ -7,16 +7,23 @@
 %     - mig_
 % % ############################################################################
 
-load('/Volumes/XIAOTING/Ni/working/180822_FaceCorresp.mat', 'X_to_Y', 'Y_to_X', 'tracked_uniqueface_an4', 'tracked_uniqueface_an5')
-load('/Volumes/XIAOTING/Ni/working/181107_mig_piececorresp_comb.mat', 'face_onepiece')
-load('/Volumes/XIAOTING/Ni/working/Grain Tracking/look_up_table_an4_an5.mat')
-file_an4 = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin2_smooth.dream3d';
-file_an5 = '/Volumes/XIAOTING/Ni/An5new6_smooth.dream3d';
+% load('/Volumes/XIAOTING/Ni/working/180822_FaceCorresp.mat', 'X_to_Y', 'Y_to_X', 'tracked_uniqueface_an4', 'tracked_uniqueface_an5')
+% load('/Volumes/XIAOTING/Ni/working/181107_mig_piececorresp_comb.mat', 'face_onepiece')
+% load('/Volumes/XIAOTING/Ni/working/Grain Tracking/look_up_table_an4_an5.mat')
+% file_an4 = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin2_smooth.dream3d';
+% file_an5 = '/Volumes/XIAOTING/Ni/An5new6_smooth.dream3d';
 
+
+load('/Users/xiaotingzhong/Documents/Matlab/Grain Tracking/data/180822_FaceCorresp.mat', 'X_to_Y', 'Y_to_X', 'tracked_uniqueface_an4', 'tracked_uniqueface_an5')
+load('/Users/xiaotingzhong/Documents/Matlab/Grain Tracking/data/181107_mig_piececorresp_comb.mat', 'face_onepiece')
+load('/Users/xiaotingzhong/Documents/Matlab/Grain Tracking/look_up_table_an4_an5.mat')
 % file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixOrigin2_smooth.dream3d');
 % file_an5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
+file_an4 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/D3Ds/An4new6_fixOrigin3_Hsmooth.dream3d';
+file_an5 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/D3Ds/An5new6_Hsmooth.dream3d';
 
-% ###################################### Data Preparation ######################################
+
+%% ###################################### Data Preparation ######################################
 % ##### read data #####
 facelabel_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
 facelabel_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';

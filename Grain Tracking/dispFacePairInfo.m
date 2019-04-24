@@ -24,12 +24,12 @@ obj_label_2 = sort(tracked_uniqueface_2(idx, :));
 
 % disp(' ');
 % disp(['Pair ', num2str(idx)]);
-% disp(['FaceLabel in An4:  [', num2str(face_id_1(idx_1, :)), ']', ]);
-disp(['FaceLabel in An4:  [', num2str(tracked_uniqueface_1(idx, :)), ']', ]);
-disp(['FaceId in An4:   ', num2str(idx_1)])
-% disp(['FaceLabel in An5:  [', num2str(face_id_2(idx_2, :)), ']', ]);
-disp(['FaceLabel in An5:  [', num2str(tracked_uniqueface_2(idx, :)), ']', ]);
-disp(['FaceId in An5:   ', num2str(idx_2)])
+% disp(['FaceLabel in an4:  [', num2str(face_id_1(idx_1, :)), ']', ]);
+disp(['face_label in an4:  [', num2str(tracked_uniqueface_1(idx, :)), ']', ]);
+disp(['face_id in an4:   ', num2str(idx_1)])
+% disp(['FaceLabel in an5:  [', num2str(face_id_2(idx_2, :)), ']', ]);
+disp(['face_label in an5:  [', num2str(tracked_uniqueface_2(idx, :)), ']', ]);
+disp(['face_id in an5:   ', num2str(idx_2)])
 
 end
 

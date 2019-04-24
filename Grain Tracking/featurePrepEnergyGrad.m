@@ -22,18 +22,25 @@
 % ##########################################################################
 % ----------------------- load debug data -----------------------
 % file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixOrigin2_smooth.dream3d');
-file_an4 = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin2_smooth.dream3d';
+file_an4 = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin3_Hsmooth.dream3d';
 % run  /Grain Curvature/G_F_mF.m to get the following data: from data_grain & F_mF_diff 
 % data_face_an4 = data_face;
-% data_grain_an4 = [data_grain(:,2), data_grain(:,3), curv_FmF(:,1), data_grain(:,5)];
+% data_grain_an4 = [data_grain(:,2), data_grain(:,3), F_mF_diff, data_grain(:,5)];
+% data_grain_an4 = [data_grain_an4(:,2), data_grain_an4(:,3), F_mF_diff_an4, data_grain_an4(:,5)];
 % clearvars -except data_face_an4 data_grain_an4 file_an4 
 
 % file_an5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
 % load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/181107.mat', 'tracked_uniqueface_an4', 'tracked_uniqueface_an5');
-file_an5 = '/Volumes/XIAOTING/Ni/An5new6_smooth.dream3d';
+file_an5 = '/Volumes/XIAOTING/Ni/An5new6_Hsmooth.dream3d';
 load('/Volumes/XIAOTING/Ni/working/181107.mat', 'tracked_uniqueface_an4', 'tracked_uniqueface_an5');
 load('look_up_table_an4_an5.mat')
 
+% """
+% Threshold values for determining if a triangle is good. Use in calcFaceToGrainCentroidDist.m
+% """
+eps_curv = 1;
+eps_area = 7;
+eps_minang = 10;
 % ---------------------------------------------------------------
 
 
@@ -63,15 +70,15 @@ end
 
 % #################################### Check If Grain Face Moved Left ####################################
 % ----- Absolute distance -----
-dists_f_g_an4 = calcFaceToGrainCentroidDist(file_an4, tracked_uniqueface_an4);
-dists_f_g_an5 = calcFaceToGrainCentroidDist(file_an5, tracked_uniqueface_an5);
+dists_f_g_an4 = calcFaceToGrainCentroidDist(file_an4, tracked_uniqueface_an4, eps_curv, eps_area, eps_minang);
+dists_f_g_an5 = calcFaceToGrainCentroidDist(file_an5, tracked_uniqueface_an5, eps_curv, eps_area, eps_minang);
 % ----- Convert distance to portion -----
 total_dists_an4 = sum(dists_f_g_an4, 2);
 total_dists_an5 = sum(dists_f_g_an5, 2);
 dists_f_g_an4 = dists_f_g_an4 ./ total_dists_an4;
 dists_f_g_an5 = dists_f_g_an5 ./ total_dists_an5;
 
-eps_motion = 1e-2;
+eps_motion = 5e-2;
 move_left = zeros(size(dists_f_g_an4,1), 1);
 for i = 1:length(dists_f_g_an4)
     if dists_f_g_an4(i, 1) < dists_f_g_an5(i, 1) - eps_motion
@@ -84,7 +91,7 @@ for i = 1:length(dists_f_g_an4)
 end
 
 
-%% #################################### Calc energy_gradient Defined By Grain Properties & Grain Neighborhood Properties ####################################
+%% #################################### energy_gradient by Grain Properties & Grain Neighborhood Properties ####################################
 % """
 % - eps = 0.05 * min(data_grain_left, data_grain_right) is a reasonable
 %   choice for converting to binary values. 
@@ -110,7 +117,7 @@ data_grain_an4_diff = data_grain_an4_right - data_grain_an4_left;
 data_grain_an4_diff(:,4) = - data_grain_an4_diff(:,4);
 
 
-%% #################################### Calc energy_gradient Defined By Grain Face Curvature ####################################
+%% #################################### energy_gradient by Grain Face Curvature ####################################
 % """
 % Hypothesis: if grain face convex when taking the left grain as resident grain, then grain face should move left.
 % Positive cases: move left; left grain small; face area decrease
@@ -143,19 +150,15 @@ for i = 1:size(tracked_uniqueface_an4, 1)
 end
 
 
-%% #################################### Calc energy_gradient Defined By Grain Face Neighborhood Properties ####################################
+%% #################################### energy_gradient by Grain Face Neighborhood Properties ####################################
 % """
 % Hypothesis: geometry/topology changes in neighbors of grain faces will drag of the face to move.
 % Can't assign sign to curvature because the sign of untracked grain faces would be random.
 % """  
-load('/Users/xiaotingzhong/Documents/Matlab/Grain Tracking/data/190221_mig_sign.mat', 'nn_faces_an4', 'nn_faces_an5')
+load('/Volumes/XIAOTING/Ni/working/Grain Tracking/data/190221_mig_sign.mat', 'nn_faces_an4', 'nn_faces_an5')
 
 % ------------------ calculate area for all grain faces ------------------
-% """
-% run this with /tracking/trackFace.m
-% """
 [faces_an4_all, faces_an5_all, face_corresp] = trackFace(file_an4, file_an5, look_up_table, 0);
-%%
 face_tmp_an4 = calcFaceItgCurv(file_an4, faces_an4_all, 'all_faces');
 face_tmp_an5 = calcFaceItgCurv(file_an5, faces_an5_all, 'all_faces');
 
@@ -217,7 +220,7 @@ end
 % - data_grain_diff = [size, F, F-Fnn, integral curvature]
 % - fMs_an4_left: face itg_curv. the most important information being its sign.
 % """
-fileID = fopen('190408_features_energygrad_new.txt','w');
+fileID = fopen('190421_features_energygrad.txt','w');
 fprintf(fileID,'%s ,%s, %s ,%s, %s, %s, %s, %s, %s, %s\n', 'move_left', 'gV_diff_an4', 'gF_diff_an4', 'gFnnF_diff_an4', 'gMs_diff_an4', ...
                 'fMs_an4_left', 'FnnF_A_maxdec', 'FnnF_A_avgdec', 'FnnF_fMs_maxdec', 'FnnF_fMs_avgdec');
 for i = 1:length(data_grain_an4_diff)

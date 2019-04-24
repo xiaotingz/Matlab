@@ -1,3 +1,5 @@
+% ######################################## Migration values ########################################
+% ##### SVM Bad, an4_an5 Large Diff ##### 
 load('181028_migration.mat')
 load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/181025_mig_input.mat', 'face_to_calc')
 
@@ -41,7 +43,8 @@ idx_svm_bad = idx_array(mask_svm_bad);
 idx_svm_nan = idx_array(mask_svm_nan);
 
 
-%% ##### Compare mig_sign & mig_abs #####
+%% ######################################## Sign ########################################
+% ##### Compare mig_sign & mig_abs #####
 cdf1 = cdfplot(mig_svm_proj(:,2) - abs(mig_svm_proj(:,1)));
 hold on
 h2 = cdfplot(mig_normal_proj(:,3) - abs(mig_normal_proj(:,1)));
@@ -73,7 +76,8 @@ mig_svm_proj(idx, :)
 % plotSingleFaceWithNormal(file_an5, tracked_uniqueface_an5(face_to_calc(idx),:), 1)
 
 
-%% ##### Migration of Twins #####
+%% ######################################## Twins ########################################
+% ##### Migration of Twins #####
 % [rfvecs_an4]  = getFaceRFvecs(file_an4, tracked_uniqueface_an4);
 % [rfvecs_an5]  = getFaceRFvecs(file_an5, tracked_uniqueface_an5);
 % 

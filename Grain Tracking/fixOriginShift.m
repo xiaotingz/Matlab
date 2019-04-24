@@ -7,6 +7,7 @@
 % """
 load('look_up_table_an4_an5.mat')
 file_An4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/Gstats_recalc_fromAditi/An4new6_recalc.dream3d');
+% file_An5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/Gstats_recalc_fromAditi/An5new6_recalc_cropforalign.dream3d');
 file_An5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/Gstats_recalc_fromAditi/An5new6_recalc.dream3d');
 
 centroids_An4 = roundn(h5read(file_An4,'/DataContainers/ImageDataContainer/CellFeatureData/Centroids'),-5).';
@@ -35,11 +36,11 @@ centroids_An4InAn5Order = centroids_An4InAn5Order(tracked_bulkInBothState,:);
 centroids_An5tracked = centroids_An5tracked(tracked_bulkInBothState,:);
 % -- average origine difference
 diff_centroids = centroids_An4InAn5Order - centroids_An5tracked;
-aveDiffCentr = sum(diff_centroids)/length(diff_centroids);
+aveDiffCentr = sum(diff_centroids)/length(diff_centroids)
 
-file_newOrigin = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/Gstats_recalc_fromAditi/An4new6_fixOrigin2.dream3d';
-new_origin = origin_An4 - aveDiffCentr;
-h5write(file_newOrigin, '/DataContainers/ImageDataContainer/_SIMPL_GEOMETRY/ORIGIN', new_origin)
+% file_newOrigin = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/Gstats_recalc_fromAditi/An4new6_fixOrigin2.dream3d';
+% new_origin = origin_An4 - aveDiffCentr;
+% h5write(file_newOrigin, '/DataContainers/ImageDataContainer/_SIMPL_GEOMETRY/ORIGIN', new_origin)
 
 
 %% ##### Fix Origin By Comparing Voxels #####

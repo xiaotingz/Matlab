@@ -1,4 +1,4 @@
-function [mig_1_abs, mig_2_abs, mig_1_sign, mig_2_sign] = calcFaceMigByLocalNormProj(features, x_to_y)
+function [mig_1_abs, mig_2_abs, mig_1_sign, mig_2_sign, dist_left] = calcFaceMigByLocalNormProj(features, x_to_y)
 % ############################################################################
 % Input
 %     - features = [n+n', 10], [face_id, node_id, coordinates, normals, curves, cluster_id] 
@@ -8,6 +8,9 @@ function [mig_1_abs, mig_2_abs, mig_1_sign, mig_2_sign] = calcFaceMigByLocalNorm
 %         If interwining shouldn't be considered as migration, use
 %         mig_sign. If interwining should be consider as migration, use
 %         mig_abs
+%     - move_left
+%         Indicator variable, if the grain face has moved towards the left
+%         grain. 
 % Notes
 %     - This script can be compared to the other two projection methods
 %     also: MigrationBySVMPlaneProj.m, MigrationByLinearRegPlaneProj.m, and MigrationByPillarHeight.m
@@ -64,6 +67,16 @@ mig_1_abs = sum(abs(migration_1))/length(migration_1);
 mig_2_abs = sum(abs(migration_2))/length(migration_2);
 mig_1_sign = sum(migration_1 .* sign_proj)/length(migration_1);
 mig_2_sign = sum(migration_2 .* sign_proj)/length(migration_2);
+
+% ##### Direction of migration #####
+dist_left = sum(migration_1)/size(migration_1, 1);
+% if dist_left > eps
+%     move_left = 1;
+% elseif dist_left < - eps
+%     move_left = -1;
+% else
+%     move_left = 0;
+% end
 
 end
 

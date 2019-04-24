@@ -1,4 +1,4 @@
-function face_node_info = getSingleFaceNodes(obj_facelabel_1, obj_facelabel_2)
+function face_node_info = getSingleFaceNodes(file_1, file_2, obj_facelabel_1, obj_facelabel_2)
 % ##########################################################################
 % * Input
 %     - facelabe = [1,2], order ([A, B] or [B, A]) doesn't matter 
@@ -16,7 +16,17 @@ function face_node_info = getSingleFaceNodes(obj_facelabel_1, obj_facelabel_2)
 % file = file_an4;
 % obj_facelabel = [620,  752];
 % ---------------------------------------------------------------
-load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/node_coord_180822.mat');
+% load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/node_coord_180822.mat');
+% load('/Volumes/XIAOTING/Ni/working/node_coord_180822.mat');
+facelabel_1 = double(h5read(file_1, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels'))';
+tri_node_1 = 1 + double(h5read(file_1, '/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList'))';
+node_coord_1 = double(h5read(file_1, '/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedVertexList'))';
+node_type_1 = h5read(file_1, '/DataContainers/TriangleDataContainer/VertexData/NodeType')';
+facelabel_2 = double(h5read(file_2, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels'))';
+tri_node_2 = 1 + double(h5read(file_2, '/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList'))';
+node_coord_2 = double(h5read(file_2, '/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedVertexList')');
+node_type_2 = h5read(file_2, '/DataContainers/TriangleDataContainer/VertexData/NodeType')';
+
 % ##### filter bad data #####
 mask_1 = all(facelabel_1 > 0, 2);
 facelabel_1 = facelabel_1(mask_1,:);

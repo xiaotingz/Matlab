@@ -1,4 +1,5 @@
 load('../data/181107_mig_piececorresp_comb.mat', 'tracked_uniqueface_an4', 'tracked_uniqueface_an5');
+load('/Volumes/XIAOTING/Ni/working/181107_mig_piececorresp_comb.mat', 'face_onepiece');
 tracked_uniqueface_an4 = tracked_uniqueface_an4(face_onepiece, :);
 tracked_uniqueface_an5 = tracked_uniqueface_an5(face_onepiece, :);
 
