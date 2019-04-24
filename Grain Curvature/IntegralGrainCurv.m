@@ -38,7 +38,7 @@ X=213*0.3; Y=297*0.3; Z=40*0.3;
 % centro_file = ('/Users/xiaotingzhong/Desktop/Datas/SteelFinal_setTo0/Jan31_Fca0.dream3d');
 % X=234*0.15; Y=267*0.15; Z=68*0.2;
 % -- criterions in filterGrains: 'centroidPos' | 'touchingFS' | 'numFaces'| 'NN_centoridPos' | 'NN_touchingFS'
-criterion = 'centroidPos';
+criterion = 'none';
 % -- xAxis in gridData: 'D' | 'F' | 'E'
 xAxis = 'D';
 
@@ -60,18 +60,24 @@ xAxis = 'D';
 % neighborList = double(h5read(file,'/VoxelDataContainer/FIELD_DATA/NeighborList'));
 % triangle_area_raw = roundn(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas'),-8).';
 %  -------------------------- load data_v6 -------------------------- 
+file_an4 = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin3_Hsmooth.dream3d';
+file_an5 = '/Volumes/XIAOTING/Ni/An5new6_Hsmooth.dream3d';
+centro_file = file_an5;
+file = centro_file;
+
 centroids = abs(roundn(h5read(centro_file,'/DataContainers/ImageDataContainer/CellFeatureData/Centroids'),-5).');
 grain_diameter_raw = roundn(h5read(centro_file,'/DataContainers/ImageDataContainer/CellFeatureData/EquivalentDiameters'),-5).';
 num_of_neigh = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors')).';
 neighborList = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NeighborList'));
 facelabel = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels'));
-curvature_of_triangle = h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures');
-triangle_area_raw = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'),-8);
+curvature_of_triangle = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5)';
+triangle_area_raw = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'),-5);
+triangle_min_ang = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceDihedralAngles'),-5);
 
 centroids(1,:) = [];
 grain_diameter_raw(1) = [];
 num_of_neigh(1) = [];
-data_raw = [facelabel; curvature_of_triangle; triangle_area_raw];
+data_raw = [facelabel; curvature_of_triangle; triangle_area_raw; triangle_min_ang];
 
 
 %  -------------------------- get the grid bin data -------------------------- 
@@ -85,7 +91,7 @@ data_grain = calcGrainCurvature(data_face, grain_ForCal);
 % data_grain(:,5) = -data_grain(:,5)./(data_grain(:,2).*((4/3*pi)^(1/3)/2));
 %
 %  -------------------------- plot average bin data & the standard deviations -------------------------- 
-xAxis = 'D';
+xAxis = 'F';
 data_grid = gridData(xAxis, data_grain);
 scatter(data_grid(:,3),data_grid(:,4),50,'filled','o','k');
 % -- plot line: standard mean deviation
@@ -102,14 +108,14 @@ if strcmp (xAxis, 'F')
     ax = gca;
     % ax.XTick = [0:5:40];
     xlabel('F','FontSize',21);
-    xlim([0,40]);
-    ylim([-40,10]);
+%     xlim([0,40]);
+%     ylim([-40,10]);
     % text(0.55,-26,'(a)','FontWeight','bold','FontSize',30)
     line([0,max(data_grain(:,3))+50],[0,0],'LineStyle','--', 'Color',[0.5 0.5 0.5])
 elseif strcmp (xAxis, 'D')
     ax = gca;
-    xlim([0, 10]);
-    ylim([-70,10]);
+%     xlim([0, 10]);
+%     ylim([-70,10]);
     set(gca,'xTick',0:2:10);
 %     xticklabels({'0', '2', '4', '6', '8', '10'});
 

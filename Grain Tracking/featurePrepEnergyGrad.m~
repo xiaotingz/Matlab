@@ -119,30 +119,31 @@ data_grain_an4_diff(:,4) = - data_grain_an4_diff(:,4);
 % Positive cases: move left; left grain small; face area decrease
 % """  
 face_itgcurv_an4_left = zeros(size(tracked_uniqueface_an4, 1), 1);
-tmp_face_itgcurv_an4_left = zeros(size(tracked_uniqueface_an4, 1), 1);
 
 for i = 1:size(tracked_uniqueface_an4, 1)
     % ----- get itg_curv for the specific grain face -----
-    % """
-    % The reason for the long code was some faces have only [A, B] but not [B, A]. []*[] rises error.
-    % """
     mask_an4_1 = (tracked_uniqueface_an4(i, 1) == data_face_an4(:,1) & tracked_uniqueface_an4(i, 2) == data_face_an4(:,2));
     mask_an4_2 = (tracked_uniqueface_an4(i, 2) == data_face_an4(:,1) & tracked_uniqueface_an4(i, 1) == data_face_an4(:,2));
-    if sum(mask_an4_1) > 0
-        face_itg_curv_1 = data_face_an4(mask_an4_1, 3)*data_face_an4(mask_an4_1, 4);
-        face_area_an4_1 = data_face_an4(mask_an4_1, 3);
-    else
-        face_itg_curv_1 = 0.0;
-        face_area_an4_1 = 0.0;
-    end
-    if sum(mask_an4_2) > 0
-        face_itg_curv_2 = data_face_an4(mask_an4_2, 3)*data_face_an4(mask_an4_2, 4);
-        face_area_an4_2 = data_face_an4(mask_an4_2, 3);
-    else
-        face_itg_curv_2 = 0.0;
-        face_area_an4_2 = 0.0;
-    end
-    face_itgcurv_an4_left(i)  = - face_itg_curv_1 + face_itg_curv_2;
+%     if sum(mask_an4_1) > 0
+%         face_itg_curv_1 = data_face_an4(mask_an4_1, 3)*data_face_an4(mask_an4_1, 4);
+%         face_area_an4_1 = data_face_an4(mask_an4_1, 3);
+%     else
+%         face_itg_curv_1 = 0.0;
+%         face_area_an4_1 = 0.0;
+%     end
+%     if sum(mask_an4_2) > 0
+%         face_itg_curv_2 = data_face_an4(mask_an4_2, 3)*data_face_an4(mask_an4_2, 4);
+%         face_area_an4_2 = data_face_an4(mask_an4_2, 3);
+%     else
+%         face_itg_curv_2 = 0.0;
+%         face_area_an4_2 = 0.0;
+%     end
+%     % ----- adjust sign of curvature -----
+%     if tracked_uniqueface_an4(i, 1) == data_face_an4(mask_an4_1, 1)
+%         face_itgcurv_an4_left(i)  = - face_itg_curv_1 + face_itg_curv_2;
+%     else
+%         face_itgcurv_an4_left(i)  = face_itg_curv_1 - face_itg_curv_2;
+%     end
 end
 
 
