@@ -1,7 +1,7 @@
-function [num_corners, num_edges] = getFaceCharacter(labels, TLs, QNs, FCNs)
+function [num_corners, num_edges] = getFaceCharacter(faces, TLs, QNs, FCNs)
 % ############################################################################
 % * Inputs
-%   - labels = [n, 2]
+%   - faces = [n, 2]
 %   - TLs, given by findTripleLines.m
 %   - QNs and FCNs, given by findQuadNodes.m result{1} and result{2}
 % * Note
@@ -12,14 +12,14 @@ function [num_corners, num_edges] = getFaceCharacter(labels, TLs, QNs, FCNs)
 % B = [8, 69, 100]';
 % labels = [277, 8];
 % ---------------------------------------------------------------
-num_edges = zeros(size(labels, 1), 1);
-num_corners = zeros(size(labels, 1), 1);
+num_edges = zeros(size(faces, 1), 1);
+num_corners = zeros(size(faces, 1), 1);
 
 % ##### if only QuadPoints #####
 if nargin == 3
-    for i = 1:size(labels, 1)
-        A = labels(i, 1);
-        B = labels(i, 2);
+    for i = 1:size(faces, 1)
+        A = faces(i, 1);
+        B = faces(i, 2);
 
         mask_TL_A = (TLs == A);
         mask_TL_B = (TLs == B);
@@ -33,9 +33,9 @@ if nargin == 3
     end
 % ##### QuadPoints and FCNoints #####
 elseif nargin == 4
-    for i = 1:size(labels, 1)
-        A = labels(i, 1);
-        B = labels(i, 2);
+    for i = 1:size(faces, 1)
+        A = faces(i, 1);
+        B = faces(i, 2);
 
         mask_TL_A = (TLs == A);
         mask_TL_B = (TLs == B);
@@ -69,3 +69,7 @@ end
 
 
 end
+
+
+
+

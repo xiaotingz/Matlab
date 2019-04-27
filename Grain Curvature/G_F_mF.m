@@ -30,7 +30,7 @@
 X=398*2.8125; Y=404*2.8125; Z=104*4.0;
 % -- criterions in filterGrains: 'centroidPos' | 'touchingFS' |
 % 'numFaces' | 'NN_centoridPos' | 'NN_touchingFS'
-criterion = 'centroidPos';
+criterion = 'none';
 % -- data_grid limits
 start = -80;
 width = 2;
@@ -55,8 +55,8 @@ step = 80;
 % triangle_area_raw = roundn(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas'),-8).';
 
 file_an4 = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin3_Hsmooth.dream3d';
-file_an5 = '/Volumes/XIAOTING/Ni/An5new6_Hsmooth.dream3d';
-centro_file = file_an5;
+file_an5 = '/Volumes/XIAOTING/Ni/An5new6_cropToAn4_Hsmooth.dream3d';
+centro_file = file_an4;
 file = centro_file;
 % file = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
 % centro_file = file_an4;
@@ -68,7 +68,7 @@ grain_diameter_raw = roundn(h5read(file,'/DataContainers/ImageDataContainer/Cell
 num_of_neigh = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors')).';
 neighborList = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/NeighborList'));
 facelabel = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels'));
-curvature_of_triangle = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5)';
+curvature_of_triangle = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5);
 triangle_area_raw = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'),-5);
 triangle_min_ang = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceDihedralAngles'),-5);
 % surfGrains = logical(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures'));
@@ -84,8 +84,8 @@ data_raw = [facelabel; curvature_of_triangle; triangle_area_raw; triangle_min_an
 % data_face = calcFaceCurvature(data_raw);
 eps_curv = 1;
 eps_area = 7;
-eps_minang = 10;
-data_face = calcFaceCurvature(data_raw, eps_curv, eps_area, eps_minang);
+eps_min_ang = 10;
+data_face = calcFaceCurvature(data_raw, eps_curv, eps_area, eps_min_ang);
 
 % --- grain_ForCal = [ID_ForCal, D_ForCal, NNeigh_ForCal, numEdges_ForCal] ---;
 grain_ForCal = filterGrains(criterion, facelabel, num_of_neigh, neighborList, X,Y,Z, centroids, grain_diameter_raw);
@@ -109,14 +109,14 @@ end
 
 curv_FmF = [F_mF_diff, data_grain(:,5)./(data_grain(:,2).*((4/3*pi)^(1/3)/2))];
 
-%% ------------------------------ filter STO data ------------------------------
-% load(G_FmF_STO1470_allGrains.mat)
-% load(data_grain_STO1470combined_thresCentroid.mat)
-curv_FmF_1 = curv_FmF(1:720, :);
-curv_FmF_2 = curv_FmF(721:end, :);
-curv_FmF_1 = curv_FmF_1(data_grain(1:134, 1), :);
-curv_FmF_2 = curv_FmF_2(data_grain(135:end, 1), :);
-curv_FmF = [curv_FmF_1; curv_FmF_2];
+% %% ------------------------------ filter STO data ------------------------------
+% % load(G_FmF_STO1470_allGrains.mat)
+% % load(data_grain_STO1470combined_thresCentroid.mat)
+% curv_FmF_1 = curv_FmF(1:720, :);
+% curv_FmF_2 = curv_FmF(721:end, :);
+% curv_FmF_1 = curv_FmF_1(data_grain(1:134, 1), :);
+% curv_FmF_2 = curv_FmF_2(data_grain(135:end, 1), :);
+% curv_FmF = [curv_FmF_1; curv_FmF_2];
 
 %%
 scatter(curv_FmF(:,1),curv_FmF(:,2),10,[0.5,0.5,0.5],'filled');

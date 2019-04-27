@@ -12,9 +12,10 @@ function [faces_1_raw, faces_2_raw, corresp] = trackFace(file_1, file_2,look_up_
 %     states but not complete in both states. 
 % ###########################################################################
 % ------------------ load data for debug --------------------
-% file_1 = file_An4;
-% file_2 = file_An5;
-% useCompleteFaces = true;
+% file_1 = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin3_Hsmooth.dream3d';
+% file_2 = '/Volumes/XIAOTING/Ni/An5new6_Hsmooth.dream3d';
+% use_complete_faces = 0;
+% load('look_up_table_an4_an5.mat');
 % -----------------------------------------------------------
     num_neigh_1 = double(h5read(file_1,'/DataContainers/ImageDataContainer/CellFeatureData/NumNeighbors')).';
     neigh_list_1 = double(h5read(file_1,'/DataContainers/ImageDataContainer/CellFeatureData/NeighborList'));
@@ -40,7 +41,6 @@ function [faces_1_raw, faces_2_raw, corresp] = trackFace(file_1, file_2,look_up_
     %      -  Now ID_state_2 is implicit. Take the first column to be lookUp_2to1, then it will give the ID_state_1 for grains in state_2
     look_up_table = sortrows(look_up_table, 2);  %  somehow the look up table is not really sorted well 
     look_up_table_2to1 = zeros(max(look_up_table(:,2)),2);
-    %   --- implicitly, grainSizeDiff is for the grains in state_An5 ---
     idx = 1;
     for i = 1 : max(look_up_table(:,2))
         if look_up_table(idx,2) == i
@@ -66,7 +66,7 @@ function [faces_1_raw, faces_2_raw, corresp] = trackFace(file_1, file_2,look_up_
         neighbors = getNeighList(i, num_neigh_2, neigh_list_2);
         faces_2_raw = [faces_2_raw; [i*ones(size(neighbors)), neighbors]];
     end
-    faces_2_id1 = [(1:length(faces_2_raw)).', look_up_table_2to1(faces_2_raw)];
+    faces_2_id1 = [(1:length(faces_2_raw))', look_up_table_2to1(faces_2_raw)];
     
     % ##### get rid of the incomplete faces #####
     if strcmp(use_complete_faces, 'use_complete_faces')
