@@ -3,12 +3,11 @@
 %     fl, ntype, tri = [n, 2/1/3]
 %     xdat = [3, n]
 % #####################################################
-file_1 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/D3Ds/An4new6_fixOrigin3_Hsmooth.dream3d');
+file_1 = ('/Users/xiaotingzhong/Desktop/Datas/Mg/HB_AZ31.dream3d');
 xdat_1 = double(h5read(file_1, '/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedVertexList'));
 tri_1 = 1 + double(h5read(file_1, '/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList')).';
 fl_1 = double(h5read(file_1, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels'))';
 ntype_1 = double(h5read(file_1, '/DataContainers/TriangleDataContainer/VertexData/NodeType'))';
-
 
 f_1 = find( any( fl_1 <= 0, 2 ) );
 fl_1( f_1, : ) = [];
@@ -48,3 +47,9 @@ ntype = ntype_1;
 
 % trisurf( tri, xdat(1,:), xdat(2,:), xdat(3,:) );
 % rotate3d on
+
+
+
+
+
+

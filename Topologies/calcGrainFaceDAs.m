@@ -1,4 +1,4 @@
-function [da_len_weighted, da_num_weighted] = calcGrainFaceDAs(faces, tl, tl_info)
+% function [da_len_weighted, da_num_weighted] = calcGrainFaceDAs(faces, tl, tl_info)
 % ############################################################################
 % * Input
 %   - faces = [n, 2]
@@ -34,9 +34,9 @@ function [da_len_weighted, da_num_weighted] = calcGrainFaceDAs(faces, tl, tl_inf
 % % % '/Volumes/XIAOTING/Ni/An4new6_fixOrigin2_smooth.dream3d';
 % % % '/Volumes/XIAOTING/Ni/An4new6_fixOrigin3_Hsmooth.dream3d';
 % % % '/Volumes/XIAOTING/Ni/An5new6_Hsmooth.dream3d'
-% faces = tracked_uniqueface_an5;
-% tl = triple_line_an5;
-% tl_info = tl_info_an5;
+faces = tracked_uniqueface_an5;
+tl = triple_line_an5;
+tl_info = tl_info_an5;
 % clear triple_line_an4 triple_line_an5 tl_info_an4 tl_info_an5
 % ---------------------------------------------------------------
 tl_da = tl_info(:, 1:3);
@@ -64,37 +64,37 @@ for i = 1:size(faces, 1)
     da_num_weighted(i, 3) = sum(connect_tl_da(mask_opp)) / size(mask_opp, 1);
 end
 
-end 
+% end 
 
-% %% ######################################### Check ######################################### 
-% % """
-% % plot in paraview, see if reasonable
-% % """
-% face_id = h5read(file, '/DataContainers/TriangleDataContainer/FaceFeatureData/FaceLabels')';
-% face_id(1,:) = [];
-% 
-% idx = randi(size(faces, 1));
-% face_id = sort(face_id, 2);
-% obj_label = sort(faces(idx, :));
-% [idx_face, ~] = find(face_id(:,1) == obj_label(1) & face_id(:,2) == obj_label(2));
-% 
-% mask_connect = (sum(tl == faces(idx, 1) | tl == faces(idx, 2), 2) == 2);
-% connect_tl = tl(mask_connect, :);
-% connect_tl_da = tl_da(mask_connect, :);
-% connect_tl_len = tl_len(mask_connect, :);
-% 
-% disp(['idx = ', num2str(idx)]);
-% disp('-------------------------------------------------------------')
-% disp(['face_label = ', num2str(faces(idx, :))]);
-% disp(['face_id in an4:   ', num2str(idx_face)])
-% disp('-----')
-% disp(['da = ', num2str(da(idx, :))])
-% for i = 1:size(connect_tl, 1)
-%     disp(['triple_line = ', num2str(connect_tl(i, :))]);
-%     disp(['dihedral_angles = ', num2str(connect_tl_da(i, :))]);
-%     disp(['length = ', num2str(connect_tl_len(i))]);
-% end
-% disp('-------------------------------------------------------------')
+%% ######################################### Check ######################################### 
+% """
+% plot in paraview, see if reasonable
+% """
+face_id = h5read(file, '/DataContainers/TriangleDataContainer/FaceFeatureData/FaceLabels')';
+face_id(1,:) = [];
+
+idx = randi(size(faces, 1));
+face_id = sort(face_id, 2);
+obj_label = sort(faces(idx, :));
+[idx_face, ~] = find(face_id(:,1) == obj_label(1) & face_id(:,2) == obj_label(2));
+
+mask_connect = (sum(tl == faces(idx, 1) | tl == faces(idx, 2), 2) == 2);
+connect_tl = tl(mask_connect, :);
+connect_tl_da = tl_da(mask_connect, :);
+connect_tl_len = tl_len(mask_connect, :);
+
+disp(['idx = ', num2str(idx)]);
+disp('-------------------------------------------------------------')
+disp(['face_label = ', num2str(faces(idx, :))]);
+disp(['face_id in an4:   ', num2str(idx_face)])
+disp('-----')
+disp(['da = ', num2str(tl_da(idx, :))])
+for i = 1:size(connect_tl, 1)
+    disp(['triple_line = ', num2str(connect_tl(i, :))]);
+    disp(['dihedral_angles = ', num2str(connect_tl_da(i, :))]);
+    disp(['length = ', num2str(connect_tl_len(i))]);
+end
+disp('-------------------------------------------------------------')
 
 
 

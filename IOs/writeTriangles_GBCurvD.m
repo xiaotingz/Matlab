@@ -1,20 +1,17 @@
-curvFile = ('/Users/xiaotingzhong/Desktop/Datas/STO_1350C_4volumes_forXiaoting/mesh_STO_1350C_400nm_0729_rohrerpipe_curv.dream3d');
-OutFile = strcat('/Users/xiaotingzhong/Desktop/Datas/STO_1350C_4volumes_forXiaoting/mesh_STO_1350C_400nm_0729_rohrerpipe_curvTriangles.ph');
+curvFile = ('/Users/xiaotingzhong/Desktop/Datas/Mg/8_surface_features.dream3d');
+outFile = ('/Users/xiaotingzhong/Desktop/Datas/Mg/8_surface_features_tris.txt');
+% OutFile = strcat('/Users/xiaotingzhong/Desktop/Datas/STO_1350C_4volumes_forXiaoting/mesh_STO_1350C_400nm_0729_rohrerpipe_curvTriangles.ph');
 
 
-FaceLabel_raw = h5read(curvFile, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels').';
+fl_raw = h5read(curvFile, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels').';
 curv_raw = h5read(curvFile, '/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures').';
-tri_bool = ones(length(curv_raw),1);
-for i = 1:length(FaceLabel_raw)
-    if FaceLabel_raw(i,1) < 0 || FaceLabel_raw(i,2) < 0
-        tri_bool(i) = 0;
-    end
-end
-tri_bool = logical(tri_bool);
-curv = curv_raw(tri_bool);
+mask_tri = all(fl_raw>=0, 2);
+curv = curv_raw(mask_tri);
 curv = abs(curv);
+fl = fl_raw(mask_tri, :);
 
-fileID = fopen(OutFile,'w');
+%%
+fileID = fopen(outFile,'w');
 fprintf(fileID,'# Triangles Produced from DREAM3D version 6.4\n');
 fprintf(fileID,'# Column 1-3:    right hand average orientation (phi1, PHI, phi2 in RADIANS)\n');
 fprintf(fileID,'# Column 4-6:    left hand average orientation (phi1, PHI, phi2 in RADIANS)\n');
@@ -23,9 +20,13 @@ fprintf(fileID,'# Column 10:      surface area\n');
 fprintf(fileID,'# Column 11:      triangle curvature\n');
 
 format = '%7.4f    %7.4f    %7.4f    %7.4f    %7.4f  %7.4f  %7.4f  %7.4f  %7.4f   %7.4f   %7.4f\n';
+cnt = 0;
 for i = 1:length(VarName1)
-    fprintf(fileID,format,VarName1(i),VarName2(i),VarName3(i),VarName4(i),VarName5(i),VarName6(i), ...
-        VarName7(i),VarName8(i),VarName9(i),VarName10(i), curv(i));
+    if curv(i) < 100 && all(fl(i, :) > 0)
+        fprintf(fileID,format,VarName1(i),VarName2(i),VarName3(i),VarName4(i),VarName5(i),VarName6(i), ...
+            VarName7(i),VarName8(i),VarName9(i),VarName10(i), curv(i));
+        cnt = cnt + 1;
+    end
 end
 fclose('all');
 %% This is for the STO_1350 data, where there are facelabel=0
@@ -33,19 +34,19 @@ curvFile = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311/180311_STO1470su
 OutFile = strcat('/Users/xiaotingzhong/Desktop/Datas/180806/STOsub2_full.ph');
 
 
-FaceLabel_raw = h5read(curvFile, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels').';
+fl_raw = h5read(curvFile, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels').';
 curv_raw = h5read(curvFile, '/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures').';
-tri_bool = ones(length(curv_raw),1);
-for i = 1:length(FaceLabel_raw)
-    if FaceLabel_raw(i,1) < 0 || FaceLabel_raw(i,2) < 0
-        tri_bool(i) = 0;
+mask_tri = ones(length(curv_raw),1);
+for i = 1:length(fl_raw)
+    if fl_raw(i,1) < 0 || fl_raw(i,2) < 0
+        mask_tri(i) = 0;
     end
 end
-tri_bool = logical(tri_bool);
-curv = curv_raw(tri_bool);
+mask_tri = logical(mask_tri);
+curv = curv_raw(mask_tri);
 curv = abs(curv);
 
-FaceLabel = FaceLabel_raw(tri_bool,:);
+FaceLabel = fl_raw(mask_tri,:);
 tri_bool2 = ones(length(FaceLabel),1);
 for i = 1: length(FaceLabel)
     if FaceLabel(i,1) == 0 || FaceLabel(i,2) == 0

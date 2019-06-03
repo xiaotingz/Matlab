@@ -254,6 +254,9 @@ itg_abscurv_diff = itg_abscurv_diff(idx_unique_an4);
 
 %%
 % ------------------ max & avg area change for the neighboring faces ------------------
+% nn_faces_an4 = getLeftRightFaceConnections(tracked_uniqueface_an4, tls_an4, file_an4);
+% nn_faces_an5 = getLeftRightFaceConnections(tracked_uniqueface_an5, tls_an5, file_an5);
+
 fnnf_area_maxdec = zeros(size(tracked_uniqueface_an4, 1), 1);
 fnnf_area_avgdec = zeros(size(tracked_uniqueface_an4, 1), 1);
 fnnf_itgcurv_maxdec = zeros(size(tracked_uniqueface_an4, 1), 1);
@@ -277,6 +280,77 @@ for i = 1:size(tracked_uniqueface_an4, 1)
     fnnf_itgcurv_maxdec(i) = nnf_itgcurv_maxdec_right - nnf_itgcurv_maxdec_left;
     fnnf_itgcurv_avgdec(i) = nnf_itgcurv_avgdec_right - nnf_itgcurv_avgdec_left;
 end
+
+
+%%
+% ------------------ fraction of neighboring faces: twin & positive curvature ------------------
+% ##### clean data_face to be for complete grain faces #####
+mask_reverse = (data_face_an4(:, 1) > data_face_an4(:, 2));
+data_face_an4(mask_reverse, 4) = - data_face_an4(mask_reverse, 4);
+data_face_an4(:, 1:2) = sort(data_face_an4(:, 1:2), 2);
+faces_unique_an4 = sortrows(data_face_an4, [1,2]);
+cnt = 1;
+while cnt < length(faces_unique_an4)
+    if faces_unique_an4(cnt, 1) == faces_unique_an4(cnt+1, 1) && faces_unique_an4(cnt, 2) == faces_unique_an4(cnt+1, 2)
+        face_area = faces_unique_an4(cnt, 3) + faces_unique_an4(cnt+1, 3);
+        faces_unique_an4(cnt, 4) = (faces_unique_an4(cnt, 3)*faces_unique_an4(cnt, 4) ...
+                            + faces_unique_an4(cnt+1, 3)*faces_unique_an4(cnt+1, 4)) / face_area;
+        faces_unique_an4(cnt, 3) = face_area;
+        faces_unique_an4(cnt+1, :) = [];
+    end
+    cnt = cnt + 1;
+end 
+
+% ##### identify twin label for faces_unique #####
+tri_istwin_an4 = boolean(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/TwinBoundary'))';
+fl_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels'))';
+mask_an4 = all(fl_an4>0, 2);
+fl_an4 = fl_an4(mask_an4, :);
+tri_istwin_an4 = tri_istwin_an4(mask_an4, :);
+fl_an4 = sort(fl_an4, 2);
+
+face_unique_twins_an4 = zeros(length(faces_unique_an4), 1);
+for i = 1:length(faces_unique_an4)
+    mask_an4 = (fl_an4(:,1) == faces_unique_an4(i, 1) & fl_an4(:,2) == faces_unique_an4(i, 2));
+    if all(tri_istwin_an4(mask_an4))
+        face_unique_twins_an4(i) = true;
+    else
+        if any(tri_istwin_an4(mask_an4))
+            warning(['D3D problem, an4, pair ', num2str(i)]);
+        end
+    end
+end
+
+% ##### calc fractions #####
+neighfrac_pos_an4 = zeros(length(nn_faces_an4), 1);
+twinfrac_pos_an4 = zeros(length(nn_faces_an4), 1);
+
+for i = 1:size(tracked_uniqueface_an4, 1)
+    % ----- left connections -----
+    nnf_an4_left = nn_faces_an4{i, 1};
+    mask_lnnf_an4 = ismember(faces_unique_an4, nnf_an4_left(:, 1:2), 'rows');
+    twins_lnnf = face_unique_twins_an4(mask_lnnf_an4);
+    tmp = faces_unique_an4(mask_lnnf_an4, :);
+    lnnf_curv_an4 = tmp(:,3);
+    mask_reverse = (tmp(:,1) == tracked_uniqueface_an4(i, 1));
+    lnnf_curv_an4(mask_reverse) = -lnnf_curv_an4(mask_reverse);
+    
+    % ----- right connections -----
+    nnf_an4_right = nn_faces_an4{i, 2};
+    mask_rnnf_an4 = ismember(faces_unique_an4, nnf_an4_right(:, 1:2), 'rows');
+    twins_rnnf = face_unique_twins_an4(mask_rnnf_an4);
+    tmp = faces_unique_an4(mask_rnnf_an4, :);
+    rnnf_curv_an4 = tmp(:,3);
+    mask_reverse = (tmp(:,1) == tracked_uniqueface_an4(i, 2));
+    rnnf_curv_an4(mask_reverse) = -rnnf_curv_an4(mask_reverse);
+    
+    % ----- calc fractions -----
+    num_neighs = (length(lnnf_curv_an4) + length(rnnf_curv_an4));
+    neighfrac_pos_an4(i) = (sum(lnnf_curv_an4 > 0) + sum(rnnf_curv_an4 > 0 )) / num_neighs;
+    twinfrac_pos_an4(i) = (sum(twins_rnnf) + sum(twins_lnnf)) / num_neighs;
+end
+
+
 
 
 

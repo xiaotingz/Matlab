@@ -1,4 +1,4 @@
-function [triple_line, tl_info] = findTripleLines(file, eps_area, eps_curv, eps_min_ang)
+% function [triple_line, tl_info] = findTripleLines(file, eps_area, eps_curv, eps_min_ang)
 % ############################################################################
 % * Output
 %   - triple_line = [n, 3], n is the number of triple lines in the volume, 3
@@ -16,13 +16,13 @@ function [triple_line, tl_info] = findTripleLines(file, eps_area, eps_curv, eps_
 % ----------------------- load debug data -----------------------
 % % clear
 % % file = '/Users/xiaotingzhong/Desktop/Datas/synthetic/180502_CubicSingleEquiaxedOut.dream3d';
-% file = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin3_Hsmooth.dream3d';
+file = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_cropToAn4_Hsmooth.dream3d';
 % % '/Volumes/XIAOTING/Ni/An4new6_fixOrigin2_smooth.dream3d';
 % % '/Volumes/XIAOTING/Ni/An4new6_fixOrigin3_Hsmooth.dream3d';
-% % '/Volumes/XIAOTING/Ni/An5new6_Hsmooth.dream3d'
-% eps_area = 7;
-% eps_curv = 1;
-% eps_min_ang = 10;
+% % '/Volumes/XIAOTING/Ni/An5new6_cropToAn4_Hsmooth.dream3d'
+eps_area = 7;
+eps_curv = 1;
+eps_min_ang = 10;
 % ---------------------------------------------------------------
 
 % ##### Read in data ##### 
@@ -233,7 +233,7 @@ len = [len; culm_len];
 tl_info = [dihedral_angle, len];
 
 % triple_line_unique = unique(tlgroup_id, 'rows');
-end
+% end
 
 
 % %% ######################################### Check ######################################### 
@@ -247,7 +247,6 @@ end
 % notfull = abs(sum(dihedral_angle, 2) - 360) > 0.1;
 % idx_notfull = (1:size(dihedral_angle,1))';
 % idx_notfull = idx_notfull(notfull);
-% print('an4_TLWeightedDihedralAnalge')
 % tmp = length(idx_notfull)/length(dihedral_angle);
 % disp([num2str(tmp), '   triple lines bad'])
 % 
@@ -274,7 +273,7 @@ end
 % 
 % daspect([1,1,1])
 % rotate3d on
-
+% 
 
 
 

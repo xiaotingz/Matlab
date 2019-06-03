@@ -1,19 +1,20 @@
-file = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth_forParaview.dream3d';
+file = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/D3Ds/An5new6_Hsmooth_curvSwapped_forParaview.dream3d';
 IPF_switch = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/IPFColors')).';
 facelabel = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')).';
 
 
 for i = 1:length(IPF_switch)
-    if facelabel(i,1) < facelabel(i,2)
+%     if facelabel(i,1) < facelabel(i,2) 
+    if any(facelabel(i,:)==0)
         tmp = IPF_switch(i, 4:6);
         IPF_switch(i, 4:6) = IPF_switch(i, 1:3);
-        IPF_switch(i, 1:3) = tmp;
+        IPF_switch(i, 1:3) = tmp;     
     end
 end
 
 
-h5write(file,'/DataContainers/TriangleDataContainer/FaceData/IPFColors_BlueFirst', IPF_switch');
-h5write(file,'/DataContainers/TriangleDataContainer/FaceData/IPFcolors_Blue', IPF_BlueDiff');
+h5write(file,'/DataContainers/TriangleDataContainer/FaceData/IPFColors', IPF_switch');
+% h5write(file,'/DataContainers/TriangleDataContainer/FaceData/IPFcolors_Blue', IPF_BlueDiff');
 
 
 %%
