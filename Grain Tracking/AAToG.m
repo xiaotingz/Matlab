@@ -15,5 +15,7 @@ function dg = AAToG(phi, x)
 	dg(3,1)=x(1)*x(3)*(1.0-cos(phi))-x(2)*sin(phi);
 	dg(3,2)=x(2)*x(3)*(1.0-cos(phi))+x(1)*sin(phi);
 	dg(3,3)=cos(phi)+(1.0-cos(phi))*(x(3)^2);
+    
+    dg = dg';
 end
 

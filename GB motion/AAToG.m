@@ -14,5 +14,7 @@ function delg = AAToG (phi, x)
 	delg(3,1)=x(1)*x(3)*(1.0-cos(phi))-x(2)*sin(phi);
 	delg(3,2)=x(2)*x(3)*(1.0-cos(phi))+x(1)*sin(phi);
 	delg(3,3)=cos(phi)+(1.0-cos(phi))*(x(3)^2);
+    
+    dg = dg';
 end
 
