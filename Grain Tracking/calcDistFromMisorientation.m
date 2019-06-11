@@ -15,24 +15,23 @@
 %     deviation is really small.
 % ##########################################################################
 % ----------------------- load debug data -----------------------
-file = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin3_Hsmooth.dream3d';
-load('/Volumes/XIAOTING/Ni/190425_Hsmooth_geo_topo_an5crop2.mat', 'tracked_uniqueface_an4');
-fl_obj = tracked_uniqueface_an4;
+load('/Volumes/XIAOTING/Ni/190425_Hsmooth_geo_topo_an5crop2.mat', ...
+    'tracked_uniqueface_an4', 'tracked_uniqueface_an5');
+% file = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin3_Hsmooth.dream3d';
+% fl_obj = tracked_uniqueface_an4;
+file = '/Volumes/XIAOTING/Ni/An5new6_cropToAn4_Hsmooth.dream3d';
+fl_obj = tracked_uniqueface_an5;
 clear tracked_uniqueface_an4
+
 
 % ----- dg_twin in FZ -----
 dg_obj = zeros(3, 3, 6);
-
 dg_obj(:,:,1) = AAToG(60, [1, 1, 1]);     % sigma3
 dg_obj(:,:,2) = AAToG(36.86, [1, 0, 0]);  % sigma5
 dg_obj(:,:,3) = AAToG(38.21, [1, 1, 1]);  % sigma7
 dg_obj(:,:,4) = AAToG(38.94, [1, 1, 0]);  % sigma9
 dg_obj(:,:,5) = AAToG(31.59, [1, 1, 0]);  % sigma27a
 dg_obj(:,:,6) = AAToG(35.43, [2, 1, 0]);  % sigma27b
-
-angles = [60; 36.86; 38.21; 38.94; 31.59; 35.43];
-axis = [[1,1,1]; [1,0,0]; [1,1,1]; [1,1,0]; [1,1,0]; [2,1,0]];
-
 % ---------------------------------------------------------------
 
 % ############################### Prepare Data ###############################

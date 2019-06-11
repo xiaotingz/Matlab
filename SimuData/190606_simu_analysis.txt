@@ -1,0 +1,14 @@
+The outline of the method
+  	1. From simulation data (id_given), assign new grainIDs (id_new)
+          	Ignore new grains whose size < min_size_thres.
+	2. Track id_given and id_new
+  	3. Tracked the new_ID between an4 and an5. 
+          	Try use centroid position for differentiating the pieces.
+  	4. Track between new_ID & D3D_ID
+		in an4, one d3d grain can corresponds to several id_new. In other words, one key in corresp_d3d_simu can have more than 1 values. Checked in preview that these grains always sit together. So this problem is likely due to orientation merge.
+	5. Track between D3D
+
+Notes
+	- The tracking algorithm is not perfect. During the tracking between two simulation id_new, it tracked by relative score and always find a corresp for grains in whichever state that have fewer grains.
+		However, checked in paraview that most corresps should be good.
+	- 

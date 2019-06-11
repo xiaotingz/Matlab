@@ -1,5 +1,8 @@
-file_an4 = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin3_Hsmooth.dream3d';
-file_an5 = '/Volumes/XIAOTING/Ni/An5new6_cropToAn4_Hsmooth.dream3d';
+% file_an4 = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin3_Hsmooth.dream3d';
+% file_an5 = '/Volumes/XIAOTING/Ni/An5new6_cropToAn4_Hsmooth.dream3d';
+file_an4 = '/Volumes/XIAOTING/Ni/simu_An4_clean_seg.dream3d';
+file_an5 = '/Volumes/XIAOTING/Ni/simu_An5_clean_seg.dream3d';
+
 eps_curv = 1;
 eps_area = 7;
 eps_min_ang = 10;
@@ -24,11 +27,11 @@ faces_an5 = sortrows(sort(faces_an5, 2));
 [num_corners_an5, num_edges_an5] = getFaceCharacter(faces_an5, triple_line_full_an5, result_an5{1}, result_an5{2});
 [num_nnface_avgcorner_an5] = findFaceNNAvgCorner(file_an5, faces_an5, num_corners_an5, triple_line_full_an5);
 
-[avg_nng_diff, max_nng_diff] = findFaceLocalTopologyChange(file_an4, file_an5, faces_an4, look_up_table, triple_line_full_an4);
+[avg_nng_diff, max_nng_diff] = findFaceLocalTopologyChange(file_an4, file_an5, faces_an4, corresp_d3d_45, triple_line_full_an4);
 
 
-
-
+[da_len_weighted_an4, da_num_weighted_an4] = calcGrainFaceDAs(faces_an4, triple_line_an4, tl_info_an4);
+[da_len_weighted_an5, da_num_weighted_an5] = calcGrainFaceDAs(faces_an5, triple_line_an5, tl_info_an5);
 
 %% ##################################### Checks #####################################
 % """
