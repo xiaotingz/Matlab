@@ -1,9 +1,30 @@
-%% #################################### Data Prepare ####################################
-file_an4 = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin3_Hsmooth.dream3d';
-load('/Volumes/XIAOTING/Ni/190425_Hsmooth_geo_topo_an5crop2.mat', ...
-    'face_area_an4', 'face_area_diff', 'face_itg_abscurv_an4', 'face_itg_abscurv_diff', 'tracked_uniqueface_an4');
+%% #################################### Read Data ####################################
 
-%  ------------------------------------- read and clean data -------------------------------------
+% file_an4 = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin3_Hsmooth.dream3d';
+file_an4 = '/Volumes/XIAOTING/Ni/An4new6_fixedOrigin_smooth.dream3d';
+% ----------- inner faces -----------
+% load('/Volumes/XIAOTING/Ni/working/190425_Hsmooth_geo_topo_an5crop2.mat', ...
+%     'face_area_an4', 'face_area_diff', 'face_itg_abscurv_an4', 'face_itg_abscurv_diff', 'tracked_uniqueface_an4');
+% ----------- full tracked faces -----------
+load('/Volumes/XIAOTING/Ni/working/190621_tracked_faces_full.mat')
+tracked_uniqueface_an4 = tracked_uniqueface_an4_full;
+tracked_uniqueface_an5 = tracked_uniqueface_an5_full;
+
+face_area_diff_ratio = face_area_diff ./ face_area_an4;
+mask = ((face_area_an4 + face_area_diff) > 20 & face_area_an4 > 20 & ... 
+    face_area_diff_ratio > -0.9 & face_area_diff_ratio < 10);
+face_area_an4 = face_area_an4(mask);
+face_area_diff = face_area_diff(mask);
+face_itg_abscurv_an4 = face_itg_abscurv_an4(mask);
+face_itg_abscurv_diff = face_itg_abscurv_diff(mask);
+tracked_uniqueface_an4 = tracked_uniqueface_an4(mask, :);
+face_area_diff_ratio = face_area_diff_ratio(mask);
+
+
+%% #################################### Data Prepare, Hsmoosth ####################################
+% """
+% bad triangles in Hsmooth are found from eps_area, eps_curv and eps_min_ang
+% """
 fl = h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
 curv = roundn(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5)';
 min_ang = roundn(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceDihedralAngles'),-5)';
@@ -20,45 +41,45 @@ fl = fl(mask, :);
 curv = curv(mask);
 min_ang = min_ang(mask);
 area = area(mask);
-idxes = idxes(mask);
 
+idxes = idxes(mask);
 valid_grainids = unique(tracked_uniqueface_an4);
 mask = all(fl>0, 2) & abs(curv) < eps_curv & area < eps_area & min_ang > eps_min_ang ...
         & all(ismember(fl, valid_grainids), 2);
-% data = data(mask, :);
+data = data(mask, :);
 fl = fl(mask, :);
 area = area(mask, :);
 curv = curv(mask);
 idxes = idxes(mask);
 
+
+%% #################################### Data Prepare, Laplacian Smoosth ####################################
+% """
+% exclude triple line triangles
+% """
+tri_nodes =  h5read(file_an4,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList')';
+node_types =  h5read(file_an4,'/DataContainers/TriangleDataContainer/VertexData/NodeType')';
+fl = h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
+fl = sort(fl, 2);
+mask = all(fl >= 0, 2);
+fl = fl(mask, :);
+tri_nodes = tri_nodes(mask, :);
+
+tri_node_types = node_types(tri_nodes);
+mask_good_tris = (all(tri_node_types == 2, 2) & all(fl > 0, 2));
+fl = fl(mask_good_tris, :);
+data = data(mask_good_tris, :);
+
+
+
+
 %% #################################### Assign Resident Face Values to Triangles ####################################
-
-% %  ------------------------------------- create dictionaries -------------------------------------
-% fl_keys = cell(length(tracked_uniqueface_an4),1);
-% for i = 1:length(tracked_uniqueface_an4)
-%     fl_keys{i} = mat2str(tracked_uniqueface_an4(i, :));
-% end
-% fa_dict = containers.Map(fl_keys,face_area_an4);
-% fa_diff_dict = containers.Map(fl_keys,face_area_diff);
-% fitg_curv_dict = containers.Map(fl_keys,face_itg_abscurv_an4);
-% fitg_curv_diff_dict = containers.Map(fl_keys,face_itg_abscurv_diff);
-
-
 %  ------------------------------------- assign face values to individual triangles -------------------------------------
 fa = zeros(size(fl, 1), 1) * NaN;
 fa_diff = zeros(size(fl, 1), 1) * NaN;
 fitg_curv = zeros(size(fl, 1), 1) * NaN;
 fitg_curv_diff = zeros(size(fl, 1), 1) * NaN;
 
-% for i = 1:length(fl)
-%     fl_key = mat2str(fl(i, :));
-%     if isKey(fa_dict, fl_key)
-%         fa(i) = fa_dict(fl_key);
-%         fa_diff(i) = fa_diff_dict(fl_key);
-%         fitg_curv(i) = fitg_curv_dict(fl_key);
-%         fitg_curv_diff(i) = fitg_curv_diff_dict(fl_key);
-%     end
-% end
 for i = 1:length(tracked_uniqueface_an4)
     mask = (fl(:, 1) == tracked_uniqueface_an4(i, 1) & fl(:, 2) == tracked_uniqueface_an4(i, 2));
     fa(mask) = face_area_an4(i);
@@ -68,31 +89,96 @@ for i = 1:length(tracked_uniqueface_an4)
 end
 
 
-mask = ~isnan(fa);
-fa = fa(mask);
-fa_diff = fa_diff(mask);
+mask_trackedface = ~isnan(fa);
+fa = fa(mask_trackedface);
+fa_diff = fa_diff(mask_trackedface);
 fa_absdiff = abs(fa_diff);
 fa_diff_ratio = fa_diff ./ fa;
 fa_absdiff_ratio = fa_absdiff ./ fa;
-fitg_curv = fitg_curv(mask);
-fitg_curv_diff = fitg_curv_diff(mask);
+fitg_curv = fitg_curv(mask_trackedface);
+fitg_curv_diff = fitg_curv_diff(mask_trackedface);
 figt_curv_absdiff = abs(fitg_curv_diff);
-idxes = idxes(mask);
+% idxes = idxes(mask_trackedface);
 
-% data = data(mask, :);
-curv = curv(mask);
+data = data(mask_trackedface, :);
+% curv = curv(mask_trackedface);
 
 
 %% #################################### Write Seudo GBCDtris file ####################################
-% fa_diff_id = fopen('an4_fa_diff.txt', 'w');
-% format = '10%6.3f';
-% fprintf(fa_diff_id,format, data())
-% data(:, end) = fa_diff;
-% csvwrite('an4_fa_diff.csv',data);
+data = [data, fa_diff/100];
+mask = fa_diff > 0;
+csvwrite('fullTrack_noExtreme_Lsmooth_001DA_pos.csv',data(mask, :));
+csvwrite('fullTrack_noExtreme_Lsmooth_001DA_neg.csv',data(~mask, :));
+csvwrite('fullTrack_noExtreme_Lsmooth_001DA.csv',data);
+data(:, end) = fa_diff_ratio;
+csvwrite('fullTrack_noExtreme_Lsmooth_DAratio_pos.csv',data(mask, :));
+csvwrite('fullTrack_noExtreme_Lsmooth_DAratio_neg.csv',data(~mask, :));
+csvwrite('fullTrack_noExtreme_Lsmooth_DAratio.csv',data);
+data(:, end) = fa_absdiff/100;
+csvwrite('fullTrack_noExtreme_Lsmooth_001absDA.csv',data);
+data(:, end) = fa_absdiff_ratio;
+csvwrite('fullTrack_noExtreme_Lsmooth_absDAratio.csv',data);
 
-data(:, end) = fa_absdiff;
-csvwrite('an4_fa_absdiff.csv',data);
+% data = [data, fa_diff/100];
+% mask = fa_diff > 0;
+% csvwrite('noExtreme_Lsmooth_001DA_pos.csv',data(mask, :));
+% csvwrite('noExtreme_Lsmooth_001DA_neg.csv',data(~mask, :));
+% csvwrite('noExtreme_Lsmooth_001DA.csv',data);
+% data(:, end) = fa_diff_ratio;
+% csvwrite('noExtreme_Lsmooth_DAratio_pos.csv',data(mask, :));
+% csvwrite('noSExtreme_Lsmooth_DAratio_neg.csv',data(~mask, :));
+% csvwrite('noExtreme_Lsmooth_DAratio.csv',data);
+% data(:, end) = fa_absdiff/100;
+% csvwrite('noExtreme_Lsmooth_001absDA.csv',data);
+% data(:, end) = fa_absdiff_ratio;
+% csvwrite('noExtreme_Lsmooth_absDAratio.csv',data);
 
+% file = 'GBCDtris_noSmallFace_A.txt';
+% fileID = fopen(file,'w');
+% format = '%7.4f    %7.4f    %7.4f    %7.4f    %7.4f  %7.4f  %7.4f  %7.4f  %7.4f  %7.4f   %7.4f\n';
+% for i = 1:length(data)
+%     fprintf(fileID,format,data(i, 1),data(i, 2),data(i, 3),data(i, 4),data(i, 5),data(i, 6), ...
+%         data(i, 7),data(i, 8),data(i, 9), data(i, 10), fa(i));
+% end
+% fclose('all');
+
+
+% file = 'GBCDtris_001DA.txt';
+% fileID = fopen(file,'w');
+% format = '%7.4f    %7.4f    %7.4f    %7.4f    %7.4f  %7.4f  %7.4f  %7.4f  %7.4f  %7.4f   %7.4f\n';
+% for i = 1:length(data)
+%     fprintf(fileID,format,data(i, 1),data(i, 2),data(i, 3),data(i, 4),data(i, 5),data(i, 6), ...
+%         data(i, 7),data(i, 8),data(i, 9),fa(i), fa_diff(i));
+% end
+% fclose('all');
+
+% file = 'GBCDtris_absDA.txt';
+% fileID = fopen(file,'w');
+% format = '%7.4f    %7.4f    %7.4f    %7.4f    %7.4f  %7.4f  %7.4f  %7.4f  %7.4f  %7.4f   %7.4f\n';
+% for i = 1:length(data)
+%     fprintf(fileID,format,data(i, 1),data(i, 2),data(i, 3),data(i, 4),data(i, 5),data(i, 6), ...
+%         data(i, 7),data(i, 8),data(i, 9),fa(i), abs(fa_diff(i)));
+% end
+% fclose('all');
+
+% file = 'GBCDtris_DAratio.txt';
+% fileID = fopen(file,'w');
+% format = '%7.4f    %7.4f    %7.4f    %7.4f    %7.4f  %7.4f  %7.4f  %7.4f  %7.4f  %7.4f   %7.4f\n';
+% for i = 1:length(data)
+%     fprintf(fileID,format,data(i, 1),data(i, 2),data(i, 3),data(i, 4),data(i, 5),data(i, 6), ...
+%         data(i, 7),data(i, 8),data(i, 9), data(i, 10), fa_diff_ratio(i));
+% end
+% fclose('all');
+% 
+% 
+% file = 'GBCDtris_absDAratio.txt';
+% fileID = fopen(file,'w');
+% format = '%7.4f    %7.4f    %7.4f    %7.4f    %7.4f  %7.4f  %7.4f  %7.4f  %7.4f  %7.4f   %7.4f\n';
+% for i = 1:length(data)
+%     fprintf(fileID,format,data(i, 1),data(i, 2),data(i, 3),data(i, 4),data(i, 5),data(i, 6), ...
+%         data(i, 7),data(i, 8),data(i, 9),data(i, 10), fa_absdiff_ratio(i));
+% end
+% fclose('all');
 
 
 %% #################################### Modify data in D3D ####################################
@@ -111,13 +197,102 @@ w_fa_absdiff_ratio(idxes) =  fa_absdiff_ratio;
 w_fitg_curv_diff(idxes) = fitg_curv_diff;
 w_figt_curv_absdiff(idxes) = figt_curv_absdiff;
 
-h5write(file_an4, '/DataContainers/TriangleDataContainer/FaceData/DAResidentFace', w_fa_diff');
-h5write(file_an4, '/DataContainers/TriangleDataContainer/FaceData/DMsfResidentFace', w_fitg_curv_diff');
-h5write(file_an4, '/DataContainers/TriangleDataContainer/FaceData/AreaResidentFace', w_fa');
-h5write(file_an4, '/DataContainers/TriangleDataContainer/FaceData/DAResidentFaceRatio', w_fa_diff_ratio');
-h5write(file_an4, '/DataContainers/TriangleDataContainer/FaceData/absDAResidentFaceRatio', w_fa_absdiff_ratio');
-h5write(file_an4, '/DataContainers/TriangleDataContainer/FaceData/absDAResidentFace', w_fa_absdiff');
-h5write(file_an4, '/DataContainers/TriangleDataContainer/FaceData/absDMsfResidentFace', w_figt_curv_absdiff');
+% h5write(file_an4, '/DataContainers/TriangleDataContainer/FaceData/DAResidentFace', w_fa_diff');
+% h5write(file_an4, '/DataContainers/TriangleDataContainer/FaceData/DMsfResidentFace', w_fitg_curv_diff');
+% h5write(file_an4, '/DataContainers/TriangleDataContainer/FaceData/AreaResidentFace', w_fa');
+% h5write(file_an4, '/DataContainers/TriangleDataContainer/FaceData/DAResidentFaceRatio_noAreaLess20', w_fa_diff_ratio');
+% h5write(file_an4, '/DataContainers/TriangleDataContainer/FaceData/absDAResidentFaceRatio_noAreaLess20', w_fa_absdiff_ratio');
+% h5write(file_an4, '/DataContainers/TriangleDataContainer/FaceData/absDAResidentFace', w_fa_absdiff');
+% h5write(file_an4, '/DataContainers/TriangleDataContainer/FaceData/absDMsfResidentFace', w_figt_curv_absdiff');
+
+
+
+%% #################################### Checks ####################################
+file_an4 = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin3_Hsmooth.dream3d';
+load('/Volumes/XIAOTING/Ni/190425_Hsmooth_geo_topo_an5crop2.mat', ...
+    'face_area_an4', 'face_area_diff', 'face_itg_abscurv_an4', 'face_itg_abscurv_diff', 'tracked_uniqueface_an4');
+mask = (abs(face_area_an4 + face_area_diff) > 10e-3 & face_area_an4 > 0);
+face_area_an4 = face_area_an4(mask);
+face_area_diff = face_area_diff(mask);
+face_itg_abscurv_an4 = face_itg_abscurv_an4(mask);
+face_itg_abscurv_diff = face_itg_abscurv_diff(mask);
+tracked_uniqueface_an4 = tracked_uniqueface_an4(mask, :);
+
+
+% -------- make keys --------
+fl_key = cell(size(tracked_uniqueface_an4, 1), 1);
+for i = 1:size(tracked_uniqueface_an4)
+    %fl_key{i} = mat2str(tracked_uniqueface_an4(i, :));
+    fl_key{i} = sprintf('%05d%05d', tracked_uniqueface_an4(i, 1), tracked_uniqueface_an4(i, 2));
+end
+face_area_an4_dict = containers.Map(fl_key, face_area_an4);
+face_area_diff_dict = containers.Map(fl_key, face_area_diff);
+face_area_diff_ratio = face_area_diff ./ face_area_an4;
+face_area_diff_ratio_dict = containers.Map(fl_key, face_area_diff_ratio);
+
+fl_d3d = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
+face_area_diff_d3d = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/DAResidentFace')';
+face_area_an4_d3d = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/AreaResidentFace');
+face_area_diff_ratio_d3d = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/DAResidentFaceRatio')';
+abs_face_area_diff_d3d = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/absDAResidentFace')';
+abs_face_area_diff_ratio_d3d = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/absDAResidentFaceRatio')';
+
+mask = face_area_an4_d3d > 0;
+fl_d3d = fl_d3d(mask, :);
+fl_d3d = sort(fl_d3d, 2);
+face_area_diff_d3d = face_area_diff_d3d(mask);
+face_area_an4_d3d = face_area_an4_d3d(mask);
+face_area_diff_ratio_d3d = face_area_diff_ratio_d3d(mask);
+abs_face_area_diff_d3d = abs_face_area_diff_d3d(mask);
+abs_face_area_diff_ratio_d3d = abs_face_area_diff_ratio_d3d(mask);
+
+sum(abs_face_area_diff_d3d - abs(face_area_diff_d3d))
+sum(abs_face_area_diff_ratio_d3d - abs(face_area_diff_ratio_d3d))
+
+data = [face_area_diff_ratio, face_area_an4, face_area_diff];
+data = sortrows(data);
+data(:,2) - data(:,3);
+
+%%
+
+rng('shuffle')
+idx = randi(size(fl_d3d, 1));
+disp('------------------------------')
+disp(['facelabel = [', num2str(fl_d3d(idx, 1)), ', ', num2str(fl_d3d(idx, 2)), ']'])
+disp(['A_tri = ', num2str(face_area_an4_d3d(idx)), ';    DA_tri = ', num2str(face_area_diff_d3d(idx)), ...
+    ';  DAratio_tri = ', num2str(face_area_diff_ratio_d3d(idx))])
+idx_fl = sprintf('%05d%05d', fl_d3d(idx, 1), fl_d3d(idx, 2));
+disp(['A_face = ', num2str(face_area_an4_dict(idx_fl)), ';    DA_face = ', num2str(face_area_diff_dict(idx_fl)), ...
+    ';  DAratio_face = ', num2str(face_area_diff_ratio_dict(idx_fl))])
+
+
+%%
+eps = 10e-3;
+for i = 1:10000
+    idx = randi(size(fl_d3d, 1));
+    idx_fl = sprintf('%05d%05d', fl_d3d(idx, 1), fl_d3d(idx, 2));
+    
+    bad_value_1 = (face_area_an4_d3d(idx) - face_area_an4_dict(idx_fl)) > eps;    
+    bad_value_2 = (face_area_diff_d3d(idx) - face_area_diff_dict(idx_fl)) > eps;    
+    bad_value_3 = (face_area_diff_ratio_d3d(idx) - face_area_diff_ratio_dict(idx_fl)) > eps;    
+    bad_value = bad_value_1 || bad_value_2 || bad_value_3;
+    
+    if bad_value
+        warning(idx_fl);
+    end
+end
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

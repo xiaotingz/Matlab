@@ -9,9 +9,11 @@ load('/Volumes/XIAOTING/Ni/Ni_simu_ID_An4.mat');
 id_given_an4 = P;
 load('/Volumes/XIAOTING/Ni/Ni_simu_ID_An5.mat');
 id_given_an5 = P;
-file_an4 = '/Volumes/XIAOTING/Ni/simu_An4_clean_seg.dream3d';
-file_an5 = '/Volumes/XIAOTING/Ni/simu_An5_clean_seg.dream3d';
+file_an4 = '/Users/xiaotingzhong/Desktop/Datas/Ni_simu/simu_An4_clean_seg.dream3d';
+file_an5 = '/Users/xiaotingzhong/Desktop/Datas/Ni_simu/simu_An5_clean_seg.dream3d';
 clear P
+
+
 
 % % --------------------- 1. Find id_new ---------------------
 % id_new_an4 = findNewId(id_given_an4);

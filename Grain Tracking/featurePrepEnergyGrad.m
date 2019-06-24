@@ -1,34 +1,3 @@
-% curv = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures')';
-% fl = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
-% area = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/FaceAreas')';
-% min_ang = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/FaceDihedralAngles')';
-% fl_idx = (1:size(curv, 1))';
-% mask = (area < 7 & abs(curv) < 1 & all(fl>0, 2) & min_ang>10);
-% fl = fl(mask, :);
-% curv = curv(mask);
-% area = area(mask);
-% fl_idx = fl_idx(mask);
-
-% mask_1 = fl(:, 1) == obj_faces(idx,1) & fl(:, 2) == obj_faces(idx,2);
-% mask_2 = fl(:, 1) == obj_faces(idx,2) & fl(:, 2) == obj_faces(idx,1);
-% 
-% 
-% data = [[fl_idx(mask_1); fl_idx(mask_2)], [-curv(mask_1); curv(mask_2)], [area(mask_1); area(mask_2)]];
-% sum(data(:,2).*data(:,3))
-
-
-surf_g_an4 = h5read(file_an4, '/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures')';
-surf_g_an4(1) = [];
-
-surf_g_ids = (1:length(surf_g_an4))';
-surf_g_ids = surf_g_ids(surf_g_an4 == 1);
-
-mask_an4_touchsurf = all(ismember(tracked_uniqueface_an4, surf_g_ids)==0, 2);
-fl_good_idx = (1:length(mask_an4_touchsurf))';
-fl_good_idx = fl_good_idx(mask_an4_touchsurf);
-
-
-%%
 % ##########################################################################
 % * Input
 %     - tracked_uniqueface_ = [n,2]  
@@ -73,7 +42,10 @@ data_grain_an5 = [data_grain_an5(:,2), data_grain_an5(:,3), F_mF_diff_an5, data_
 % clearvars -except data_face_an4 data_grain_an4 file_an4 
 % ---------------------------------------------------------------
 %% #################################### Make label_an4 & label_an5 one-to-one ####################################
-[tracked_uniqueface_an4, tracked_uniqueface_an5] = trackUniqueFace(file_an4, file_an5, look_up_table, 'use_complete_faces');
+% [tracked_uniqueface_an4, tracked_uniqueface_an5] = trackUniqueFace(file_an4, file_an5, look_up_table, 'use_complete_faces');
+load('/Volumes/XIAOTING/Ni/working/190621_tracked_faces_full.mat')
+tracked_uniqueface_an4 = tracked_uniqueface_an4_full;
+tracked_uniqueface_an5 = tracked_uniqueface_an5_full;
 
 % ##### Recalc tracked_uniqueface_an4 To Keep Grains Consistent With track_uniquefaces_an5 #####
 % ----- make a real index table out of look_up_table -----
@@ -98,27 +70,27 @@ for i = 1:size(tracked_uniqueface_an5, 1)
     end
 end
 
-%% #################################### Check If Grain Face Moved Left ####################################
-% ----- Absolute distance -----
-dists_f_g_an4 = calcFaceToGrainCentroidDist(file_an4, tracked_uniqueface_an4_sorted, eps_curv, eps_area, eps_min_ang);
-dists_f_g_an5 = calcFaceToGrainCentroidDist(file_an5, tracked_uniqueface_an5, eps_curv, eps_area, eps_min_ang);
-% ----- Convert distance to portion -----
-total_dists_an4 = sum(dists_f_g_an4, 2);
-total_dists_an5 = sum(dists_f_g_an5, 2);
-dists_f_g_an4 = dists_f_g_an4 ./ total_dists_an4;
-dists_f_g_an5 = dists_f_g_an5 ./ total_dists_an5;
-
-eps_motion = 1e-2;
-move_left = zeros(size(dists_f_g_an4,1), 1);
-for i = 1:length(dists_f_g_an4)
-    if dists_f_g_an4(i, 1) < dists_f_g_an5(i, 1) - eps_motion
-        move_left(i) = -1;
-    elseif dists_f_g_an4(i, 1) > dists_f_g_an5(i, 1) + eps_motion
-        move_left(i) = 1;
-    else
-        move_left(i) = 0;
-    end
-end
+% %% #################################### Check If Grain Face Moved Left ####################################
+% % ----- Absolute distance -----
+% dists_f_g_an4 = calcFaceToGrainCentroidDist(file_an4, tracked_uniqueface_an4_sorted, eps_curv, eps_area, eps_min_ang);
+% dists_f_g_an5 = calcFaceToGrainCentroidDist(file_an5, tracked_uniqueface_an5, eps_curv, eps_area, eps_min_ang);
+% % ----- Convert distance to portion -----
+% total_dists_an4 = sum(dists_f_g_an4, 2);
+% total_dists_an5 = sum(dists_f_g_an5, 2);
+% dists_f_g_an4 = dists_f_g_an4 ./ total_dists_an4;
+% dists_f_g_an5 = dists_f_g_an5 ./ total_dists_an5;
+% 
+% eps_motion = 1e-2;
+% move_left = zeros(size(dists_f_g_an4,1), 1);
+% for i = 1:length(dists_f_g_an4)
+%     if dists_f_g_an4(i, 1) < dists_f_g_an5(i, 1) - eps_motion
+%         move_left(i) = -1;
+%     elseif dists_f_g_an4(i, 1) > dists_f_g_an5(i, 1) + eps_motion
+%         move_left(i) = 1;
+%     else
+%         move_left(i) = 0;
+%     end
+% end
 
 
 %% #################################### energy_gradient by Grain Properties & Grain Neighborhood Properties ####################################
@@ -321,6 +293,7 @@ for i = 1:length(faces_unique_an4)
     end
 end
 
+%%
 % ##### calc fractions #####
 neighfrac_pos_an4 = zeros(length(nn_faces_an4), 1);
 twinfrac_pos_an4 = zeros(length(nn_faces_an4), 1);
@@ -328,7 +301,7 @@ twinfrac_pos_an4 = zeros(length(nn_faces_an4), 1);
 for i = 1:size(tracked_uniqueface_an4, 1)
     % ----- left connections -----
     nnf_an4_left = nn_faces_an4{i, 1};
-    mask_lnnf_an4 = ismember(faces_unique_an4, nnf_an4_left(:, 1:2), 'rows');
+    mask_lnnf_an4 = ismember(faces_unique_an4(:, 1:2), nnf_an4_left(:, 1:2), 'rows');
     twins_lnnf = face_unique_twins_an4(mask_lnnf_an4);
     tmp = faces_unique_an4(mask_lnnf_an4, :);
     lnnf_curv_an4 = tmp(:,3);
@@ -337,7 +310,7 @@ for i = 1:size(tracked_uniqueface_an4, 1)
     
     % ----- right connections -----
     nnf_an4_right = nn_faces_an4{i, 2};
-    mask_rnnf_an4 = ismember(faces_unique_an4, nnf_an4_right(:, 1:2), 'rows');
+    mask_rnnf_an4 = ismember(faces_unique_an4(:, 1:2), nnf_an4_right(:, 1:2), 'rows');
     twins_rnnf = face_unique_twins_an4(mask_rnnf_an4);
     tmp = faces_unique_an4(mask_rnnf_an4, :);
     rnnf_curv_an4 = tmp(:,3);
@@ -361,18 +334,34 @@ end
 % - data_grain_diff = [size, F, F-Fnn, integral curvature]
 % - fMs_an4_left: face itg_curv. the most important information being its sign.
 % """
-fileID = fopen('190425_features_energygrad.txt','w');
-fprintf(fileID,'%s ,%s, %s ,%s, %s, %s, %s, %s, %s, %s\n', 'move_left', 'gV_diff_an4', 'gF_diff_an4', 'gFnnF_diff_an4', 'gMs_diff_an4', ...
-                'fMs_an4_left', 'FnnF_A_maxdec', 'FnnF_A_avgdec', 'FnnF_fMs_maxdec', 'FnnF_fMs_avgdec');
+% ----------------------------------- Inner faces -----------------------------------
+% fileID = fopen('190621_features_energygrad.txt','w');
+% % fprintf(fileID,'%s ,%s, %s ,%s, %s, %s, %s, %s, %s, %s, %s\n', 'move_left', 'neighfrac_pos_an4', 'gV_diff_an4', 'gF_diff_an4', 'gFnnF_diff_an4', 'gMs_diff_an4', ...
+% %                 'fMs_an4_left', 'FnnF_A_maxdec', 'FnnF_A_avgdec', 'FnnF_fMs_maxdec', 'FnnF_fMs_avgdec');
+% fprintf(fileID,'%s, %s ,%s, %s, %s, %s, %s, %s, %s, %s\n', 'neighfrac_pos_an4', 'gV_diff_an4', 'gF_diff_an4', 'gFnnF_diff_an4', 'gMs_diff_an4', ...
+%                 'fMs_an4_left', 'FnnF_A_maxdec', 'FnnF_A_avgdec', 'FnnF_fMs_maxdec', 'FnnF_fMs_avgdec');
+% for i = 1:length(data_grain_an4_diff)
+%     if mask_good_face(i)
+%         fprintf(fileID, '%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f \n', ...
+%             neighfrac_pos_an4(i), data_grain_an4_diff(i,1), data_grain_an4_diff(i,2), data_grain_an4_diff(i,3), data_grain_an4_diff(i,4), ...
+%             face_itgcurv_an4_left(i), fnnf_area_maxdec(i), fnnf_area_avgdec(i), fnnf_itgcurv_maxdec(i), fnnf_itgcurv_avgdec(i));
+%     end
+% end
+% fclose(fileID);
+
+
+% ----------------------------------- Full faces -----------------------------------
+fileID = fopen('190624_features_energygrad.txt','w');
+fprintf(fileID,'%s, %s ,%s, %s, %s\n', 'gV_diff_an4', 'gF_diff_an4', ...
+    'gFnnF_diff_an4', 'gMs_diff_an4', 'fMs_an4_left');
 for i = 1:length(data_grain_an4_diff)
-    fprintf(fileID, '%6d, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f \n', ...
-        move_left(i), data_grain_an4_diff(i,1), data_grain_an4_diff(i,2), data_grain_an4_diff(i,3), data_grain_an4_diff(i,4), ...
-        face_itgcurv_an4_left(i), fnnf_area_maxdec(i), fnnf_area_avgdec(i), fnnf_itgcurv_maxdec(i), fnnf_itgcurv_avgdec(i));
+    if mask_good_face(i)
+        fprintf(fileID, '%6.3f, %6.3f, %6.3f, %6.3f, %6.3f \n', ...
+            data_grain_an4_diff(i,1), data_grain_an4_diff(i,2), data_grain_an4_diff(i,3), ...
+            data_grain_an4_diff(i,4), face_itgcurv_an4_left(i));
+    end
 end
 fclose(fileID);
-
-
-
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% CHECKS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ######################################## Check Migartion & Grain data ########################################

@@ -150,11 +150,12 @@ scatter(data_grid(:,1), data_grid(:,2), 60, 'r', 'filled', 's')
 % start = -20;
 % width = 1;
 % step = 40;
-xlim([-50, 50])
-ylim([-10, 10])
+% xlim([-50, 50])
+% ylim([-10, 10])
 
 xlabel('F - <F_{NN}>','FontSize',21)
 ylabel('$\mathcal{G''}$','Interpreter','latex','FontSize',21);
+% ylabel('$\Delta V$','Interpreter','latex','FontSize',21);
 line([-60,60],[0,0],'LineStyle','--', 'Color',[0.5 0.5 0.5])
 line([0,0],[-20,20],'LineStyle','--', 'Color',[0.5 0.5 0.5])
 

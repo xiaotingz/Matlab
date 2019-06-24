@@ -10,7 +10,11 @@ file_an5 = '/Volumes/XIAOTING/Ni/An5new6_cropToAn4_Hsmooth.dream3d';
 load('look_up_table_an4_an5crop.mat')
 
 % ############### get faces to track ###############
-[tracked_uniqueface_an4, tracked_uniqueface_an5] = trackUniqueFace(file_an4, file_an5, look_up_table, 'use_complete_faces');
+% [tracked_uniqueface_an4, tracked_uniqueface_an5] = trackUniqueFace(file_an4, file_an5, look_up_table, 'use_complete_faces');
+load('/Volumes/XIAOTING/Ni/working/190621_tracked_faces_full.mat')
+tracked_uniqueface_an4 = tracked_uniqueface_an4_full;
+tracked_uniqueface_an5 = tracked_uniqueface_an5_full;
+
 
 % % ############### identify broken faces ###############
 % is_onepiece = ones(size(tracked_uniqueface_an4, 1), 1);
@@ -78,27 +82,30 @@ end
     
 
 %%
-% ############### distance from twins ###############
-rfvec_twin = [1,1,1]/norm([1,1,1]) * tand(60/2);
-
-% """ Note 'AvgEAs' | 'AvgEulerAngles' """
-[rfvecs_an4]  = getFaceRFvecs(file_an4, tracked_uniqueface_an4);
-[rfvecs_an5]  = getFaceRFvecs(file_an5, tracked_uniqueface_an5);
-
-dist_twin_an4 = vecnorm(rfvecs_an4 - rfvec_twin, 2, 2);
-dist_twin_an5 = vecnorm(rfvecs_an5 - rfvec_twin, 2, 2);
+% % ############### distance from twins ###############
+% rfvec_twin = [1,1,1]/norm([1,1,1]) * tand(60/2);
+% 
+% % """ Note 'AvgEAs' | 'AvgEulerAngles' """
+% [rfvecs_an4]  = getFaceRFvecs(file_an4, tracked_uniqueface_an4);
+% [rfvecs_an5]  = getFaceRFvecs(file_an5, tracked_uniqueface_an5);
+% 
+% dist_twin_an4 = vecnorm(rfvecs_an4 - rfvec_twin, 2, 2);
+% dist_twin_an5 = vecnorm(rfvecs_an5 - rfvec_twin, 2, 2);
 
 
 %% #################################### Write txt file ####################################
 not_twin_an4 = ~istwin_an4;
 not_twin_an5 = ~istwin_an5;
+dist_twin_an4 = dists_an4_full(:,1);
 
-fileID = fopen('190425_features_otherinfo.txt','w');
+fileID = fopen('190624_features_otherinfo.txt','w');
 % fprintf(fileID,'%s, %s, %s, %s\n','is_onepiece', 'not_twin', 'dist_twin', 'weighteddist_ctwin');
-fprintf(fileID,'%s, %s, %s, %s, %s, %s\n','not_twin_an4', 'rfvect_disttwin_an4', 'incoherence_an4','not_twin_an5', 'rfvect_disttwin_an5', 'incoherence_an5');
+fprintf(fileID,'%s, %s, %s, %s, %s, %s\n','not_twin_an4', 'dist_twin_an4', 'incoherence_an4');
 for i = 1:length(not_twin_an4)
-    fprintf(fileID, '%6d, %6.3f, %6.3f, %6d, %6.3f, %6.3f\n', ...
-        not_twin_an4(i), dist_twin_an4(i), incoherence_an4(i), not_twin_an5(i), dist_twin_an5(i), incoherence_an5(i)) ;
+    if mask_good_face(i)
+        fprintf(fileID, '%6d, %6.3f, %6.3f\n', ...
+            not_twin_an4(i), dist_twin_an4(i), incoherence_an4(i)) ;
+    end
 end
 fclose(fileID);
 
