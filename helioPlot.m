@@ -3,18 +3,17 @@
 % The base circle is 0.6, with bars of heights +- 0.4
 % """
 % ----- read data -----
-file_name = fopen('/Users/xiaotingzhong/Documents/Matlab/Grain Tracking/_feature_names.txt','r');
-file_coef = fopen('/Users/xiaotingzhong/Documents/Matlab/Grain Tracking/_coefs.txt','r');
+file_name = fopen('/Users/xiaotingzhong/Documents/Matlab/Grain Tracking/_DfMs_XGB_feature_names.txt','r');
+file_coef = fopen('/Users/xiaotingzhong/Documents/Matlab/Grain Tracking/_DfMs_XGB_coefs.txt','r');
+fig_name = 'DfMs_XGB';
+% feature_class_idx = [[1, 6]; [7, 8]; [9, length(feature_names)-6]; [length(feature_names)-5, length(feature_names)]];
+% feature_class_idx = [[1, 4]; [5, 6]; [7, length(feature_names)-6]; [length(feature_names)-5, length(feature_names)]];
+feature_class_idx = [[1, 4]; [5, 8]; [9, 18]; [19, 21]];
+
 coefs = textscan(file_coef,'%f');
 coefs = coefs{1,1};
 feature_names = textscan(file_name,'%s');
 feature_names = feature_names{1,1};
-
-fig_name = 'mig_RF';
-% feature_class_idx = [[1, 6]; [7, 8]; [9, length(feature_names)-6]; [length(feature_names)-5, length(feature_names)]];
-% feature_class_idx = [[1, 4]; [5, 6]; [7, length(feature_names)-6]; [length(feature_names)-5, length(feature_names)]];
-feature_class_idx = [[1, 4]; [5, 9]];
-
 
 n = length(coefs);
 base = 0.6;

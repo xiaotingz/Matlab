@@ -1,6 +1,57 @@
 set(0,'defaultAxesLabelFontSize',1.2)
 set(0,'defaultAxesFontSize',17)
 
+
+%% ##### 190626 #####
+figure(1)
+x = face_area_an4;
+y = face_area_diff;
+label_x = '$A_{init}$';
+label_y = '$\Delta A$';
+xrange = [min(x), prctile(x, 99)];
+yrange = [min(y), max(y)];
+stepsize = (xrange(2) - xrange(1)) / 30;
+plotBinData(x, y, xrange, yrange, stepsize, label_x, label_y, 1, 0)
+
+
+figure(2)
+x = face_itg_abscurv_an4;
+y = face_area_diff;
+label_x = '$M_{s, init}^{f}$';
+label_y = '$\Delta A$';
+xrange = [min(x), prctile(x, 99)];
+yrange = [min(y), max(y)];
+stepsize = (xrange(2) - xrange(1)) / 30;
+plotBinData(x, y, xrange, yrange, stepsize, label_x, label_y, 1, 0)
+
+figure(3)
+x = face_itg_abscurv_an4;
+y = face_itg_abscurv_diff;
+label_x = '$M_{s, init}^{f}$';
+label_y = '$\Delta M_{s}^{f}$';
+xrange = [min(x), prctile(x, 99)];
+yrange = [min(y), max(y)];
+stepsize = (xrange(2) - xrange(1)) / 30;
+plotBinData(x, y, xrange, yrange, stepsize, label_x, label_y, 1, 0)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 %% ##### The Complete Tracked Grains #####
 SG_An4 = h5read(file_An4,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
 SG_An5 = h5read(file_An5,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';

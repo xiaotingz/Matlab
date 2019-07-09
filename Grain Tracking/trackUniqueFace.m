@@ -1,30 +1,36 @@
-% function [tracked_uniqueface_1, tracked_uniqueface_2] = trackUniqueFace(file_1, file_2, look_up_table, use_complete_faces)
-% % ###########################################################################
-% % * Very similar to TrackFace, except that the input is the uniqueFaces.
-% % * Input
-% %     - lookUp = [N,2] = [ID_s1, ID_s2] 
-% %         is a table which contains only the tracked faces and was sorted in the order of state2.
-% %     - complete, logical variable
-% %         =0 --> all faces; 
-% %         =1 --> the tracked faces are complete in both anneal states
-% % * Output
-% %     - tracked_uniqueface_1 and tracked_uniqueface_2 = [m, 2]
-% %         m is the number of unique facesd. The two arrays have been sorted
-% %         such that every row corresponds to the same face. 
-% %         this correspondence can be applied to faceCoords directly.
-% % ###########################################################################
-% % ------------------ load data for debug --------------------
-% % file_1 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d');
-% % file_2 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
-% % load('look_up_table_an4_an5.mat');
-% % -----------------------------------------------------------
+function [tracked_uniqueface_1, tracked_uniqueface_2] = trackUniqueFace(file_1, file_2, look_up_table, faces_to_use)
+% ###########################################################################
+% * Very similar to TrackFace, except that the input is the uniqueFaces.
+% * Input
+%     - lookUp = [N,2] = [ID_s1, ID_s2] 
+%         is a table which contains only the tracked faces and was sorted in the order of state2.
+%     - faces_to_use
+%         default --> all inner faces; 
+%         use_complete_faces --> the tracked faces are complete in both anneal states
+%         use_all_true_faces --> use all true faces, including the surface ones
+% * Output
+%     - tracked_uniqueface_1 and tracked_uniqueface_2 = [m, 2]
+%         m is the number of unique facesd. The two arrays have been sorted
+%         such that every row corresponds to the same face. 
+%         this correspondence can be applied to faceCoords directly.
+% ###########################################################################
+% ------------------ load data for debug --------------------
+% file_1 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d');
+% file_2 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
+% load('look_up_table_an4_an5.mat');
+% file_1 = file_an1with2;
+% file_2 = file_an2to1;
+% use_complete_faces = 'use_complete_faces';
+% -----------------------------------------------------------
+% 
+% ###################################### Method1 ######################################
 %     unique_facelabel_1 = h5read(file_1, '/DataContainers/TriangleDataContainer/FaceFeatureData/FaceLabels')';
 %     unique_facelabel_2 = h5read(file_2, '/DataContainers/TriangleDataContainer/FaceFeatureData/FaceLabels')';
 %     unique_facelabel_1 = unique_facelabel_1(all(unique_facelabel_1>0, 2), :);
 %     unique_facelabel_2 = unique_facelabel_2(all(unique_facelabel_2>0, 2), :);
 %     unique_facelabel_1 = sortrows(unique_facelabel_1);
 %     unique_facelabel_2 = sortrows(unique_facelabel_2);
-%     if strcmp(use_complete_faces, 'use_complete_faces')
+%     if strcmp(faces_to_use, 'use_complete_faces')
 %             surface_grain_1 = h5read(file_1,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
 %             surface_grain_2 = h5read(file_2,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures').';
 %             surface_grain_1(1) = [];
@@ -40,10 +46,10 @@
 % 
 % % ##### Make a Full Look-up Table ##### 
 %     look_up_table = sortrows(look_up_table, 2);  %  somehow the look up table is not really sorted well 
-%     look_up_2to1 = zeros(max(look_up_table(:,2)),1);
+%     look_up_2to1 = zeros(max(unique_facelabel_2(:)),1);
 %     idx = 1;
-%     for i = 1 : max(look_up_table(:,2))
-%         if look_up_table(idx,2) == i
+%     for i = 1 : max(unique_facelabel_2(:))
+%         if look_up_table(idx,2) == i && idx < size(look_up_table, 1)
 %             look_up_2to1(i,1) = look_up_table(idx,1);
 %             idx = idx + 1;
 %         else
@@ -87,33 +93,37 @@
 %     tracked_uniqueface_2 = unique_facelabel_2(unique_facelabel_corresp(:,2), :);
 % end
 % 
-% 
-% 
+
+
 
 % % ###################################### Check, Or Method2 ######################################
-file_1 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixOrigin3_Hsmooth.dream3d';
-file_2 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_cropToAn4_Hsmooth.dream3d';
-load('look_up_table_an4_an5crop.mat')
-
 % ------------- read in facelabels -------------
 fl_1 = h5read(file_1, '/DataContainers/TriangleDataContainer/FaceFeatureData/FaceLabels')';
 fl_2 = h5read(file_2, '/DataContainers/TriangleDataContainer/FaceFeatureData/FaceLabels')';
-surface_grain_1 = logical(h5read(file_1,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures')).';
-surface_grain_2 = logical(h5read(file_2,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures')).';
-surface_grain_1(1) = [];
-surface_grain_2(1) = [];
-ids_1 = (1:length(surface_grain_1))';
-ids_2 = (1:length(surface_grain_2))';
-surface_grain_1 = ids_1(surface_grain_1);
-surface_grain_2 = ids_2(surface_grain_2);
 
 % ------------- filter out bad and surface faces -------------
-mask_surf_face_1 = all(ismember(fl_1, surface_grain_1), 2);
-mask_surf_face_2 = all(ismember(fl_2, surface_grain_2), 2);
-mask_face_1 = all(fl_1 > 0, 2) & ~ mask_surf_face_1;
-mask_face_2 = all(fl_2 > 0, 2) & ~ mask_surf_face_2;
-% mask_face_1 = all(fl_1 > 0, 2);
-% mask_face_2 = all(fl_2 > 0, 2);
+if strcmp(faces_to_use, 'use_complete_faces')
+    surface_grain_1 = logical(h5read(file_1,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures')).';
+    surface_grain_2 = logical(h5read(file_2,'/DataContainers/ImageDataContainer/CellFeatureData/SurfaceFeatures')).';
+    surface_grain_1(1) = [];
+    surface_grain_2(1) = [];
+    ids_1 = (1:length(surface_grain_1))';
+    ids_2 = (1:length(surface_grain_2))';
+    surface_grain_1 = ids_1(surface_grain_1);
+    surface_grain_2 = ids_2(surface_grain_2);
+
+    mask_surf_face_1 = all(ismember(fl_1, surface_grain_1), 2);
+    mask_surf_face_2 = all(ismember(fl_2, surface_grain_2), 2);
+    mask_face_1 = all(fl_1 > 0, 2) & ~ mask_surf_face_1;
+    mask_face_2 = all(fl_2 > 0, 2) & ~ mask_surf_face_2;
+elseif strcmp(faces_to_use, 'use_all_true_faces')
+    mask_face_1 = all(fl_1 >= 0, 2) & any(fl_1 > 0, 2);
+    mask_face_2 = all(fl_2 >= 0, 2) & any(fl_2 > 0, 2);
+    look_up_table = [look_up_table; 0, 0];
+else
+    mask_face_1 = all(fl_1 > 0, 2);
+    mask_face_2 = all(fl_2 > 0, 2);
+end
 
 fl_1 = fl_1(mask_face_1, :);
 fl_2 = fl_2(mask_face_2, :);
@@ -139,6 +149,7 @@ mask = ismember(fl_2from1, fl_2, 'rows');
 tracked_uniqueface_1 = fl_1(mask, :);
 tracked_uniqueface_2 = fl_2from1(mask, :);
 
+end
 % sum(ismember(tracked_uniqueface_1, tracked_uniqueface_an4, 'rows'))
 % sum(ismember(tracked_uniqueface_2, tracked_uniqueface_an5, 'rows'))
 
