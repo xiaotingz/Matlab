@@ -56,7 +56,7 @@ step = 80;
 
 file_an4 = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin3_Hsmooth.dream3d';
 file_an5 = '/Volumes/XIAOTING/Ni/An5new6_cropToAn4_Hsmooth.dream3d';
-centro_file = file_an4;
+centro_file = '/Users/xiaotingzhong/Desktop/Datas/Iron/iron_an1.dream3d';
 file = centro_file;
 % file = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
 % centro_file = file_an4;
@@ -89,10 +89,11 @@ data_face = calcFaceCurvature(data_raw, eps_curv, eps_area, eps_min_ang);
 
 % --- grain_ForCal = [ID_ForCal, D_ForCal, NNeigh_ForCal, numEdges_ForCal] ---;
 grain_ForCal = filterGrains(criterion, facelabel, num_of_neigh, neighborList, X,Y,Z, centroids, grain_diameter_raw);
-% --- data_grain = [ID_ForCal, D_ForCal, NNeigh_ForCal, numEdges_ForCal, grain_itg_curv] ---;
+% """ data_grain = [grainId, grainDiameter, #Faces, #edges, IntegralGrainCurvature] """
 data_grain = calcGrainCurvature(data_face, grain_ForCal);
 
 
+%%
 ID_ForCal = data_grain(:,1);
 F_mF_diff = zeros(size(ID_ForCal));
 for i = 1 : length(ID_ForCal)

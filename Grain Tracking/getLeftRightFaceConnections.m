@@ -1,4 +1,4 @@
-function nn_faces = getLeftRightFaceConnections(unique_faces, tls, file)
+function nn_faces = getLeftRightFaceConnections(tracked_faces, tls, file)
 % ##########################################################################
 % * Input
 %     - unique_faces = [n1,2]  
@@ -10,24 +10,25 @@ function nn_faces = getLeftRightFaceConnections(unique_faces, tls, file)
 %     - nn_faces = {{k1, 2}*n, {k2, 2}*n}
 %           k1 is #left_connected_faces, k2 is #right_connected_faces, of the ith grain face. 
 %           There are in total n grain faces.
+%           both the tracked and untracked neighbors are listed. 
 % * NOTE
 %     - This function is to calculate left/right connection of grain 
 %       faces. The idea is related to that of high/low energy (big/small size) grains, 
 %       but applied on the level of grain faces. The objective is to predict migration sign.
-%     - Related functions: calcFaceToGrainCentroidDist.m
+%     - Related functions: calcFaceToGrainCentroidDist.m, findFaceConnection.m
 % ##########################################################################
-% % ----------------------- load debug data -----------------------
-% file_an4 = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin3_Hsmooth.dream3d';
-% file_an5 = '/Volumes/XIAOTING/Ni/An5new6_cropToAn4_Hsmooth.dream3d';
-tracked_faces = tracked_uniqueface_an5;
-file = file_an5;
-% --- tls are returned by findTripleLines.m in /Topology
-% """ don't threshold trianlge quality for finding face connection, threshold quality only for diheral angle """
-% [triple_line_full_an4, tl_info_full_an4] = findTripleLines(file_an4, 1e6, 1e6, 0);
-tls = triple_line_full_an5;
-% clear tracked_uniqueface_an4 tl_an4
-
-% % ---------------------------------------------------------------
+% % % ----------------------- load debug data -----------------------
+% % file_an4 = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin3_Hsmooth.dream3d';
+% % file_an5 = '/Volumes/XIAOTING/Ni/An5new6_cropToAn4_Hsmooth.dream3d';
+% tracked_faces = tracked_uniqueface_an5;
+% file = file_an5;
+% % --- tls are returned by findTripleLines.m in /Topology
+% % """ don't threshold trianlge quality for finding face connection, threshold quality only for diheral angle """
+% % [triple_line_full_an4, tl_info_full_an4] = findTripleLines(file_an4, 1e6, 1e6, 0);
+% tls = triple_line_full_an5;
+% % clear tracked_uniqueface_an4 tl_an4
+% 
+% % % ---------------------------------------------------------------
 feature_face_label = h5read(file, '/DataContainers/TriangleDataContainer/FaceFeatureData/FaceLabels')';
 feature_face_id = (1:size(feature_face_label, 1))' - 1;
 inner_faces = feature_face_label(all(feature_face_label>0, 2), :);

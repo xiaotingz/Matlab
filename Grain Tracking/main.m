@@ -1,18 +1,12 @@
 %% ########################################### Data & Prepare ########################################### 
 clear 
 
-file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixOrigin2_smooth.dream3d');
-file_an5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
-load('look_up_table_an4_an5.mat')
-
-% centroids_An4 = roundn(h5read(file_An4,'/DataContainers/ImageDataContainer/CellFeatureData/Centroids'),-5).';
-num_cells_an4 = h5read(file_an4,'/DataContainers/ImageDataContainer/CellFeatureData/NumElements').';
-% centroids_An5 = roundn(h5read(file_An5,'/DataContainers/ImageDataContainer/CellFeatureData/Centroids'),-5).';
-num_cells_an5 = h5read(file_an5,'/DataContainers/ImageDataContainer/CellFeatureData/NumElements').';
-% centroids_An4(1,:) = [];
-num_cells_an4(1) = [];
-% centroids_An5(1,:) = [];
-num_cells_an5(1) = [];
+% file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d');
+% file_an5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_cropToAn4.dream3d');
+% load('look_up_table_an4_an5crop.mat')
+file_an4 = '/Users/xiaotingzhong/Desktop/Datas/Iron/iron_an0.dream3d';
+file_an5 = '/Users/xiaotingzhong/Desktop/Datas/Iron/iron_an1.dream3d';
+load('/Users/xiaotingzhong/Desktop/Datas/Iron/look_up_table_iron.mat');
 
 % ##### get the faceLabels and their correpondence ##### 
 % [faces_an4, faces_an5, face_corresp] = trackFace(file_an4, file_an5, look_up_table, 'use_complete_faces');
@@ -30,9 +24,12 @@ num_cells_an5(1) = [];
 % face_itg_curv_diff = diff_tmp(:,2);
 % diff = face_itg_curv_an5(face_corresp(:,2),2)./face_itg_curv_an5(face_corresp(:,2),1) - face_itg_curv_an4(face_corresp(:,1),2)./face_itg_curv_an4(face_corresp(:,1),1);
 % clear diff_tmp
+ eps_curv = 6;
+ eps_area = 7;
+ eps_min_ang = 10;
 
-face_itg_curv_an4 = calcFaceItgCurv(file_an4, tracked_uniqueface_an4, 'unique_faces');
-face_itg_curv_an5 = calcFaceItgCurv(file_an5, tracked_uniqueface_an5, 'unique_faces');
+face_itg_curv_an4 = calcFaceItgCurv(file_an4, tracked_uniqueface_an4, 'as_given', eps_curv, eps_area, eps_min_ang);
+face_itg_curv_an5 = calcFaceItgCurv(file_an5, tracked_uniqueface_an5, 'as_given', eps_curv, eps_area, eps_min_ang);
 diff_tmp = face_itg_curv_an5 - face_itg_curv_an4;
 face_area_diff = diff_tmp(:,1);
 face_itg_curv_diff = diff_tmp(:,2);
