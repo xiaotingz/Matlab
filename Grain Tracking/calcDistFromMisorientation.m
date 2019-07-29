@@ -2,14 +2,15 @@ function dists = calcDistFromMisorientation(file, fl_obj, dg_obj)
 % ##########################################################################
 % * Input
 %     - fls = [n , 2]
-%           labels of the faces, for which misorientation angle needs to be calcualted
+%           Labels of the faces, for which misorientation angle needs to be calcualted
 %     - dg_obj = [3, 3, n]
-%           orientation matrix of the objective misorientations.
+%           Orientation matrix of the objective misorientations.
 % * Output
 %     - dist_twin = [n, 1]
-%           distance between given misorientations and sigma3.
+%           Distance between given misorientations and sigma3.
 % * Note
 %     - This file calculates the misorientation angle across a given boundary.
+%         The results can be compared to calcTwinsFromD3D.m
 %     - In theory, [A, B] and [B, A] should have the same misorientation
 %     angle. In practice, there are small numeric problems but the
 %     deviation is really small.

@@ -11,15 +11,15 @@
 % ----------- all_states -----------
 % data = an0GBCDtris;
 % load('/Volumes/XIAOTING2/Ni_an0-an4/geo_topo_an0_an1crop_full.mat', 'face_area_an4', 'face_area_diff', 'tracked_uniqueface_an4');
-% file_an4 = '/Volumes/XIAOTING2/Ni_an0-an4/an0.dream3d';
-% fname = '/Volumes/XIAOTING2/Ni_an0-an4/fullTrack_an0_an1crop';
-file_an4 = '/Users/xiaotingzhong/Desktop/Datas/Iron/iron_an0.dream3d';
-fname = '/Users/xiaotingzhong/Desktop/Datas/Iron/iron_diffToEachTri';
+file_an4 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d';
+fname = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/an4-an5_amoritze_noExtreme_Lmsooth';
+% file_an4 = '/Users/xiaotingzhong/Desktop/Datas/Iron/iron_an0.dream3d';
+% fname = '/Users/xiaotingzhong/Desktop/Datas/Iron/iron_diffToEachTri';
 
 % """
 % face_itg_curv is calculated in main.m
 % """
-face_area_an4 = face_itg_curv_an4(:,1);
+% face_area_an4 = face_itg_curv_an4(:,1);
 
 face_area_diff_ratio = face_area_diff ./ face_area_an4;
 mask = ((face_area_an4 + face_area_diff) > 20 & face_area_an4 > 20 & ... 
@@ -30,11 +30,14 @@ tracked_uniqueface_an4 = tracked_uniqueface_an4(mask, :);
 face_area_diff_ratio = face_area_diff_ratio(mask);
 
 % ---------------------------------- Amortize area change to each triangle ----------------------------------
+eps_curv = 1;
+eps_area = 7;
+eps_min_ang = 10;
 face_num_tris_an4 = calcNumTrianglesOnFace(file_an4, tracked_uniqueface_an4, eps_curv, eps_area, eps_min_ang);
 face_area_diff = face_area_diff./ face_num_tris_an4;
 % -----------------------------------------------------------------------------------------------------------
-%%
 
+%%
 % %% #################################### Data Prepare, Hsmoosth ####################################
 % % """
 % % bad triangles in Hsmooth are found from eps_area, eps_curv and eps_min_ang
@@ -100,7 +103,7 @@ for i = 1:length(tracked_uniqueface_an4)
     fa_diff(mask) = face_area_diff(i);
 end
 
-
+% !!!!!!!!!!!!!!!!!!!!!!! fa_diff_ratio WRONG HERE !!!!!!!!!!!!!!!!!!!!!!!
 mask_trackedface = ~isnan(fa);
 fa = fa(mask_trackedface);
 fa_diff = fa_diff(mask_trackedface);
@@ -112,9 +115,9 @@ fa_absdiff_ratio = fa_absdiff ./ fa;
 data = data(mask_trackedface, :);
 % curv = curv(mask_trackedface);
 
-save([fname, '_GBCDtris.mat'], 'data', 'fa', 'fa_diff', 'fa_absdiff', ...
-    'fa_diff_ratio', 'fa_absdiff_ratio', 'face_area_an4', 'face_area_diff', ...
-    'tracked_uniqueface_an4');
+% save([fname, '_GBCDtris.mat'], 'data', 'fa', 'fa_diff', 'fa_absdiff', ...
+%     'fa_diff_ratio', 'fa_absdiff_ratio', 'face_area_an4', 'face_area_diff', ...
+%     'tracked_uniqueface_an4');
 
 
 % #################################### Write Seudo GBCDtris file ####################################
@@ -127,17 +130,17 @@ save([fname, '_GBCDtris.mat'], 'data', 'fa', 'fa_diff', 'fa_absdiff', ...
 %     fa_absdiff_ratio_an2; fa_absdiff_ratio_an3; fa_absdiff_ratio_an4];
 % fname = 'fullTrack_all_states';
 
-%%
+
 % data = [data, fa_diff/100];
 data = [data, fa_diff];
 mask = fa_diff > 0;
 csvwrite([fname,'_001DA_pos.csv'],data(mask, :));
 csvwrite([fname,'_001DA_neg.csv'],data(~mask, :));
 csvwrite([fname,'_001DA.csv'],data);
-% data(:, end) = fa_diff_ratio;
-% csvwrite([fname,'_DAratio_pos.csv'],data(mask, :));
-% csvwrite([fname,'_DAratio_neg.csv'],data(~mask, :));
-% csvwrite([fname,'_DAratio.csv'],data);
+data(:, end) = fa_diff_ratio;
+csvwrite([fname,'_DAratio_pos.csv'],data(mask, :));
+csvwrite([fname,'_DAratio_neg.csv'],data(~mask, :));
+csvwrite([fname,'_DAratio.csv'],data);
 % data(:, end) = fa_absdiff/100;
 % csvwrite([fname,'_001absDA.csv'],data);
 % data(:, end) = fa_absdiff_ratio;

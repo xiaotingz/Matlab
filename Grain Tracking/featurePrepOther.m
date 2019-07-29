@@ -2,11 +2,12 @@
 % * Notes
 %     - Misorientaion distance is calculated from misorientation angle. 
 %     - Distance to coherent twin is calculated as defined by Moraweic.
-%         1. Identify inner complete faces 
+%         1. Identify (inner) complete faces 
 %         2. Identify broken faces
 %         3.1. Identify twins, from D3D
 %         3.2. Myself distance from twins
-%         4. Write txt file
+%         4. Identify distance from directions
+%         5. Write txt file
 % ##########################################################################
 
 % load('/Users/xiaotingzhong/Documents/Matlab/Grain Tracking/data/181108_rfvec.mat', 'rfvecs_an4', 'rfvecs_an5');
@@ -26,14 +27,12 @@ load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190425_Hsmooth_geo
 inner = ismember(sort(tracked_uniqueface_an4_full, 2), sort(tracked_uniqueface_an4, 2), 'rows');
 % -------------
 
-
-% % #################################### 1. Identify complete faces ####################################
-
-
-
+eps_curv = 1;
+eps_area = 7;
+eps_min_ang = 10;
 
 
-
+% % #################################### 1. Identify (inner) complete faces ####################################
 
 
 
@@ -48,63 +47,8 @@ inner = ismember(sort(tracked_uniqueface_an4_full, 2), sort(tracked_uniqueface_a
 
 
 % #################################### 3.1. Identify twins, from D3D ####################################
-% ----- prepare data -----
-fl_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels'))';
-tri_istwin_an4 = boolean(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/TwinBoundary'))';
-tri_incoherence_an4 = double(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/TwinBoundaryIncoherence'))';
-fl_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels'))';
-tri_istwin_an5 = boolean(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/TwinBoundary'))';
-tri_incoherence_an5 = double(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/TwinBoundaryIncoherence'))';
-fl_an4 = sort(fl_an4, 2);
-fl_an5 = sort(fl_an5, 2);
-
-tri_curv_an4 =  roundn(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5)';
-tri_area_an4 = roundn(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'),-5)';
-tri_min_ang_an4 = roundn(h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceDihedralAngles'),-5)';
-tri_curv_an5 =  roundn(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5)';
-tri_area_an5 = roundn(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'),-5)';
-tri_min_ang_an5 = roundn(h5read(file_an5,'/DataContainers/TriangleDataContainer/FaceData/FaceDihedralAngles'),-5)';
-eps_curv = 1;
-eps_area = 7;
-eps_min_ang = 10;
-mask_good_an4 = all(fl_an4>0, 2) & abs(tri_curv_an4) < eps_curv & tri_area_an4 < eps_area & tri_min_ang_an4 > eps_min_ang;
-mask_good_an5 = all(fl_an5>0, 2) & abs(tri_curv_an5) < eps_curv & tri_area_an5 < eps_area & tri_min_ang_an5 > eps_min_ang;
-
-fl_an4 = fl_an4(mask_good_an4, :);
-tri_istwin_an4 = tri_istwin_an4(mask_good_an4);
-tri_incoherence_an4 = tri_incoherence_an4(mask_good_an4);
-fl_an5 = fl_an5(mask_good_an5, :);
-tri_istwin_an5 = tri_istwin_an5(mask_good_an5);
-tri_incoherence_an5 = tri_incoherence_an5(mask_good_an5);
-
-% ----- get twin & incoherency -----
-istwin_an4 = boolean(zeros(size(tracked_uniqueface_an4_full, 1), 1));
-incoherence_an4 = zeros(size(tracked_uniqueface_an4_full, 1), 1);
-istwin_an5 = boolean(zeros(size(tracked_uniqueface_an5, 1), 1));
-incoherence_an5 = zeros(size(tracked_uniqueface_an5, 1), 1);
-
-for i = 1:length(tracked_uniqueface_an4_full)
-    mask_an4 = (fl_an4(:,1) == tracked_uniqueface_an4_full(i, 1) & fl_an4(:,2) == tracked_uniqueface_an4_full(i, 2));
-    if all(tri_istwin_an4(mask_an4))
-        istwin_an4(i) = true;
-    else
-        if any(tri_istwin_an4(mask_an4))
-            warning(['D3D problem, an4, pair ', num2str(i)]);
-        end
-    end
-    incoherence_an4(i) = sum(tri_incoherence_an4(mask_an4)) / sum(mask_an4);
- 
-    mask_an5 = (fl_an5(:,1) == tracked_uniqueface_an5(i, 1) & fl_an5(:,2) == tracked_uniqueface_an5(i, 2));
-    if all(tri_istwin_an5(mask_an5))
-        istwin_an5(i) = true;
-    else
-        if any(tri_istwin_an5(mask_an5))
-            warning(['D3D problem, an4, pair ', num2str(i)]);
-        end
-    end
-    incoherence_an5(i) = sum(tri_incoherence_an5(mask_an5)) / sum(mask_an5);   
-end
-    
+[is_twin_an4, incoherence_an4] = calcTwinsFromD3D(file_an4, faces_an4, eps_curv, eps_area, eps_min_ang);
+[is_twin_an5, incoherence_an5] = calcTwinsFromD3D(file_an5, faces_an5, eps_curv, eps_area, eps_min_ang);
 
 %%
 % % #################################### 3.2. Myself distance from twins ####################################
@@ -125,8 +69,16 @@ dg_obj(:,:,4) = AAToG(38.94, [1, 1, 0]);  % sigma9
 dg_obj(:,:,5) = AAToG(31.59, [1, 1, 0]);  % sigma27a
 dg_obj(:,:,6) = AAToG(35.43, [2, 1, 0]);  % sigma27b
 
-dists = calcDistFromMisorientation(file_an4, tracked_uniqueface_an4_full, dg_obj);
-%% #################################### 4. Write txt file ####################################
+dists_miso = calcDistFromMisorientation(file_an4, faces_an4, dg_obj);
+
+
+%% #################################### 4. Identify distance from directions ####################################
+target_normals = [1,1,1;1,1,0;1,0,0;1,1,2];
+target_normals = target_normals ./ vecnorm(target_normals, 2, 2);
+[dists_norm_an4, std_norm_an4] = calcDistanceFromPlaneNormals(file_an4, faces_an4, target_normals, eps_curv, eps_area, eps_min_ang);
+
+
+%% #################################### 5. Write txt file ####################################
 % not_twin_an4 = ~istwin_an4;
 % not_twin_an5 = ~istwin_an5;
 % dist_twin_an4 = dists_an4_full(:,1);

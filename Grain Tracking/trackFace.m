@@ -1,10 +1,10 @@
 function [faces_1_raw, faces_2_raw, corresp] = trackFace(file_1, file_2,look_up_table, use_complete_faces)
 % ###########################################################################
 % * Input
-%     - lookUp = [N,2] = [ID_s1, ID_s2] 
+%     - lookUp = [n,2] = [ID_s1, ID_s2] 
 %         is a table which contains only the tracked faces and was sorted in the order of state2.
 % * Output
-%     - faces = [N,2] = [labelA, labelB] are raw lists including all possible faces. Note just the ones that are tracked.
+%     - faces = [n,2] = [label_a, label_b] are raw lists including all possible faces. Note just the ones that are tracked.
 %     - corresp = [n,2] = [faceID_state1, faceID_state2]
 % * Note 
 %     - The facesList is duplicated by [A,B] and [B,A]. This code only gives half correspondence. 

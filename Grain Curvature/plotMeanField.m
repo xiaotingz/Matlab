@@ -2,9 +2,9 @@ function plotMeanField(file, data_grain, start, step, width, mean_field_id)
 % ##########################################################################
 % * Inputs
 %     - file
-%         mainly used to read neighbor_list.
+%         Mainly used to read neighbor_list.
 %     - data_grain = [grainId, grainDiameter, #Faces, #edges, IntegralGrainCurvature]
-%         returned by calcGrainCurvature.m 
+%         Returned by calcGrainCurvature.m 
 %     - start, step, width
 %         For plotting binned data. 
 %     - mean_field_id
