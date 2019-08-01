@@ -1,7 +1,7 @@
-function dists = calcDistFromMisorientation(file, fl_obj, dg_obj)
+function dists = calcDistFromMisorientation(file, faces, dg_obj)
 % ##########################################################################
 % * Input
-%     - fls = [n , 2]
+%     - faces = [n , 2]
 %           Labels of the faces, for which misorientation angle needs to be calcualted
 %     - dg_obj = [3, 3, n]
 %           Orientation matrix of the objective misorientations.
@@ -36,7 +36,7 @@ function dists = calcDistFromMisorientation(file, fl_obj, dg_obj)
 
 % ----- initialize the result variable -----
 num_obj_miso = size(dg_obj, 3);
-dists = ones(size(fl_obj, 1), num_obj_miso)*180;
+dists = ones(size(faces, 1), num_obj_miso)*180;
 
 % ############################### Prepare Data ###############################
 ea =  h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/AvgEulerAngles').';
@@ -52,9 +52,9 @@ O = CrysSym();
 % - Similar calculation: dgInFZ.m
 % """
 
-for i = 1:size(fl_obj, 1)
-    g_1 = EAtoG(ea(fl_obj(i, 1), :));
-    g_2 = EAtoG(ea(fl_obj(i, 2), :));
+for i = 1:size(faces, 1)
+    g_1 = EAtoG(ea(faces(i, 1), :));
+    g_2 = EAtoG(ea(faces(i, 2), :));
 
     % ----- First put the misorientation in FZ -----
     [~, ~, dg_1] = dgInFZ(g_1, g_2, O);

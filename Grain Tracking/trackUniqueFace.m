@@ -5,7 +5,7 @@ function [tracked_uniqueface_1, tracked_uniqueface_2] = trackUniqueFace(file_1, 
 %     - lookUp = [N,2] = [ID_s1, ID_s2] 
 %         is a table which contains only the tracked faces and was sorted in the order of state2.
 %     - faces_to_use
-%         default --> all inner faces; 
+%         use_inner_faces --> all inner faces; 
 %         use_complete_faces --> the tracked faces are complete in both anneal states
 %         use_all_true_faces --> use all true faces, including the surface ones
 % * Output
@@ -15,11 +15,9 @@ function [tracked_uniqueface_1, tracked_uniqueface_2] = trackUniqueFace(file_1, 
 %         this correspondence can be applied to faceCoords directly.
 % ###########################################################################
 % ------------------ load data for debug --------------------
-% file_1 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d');
-% file_2 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
-% load('look_up_table_an4_an5.mat');
-% file_1 = file_an1with2;
-% file_2 = file_an2to1;
+% file_1 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d';
+% file_2 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_cropToAn4.dream3d';
+% load('look_up_table_an4_an5crop.mat');
 % use_complete_faces = 'use_complete_faces';
 % -----------------------------------------------------------
 % 
@@ -98,8 +96,8 @@ function [tracked_uniqueface_1, tracked_uniqueface_2] = trackUniqueFace(file_1, 
 
 % % ###################################### Check, Or Method2 ######################################
 % ------------- read in facelabels -------------
-fl_1 = h5read(file_1, '/DataContainers/TriangleDataContainer/FaceFeatureData/FaceLabels')';
-fl_2 = h5read(file_2, '/DataContainers/TriangleDataContainer/FaceFeatureData/FaceLabels')';
+faces_1 = h5read(file_1, '/DataContainers/TriangleDataContainer/FaceFeatureData/FaceLabels')';
+faces_2 = h5read(file_2, '/DataContainers/TriangleDataContainer/FaceFeatureData/FaceLabels')';
 
 % ------------- filter out bad and surface faces -------------
 if strcmp(faces_to_use, 'use_complete_faces')
@@ -112,46 +110,45 @@ if strcmp(faces_to_use, 'use_complete_faces')
     surface_grain_1 = ids_1(surface_grain_1);
     surface_grain_2 = ids_2(surface_grain_2);
 
-    mask_surf_face_1 = all(ismember(fl_1, surface_grain_1), 2);
-    mask_surf_face_2 = all(ismember(fl_2, surface_grain_2), 2);
-    mask_face_1 = all(fl_1 > 0, 2) & ~ mask_surf_face_1;
-    mask_face_2 = all(fl_2 > 0, 2) & ~ mask_surf_face_2;
+    mask_surf_face_1 = all(ismember(faces_1, surface_grain_1), 2);
+    mask_surf_face_2 = all(ismember(faces_2, surface_grain_2), 2);
+    mask_1 = all(faces_1 > 0, 2) & ~ mask_surf_face_1;
+    mask_2 = all(faces_2 > 0, 2) & ~ mask_surf_face_2;
 elseif strcmp(faces_to_use, 'use_all_true_faces')
-    mask_face_1 = all(fl_1 >= 0, 2) & any(fl_1 > 0, 2);
-    mask_face_2 = all(fl_2 >= 0, 2) & any(fl_2 > 0, 2);
+    mask_1 = all(faces_1 >= 0, 2) & any(faces_1 > 0, 2);
+    mask_2 = all(faces_2 >= 0, 2) & any(faces_2 > 0, 2);
     look_up_table = [look_up_table; 0, 0];
+elseif strcmp(faces_to_use, 'use_inner_faces')
+    mask_1 = all(faces_1 > 0, 2);
+    mask_2 = all(faces_2 > 0, 2);
 else
-    mask_face_1 = all(fl_1 > 0, 2);
-    mask_face_2 = all(fl_2 > 0, 2);
+    warning('Please specify faces of interest, ''use_complete_faces'' or ''use_all_true_faces'' or ''use_inner_faces'' ');
 end
 
-fl_1 = fl_1(mask_face_1, :);
-fl_2 = fl_2(mask_face_2, :);
-fl_1 = sort(fl_1, 2);
-fl_2 = sort(fl_2, 2);
+faces_1 = faces_1(mask_1, :);
+faces_2 = faces_2(mask_2, :);
+faces_1 = sort(faces_1, 2);
+faces_2 = sort(faces_2, 2);
 
-% ------------- construct fl_2from1 from fl_11 -------------
+% ------------- construct fl_2from1 from fl_1 -------------
 map_1to2 = containers.Map(look_up_table(:,1), look_up_table(:,2));
-fl_2from1 = - ones(size(fl_1));
-for i = 1:size(fl_1, 1)
+faces_2from1 = - ones(size(faces_1));
+for i = 1:size(faces_1, 1)
     for j = 1:2
-        if isKey(map_1to2, fl_1(i, j))
-            fl_2from1(i, j) = map_1to2(fl_1(i, j));
+        if isKey(map_1to2, faces_1(i, j))
+            faces_2from1(i, j) = map_1to2(faces_1(i, j));
         end
     end
 end
 
 % ------------- sort fl_2from1 and determine a mask by comparing fl_2from1 and fl_2 -------------
-fl_2from1 = sort(fl_2from1, 2);
-mask = ismember(fl_2from1, fl_2, 'rows');
+faces_2from1 = sort(faces_2from1, 2);
+mask = ismember(faces_2from1, faces_2, 'rows');
 
 % ------------- return fl_1(mask, :) and fl_2from1(mask, :) -------------
-tracked_uniqueface_1 = fl_1(mask, :);
-tracked_uniqueface_2 = fl_2from1(mask, :);
+tracked_uniqueface_1 = faces_1(mask, :);
+tracked_uniqueface_2 = faces_2from1(mask, :);
 
 end
-% sum(ismember(tracked_uniqueface_1, tracked_uniqueface_an4, 'rows'))
-% sum(ismember(tracked_uniqueface_2, tracked_uniqueface_an5, 'rows'))
-
 
 

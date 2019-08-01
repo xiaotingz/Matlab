@@ -9,7 +9,8 @@ function [is_twin, incoherence] = calcTwinsFromD3D(file, faces, eps_curv, eps_ar
 %     - is_twin = [n,1] 
 %         Indicator variable: {0, 1}
 %     - incoherence = [n, 1]
-%         Weighted incoherence of the grain face
+%         Weighted incoherence of the grain face. NOTE only triangles with
+%         good quality and do not sit on triple lines are considered. 
 % * Note 
 %     - This file is to be used in featurePrepOthers.m
 %         A more general version is calcDistFromMisorientation.m
@@ -31,25 +32,36 @@ fl = sort(fl, 2);
 tri_curv =  roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5)';
 tri_area = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'),-5)';
 tri_min_ang = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceDihedralAngles'),-5)';
-mask_good = all(fl>0, 2) & abs(tri_curv) < eps_curv & tri_area < eps_area & tri_min_ang > eps_min_ang;
+tri_nodes = 1 + h5read(file,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList')';
+node_types = h5read(file,'/DataContainers/TriangleDataContainer/VertexData/NodeType')';
+tri_node_types = node_types(tri_nodes);
 
-fl = fl(mask_good, :);
-tri_istwin = tri_istwin(mask_good);
+% """
+% _full & _istwin
+%     Use all triangles to check if twin, but only good quality triangles to calc incoherence.
+% """
+fl_full = fl(all(fl>0, 2), :);
+tri_istwin = tri_istwin(all(fl>0, 2));
+mask_good = all(fl>0, 2) & all(tri_node_types == 2, 2) & ...
+    abs(tri_curv) < eps_curv & tri_area < eps_area & tri_min_ang > eps_min_ang;
+fl_good = fl(mask_good, :);
 tri_incoherence = tri_incoherence(mask_good);
 
 is_twin = boolean(zeros(size(faces, 1), 1));
 incoherence = zeros(size(faces, 1), 1);
 
 for i = 1:length(faces)
-    mask = (fl(:,1) == faces(i, 1) & fl(:,2) == faces(i, 2));
-    if all(tri_istwin(mask))
+    mask_full = (fl_full(:,1) == faces(i, 1) & fl_full(:,2) == faces(i, 2));
+    if all(tri_istwin(mask_full))
         is_twin(i) = true;
     else
-        if any(tri_istwin(mask))
+        if any(tri_istwin(mask_full))
             warning(['calcTwinsFromD3D.m problem, pair ', num2str(i)]);
         end
     end
-    incoherence(i) = sum(tri_incoherence(mask)) / sum(mask);
+    
+    mask_good = (fl_good(:,1) == faces(i, 1) & fl_good(:,2) == faces(i, 2));
+    incoherence(i) = sum(tri_incoherence(mask_good)) / sum(mask_good);
    
 end
     

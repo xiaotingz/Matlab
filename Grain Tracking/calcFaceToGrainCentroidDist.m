@@ -22,19 +22,19 @@ function dists_f_g = calcFaceToGrainCentroidDist(file, faces, eps_curv, eps_area
 % ---------------------------------------------------------------
 
 % ##### Read and Clean Data #####
-face_label = h5read(file, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
-tri_node = 1 + double(h5read(file,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList'))';
-node_coord = double(h5read(file,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedVertexList'))';
-grain_centroid = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/Centroids'))';
+tri_fls = h5read(file, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
+tri_nodes = 1 + double(h5read(file,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList'))';
+node_coords = double(h5read(file,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedVertexList'))';
+grain_centroids = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/Centroids'))';
 
 if nargin == 5
     tri_curv = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5)';
     tri_area = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'),-5)';
     tri_min_ang = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceDihedralAngles'),-5)';
 elseif nargin == 2
-    tri_curv = ones(size(face_label, 1), 1) * 1;
-    tri_area = ones(size(face_label, 1), 1) * 1;
-    tri_min_ang = ones(size(face_label, 1), 1) * 180;
+    tri_curv = ones(size(tri_fls, 1), 1) * 1;
+    tri_area = ones(size(tri_fls, 1), 1) * 1;
+    tri_min_ang = ones(size(tri_fls, 1), 1) * 180;
     eps_curv = 100;
     eps_area = 10;
     eps_min_ang = 1;
@@ -42,15 +42,15 @@ elseif nargin == 2
 end
     
     
-grain_centroid(1,:) = [];
-mask = all(face_label > 0, 2);
-tri_node = tri_node(mask, :);
-face_label = face_label(mask, :);
+grain_centroids(1,:) = [];
+mask = all(tri_fls > 0, 2);
+tri_nodes = tri_nodes(mask, :);
+tri_fls = tri_fls(mask, :);
 tri_curv = tri_curv(mask, :);
 tri_area = tri_area(mask, :);
 tri_min_ang = tri_min_ang(mask, :);
 
-face_label = sort(face_label, 2);
+tri_fls = sort(tri_fls, 2);
 
 % ##### Sort grain_id in faces #####
 % """
@@ -64,17 +64,17 @@ faces_sorted = sort(faces, 2);
 % ##### Find face_centroid #####
 face_centroid = zeros(size(faces_sorted, 1), 3);
 for i = 1:size(faces, 1)
-    mask = (face_label(:,1) == faces_sorted(i, 1) & face_label(:,2) == faces_sorted(i, 2) ...
+    mask = (tri_fls(:,1) == faces_sorted(i, 1) & tri_fls(:,2) == faces_sorted(i, 2) ...
             & abs(tri_curv) < eps_curv & tri_area < eps_area & tri_min_ang > eps_min_ang);
-    nodes = unique(tri_node(mask, :));
-    face_centroid(i, :) = sum(node_coord(nodes, :))/length(nodes);
+    nodes = unique(tri_nodes(mask, :));
+    face_centroid(i, :) = sum(node_coords(nodes, :))/length(nodes);
 end
 
 % ##### Find dist(face_centroid, grain_centroid) #####
 dists_f_g = zeros(size(faces_sorted, 1), 2);
 for i = 1:size(faces, 1)
     for j = 1:2
-        dists_f_g(i, j) = norm(face_centroid(i, :) - grain_centroid(faces_sorted(i, j), :));
+        dists_f_g(i, j) = norm(face_centroid(i, :) - grain_centroids(faces_sorted(i, j), :));
     end
 end
 

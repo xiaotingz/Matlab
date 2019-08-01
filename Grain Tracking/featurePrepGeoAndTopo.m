@@ -9,8 +9,8 @@
 % ##########################################################################
 % file_an4 = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin3_Hsmooth.dream3d';
 % file_an5 = '/Volumes/XIAOTING/Ni/An5new6_cropToAn4_Hsmooth.dream3d';
-file_an4 = '/Volumes/XIAOTING/Ni/An4new6_fixedOrigin_smooth.dream3d';
-file_an5 = '/Volumes/XIAOTING/Ni/An5new6_cropToAn4.dream3d';
+file_an4 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d';
+file_an5 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_cropToAn4.dream3d';
 load('look_up_table_an4_an5crop.mat')
 % load('/Volumes/XIAOTING/Ni/working/190621_tracked_faces_full.mat')
 % tracked_uniqueface_an4 = tracked_uniqueface_an4_full;
@@ -106,13 +106,18 @@ ratio_thres_neg = 1/ratio_thres_pos - 1;
 fa_diff_ratio = face_area_diff ./ face_area_an4;
 mask_good_face = (face_area_an4 > area_thres & face_area_an4 + face_area_diff > area_thres ...
     & fa_diff_ratio < ratio_thres_pos & fa_diff_ratio > ratio_thres_neg);
-csvwrite('190718_mask_good_face.csv', mask_good_face);
+fileID = fopen('190718_Hsmooth_mask_good_face.txt','w');
+fprintf(fileID,'%s\n', 'mask_good_face');
+for i = 1:size(mask_good_face, 1)
+    fprintf(fileID, '%3d\n', mask_good_face(i));
+end
+fclose(fileID);
 
-fileID = fopen('190718_features_geo_topo.txt','w');
+fileID = fopen('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190730_Lsmooth_geo_topo.txt','w');
 fprintf(fileID,'%s, %s, %s, %s, %s, %s, %s, %s\n', ...
     'A_an4', 'fMs_an4', 'avg_FabsavgH_an4', 'C_an4', ...
     'A_diff', 'fMs_diff', 'avg_FabsavgH_diff', 'C_diff');
-for i = 1:length(face_area_an4)
+for i = 1:size(face_area_an4, 1)
     fprintf(fileID, '%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n', ...
         face_area_an4(i), face_itg_abscurv_an4(i), face_avg_abscurv_an4(i), num_corners_an4(i),...
         face_area_diff(i), face_itg_abscurv_diff(i), face_avg_abscurv_diff(i), corner_diff(i));

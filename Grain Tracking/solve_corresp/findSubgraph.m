@@ -42,6 +42,7 @@ for i = 1:size(face_tri_nodeid_2, 1)
 end
 
 % ----- get the unique edges (unique connections) -----
+% !!!!!!!!!!!!!! QUESTION: is the third edge necessary? !!!!!!!!!!!!!!
 edge_1 = [tri_localnode_1(:,1), tri_localnode_1(:, 2); tri_localnode_1(:,2), tri_localnode_1(:, 3)];
 edge_1 = sort(edge_1, 2);
 edge_1 = unique(edge_1, 'rows');

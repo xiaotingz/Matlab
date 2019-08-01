@@ -7,7 +7,7 @@
 % * Sections
 %     1. Calcualte Grain Face Moved Left
 %     2. energy_gradient by Grain Properties
-%     3. energy_gradient by Grain Face Properties
+%     3. energy_gradient by Signed Grain Face Curvature
 %     4. Write txt file
 %     5. Checks
 %         5.1. Check Migartion & Grain data
@@ -27,8 +27,8 @@
 % use data_grain difference. now is using an4 only. 
 % """
 % ##########################################################################
-file_an4 = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin3_Hsmooth.dream3d';
-file_an5 = '/Volumes/XIAOTING/Ni/An5new6_cropToAn4_Hsmooth.dream3d';
+file_an4 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d';
+file_an5 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_cropToAn4.dream3d';
 load('look_up_table_an4_an5crop.mat')
 
 % """
@@ -38,8 +38,10 @@ eps_curv = 1;
 eps_area = 7;
 eps_min_ang = 10;
 
+%%
 % % """
 % % run  /Grain Curvature/G_F_mF.m to get the following data: from data_grain & F_mF_diff 
+load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190730_Lsmoth_data_grain.mat')
 % % """
 % data_face_an4 = data_face;
 % data_grain_an4 = [data_grain(:,2), data_grain(:,3), F_mF_diff, data_grain(:,5)];
@@ -47,11 +49,11 @@ data_grain_an4 = [data_grain_an4(:,2), data_grain_an4(:,3), F_mF_diff_an4, data_
 data_grain_an5 = [data_grain_an5(:,2), data_grain_an5(:,3), F_mF_diff_an5, data_grain_an5(:,5)];
 % clearvars -except data_face_an4 data_grain_an4 file_an4 
 
-% ##### Make label_an4 & label_an5 one-to-one #####
-% [tracked_uniqueface_an4, tracked_uniqueface_an5] = trackUniqueFace(file_an4, file_an5, look_up_table, 'use_complete_faces');
-load('/Volumes/XIAOTING/Ni/working/190621_tracked_faces_full.mat')
-tracked_uniqueface_an4 = tracked_uniqueface_an4_full;
-tracked_uniqueface_an5 = tracked_uniqueface_an5_full;
+
+%% ##### Make label_an4 & label_an5 one-to-one #####
+[tracked_uniqueface_an4_inner, tracked_uniqueface_an5_inner] = trackUniqueFace(file_an4, file_an5, look_up_table, 'use_inner_faces');
+faces_an4 = tracked_uniqueface_an4_inner;
+faces_an5 = tracked_uniqueface_an5_inner;
 
 % ##### Recalc tracked_uniqueface_an4 To Keep Grains Consistent With track_uniquefaces_an5 #####
 % ----- make a real index table out of look_up_table -----
@@ -69,34 +71,41 @@ for i = 1 : max(look_up_table(:,2))
     end
 end
 % ----- remake tracked_uniqueface_an4 -----
-tracked_uniqueface_an4_sorted = zeros(size(tracked_uniqueface_an5));
-for i = 1:size(tracked_uniqueface_an5, 1)
-    for j = 1:size(tracked_uniqueface_an5, 2)
-        tracked_uniqueface_an4_sorted(i, j) = look_up_table_2to1(tracked_uniqueface_an5(i,j), 1);
+faces_an4_sorted = zeros(size(faces_an5));
+for i = 1:size(faces_an5, 1)
+    for j = 1:size(faces_an5, 2)
+        faces_an4_sorted(i, j) = look_up_table_2to1(faces_an5(i,j), 1);
     end
 end
 
-% %% #################################### 1. Calcualte Grain Face Moved Left ####################################
-% % ----- Absolute distance -----
-% dists_f_g_an4 = calcFaceToGrainCentroidDist(file_an4, tracked_uniqueface_an4_sorted, eps_curv, eps_area, eps_min_ang);
-% dists_f_g_an5 = calcFaceToGrainCentroidDist(file_an5, tracked_uniqueface_an5, eps_curv, eps_area, eps_min_ang);
-% % ----- Convert distance to portion -----
-% total_dists_an4 = sum(dists_f_g_an4, 2);
-% total_dists_an5 = sum(dists_f_g_an5, 2);
-% dists_f_g_an4 = dists_f_g_an4 ./ total_dists_an4;
-% dists_f_g_an5 = dists_f_g_an5 ./ total_dists_an5;
-% 
-% eps_motion = 1e-2;
-% move_left = zeros(size(dists_f_g_an4,1), 1);
-% for i = 1:length(dists_f_g_an4)
-%     if dists_f_g_an4(i, 1) < dists_f_g_an5(i, 1) - eps_motion
-%         move_left(i) = -1;
-%     elseif dists_f_g_an4(i, 1) > dists_f_g_an5(i, 1) + eps_motion
-%         move_left(i) = 1;
-%     else
-%         move_left(i) = 0;
-%     end
-% end
+% ----- check faces_an4_sorted -----
+good_sort = sum(ismember([faces_an4_sorted(:,1), faces_an5(:,1)], look_up_table, 'rows')) == size(faces_an4, 1) && ...
+    sum(ismember([faces_an4_sorted(:,2), faces_an5(:,2)], look_up_table, 'rows')) == size(faces_an4, 1);
+if ~ good_sort
+    disp('faces_an4_sorted were wrong!')
+end
+
+%% #################################### 1. Calcualte Grain Face Moved Left ####################################
+% ----- Absolute distance -----
+dists_f_g_an4 = calcFaceToGrainCentroidDist(file_an4, faces_an4_sorted, eps_curv, eps_area, eps_min_ang);
+dists_f_g_an5 = calcFaceToGrainCentroidDist(file_an5, faces_an5, eps_curv, eps_area, eps_min_ang);
+% ----- Convert distance to portion -----
+total_dists_an4 = sum(dists_f_g_an4, 2);
+total_dists_an5 = sum(dists_f_g_an5, 2);
+dists_f_g_an4 = dists_f_g_an4 ./ total_dists_an4;
+dists_f_g_an5 = dists_f_g_an5 ./ total_dists_an5;
+
+eps_motion = 1e-2;
+move_left = zeros(size(dists_f_g_an4,1), 1);
+for i = 1:length(dists_f_g_an4)
+    if dists_f_g_an4(i, 1) < dists_f_g_an5(i, 1) - eps_motion
+        move_left(i) = -1;
+    elseif dists_f_g_an4(i, 1) > dists_f_g_an5(i, 1) + eps_motion
+        move_left(i) = 1;
+    else
+        move_left(i) = 0;
+    end
+end
 
 
 %% #################################### 2. energy_gradient by Grain Properties ####################################
@@ -107,10 +116,10 @@ end
 %       input of regression is probably better. 
 % - data_grain = [size, F, F-<Fnn>, integral curvature]
 % """
-data_grain_an4_left = data_grain_an4(tracked_uniqueface_an4_sorted(:,1), :);
-data_grain_an4_right = data_grain_an4(tracked_uniqueface_an4_sorted(:,2), :);
-data_grain_an5_left = data_grain_an5(tracked_uniqueface_an5(:,1), :);
-data_grain_an5_right = data_grain_an5(tracked_uniqueface_an5(:,2), :);
+data_grain_an4_left = data_grain_an4(faces_an4_sorted(:,1), :);
+data_grain_an4_right = data_grain_an4(faces_an4_sorted(:,2), :);
+data_grain_an5_left = data_grain_an5(faces_an5(:,1), :);
+data_grain_an5_right = data_grain_an5(faces_an5(:,2), :);
 
 % """
 % - diff = right - left, becase move left <-> left grain small
@@ -120,57 +129,45 @@ data_grain_an4_diff = data_grain_an4_right - data_grain_an4_left;
 data_grain_an4_diff(:,4) = - data_grain_an4_diff(:,4);
 
 
-%% #################################### 3. energy_gradient by Grain Face Properties ####################################
+%% #################################### 3. energy_gradient by Signed Grain Face Curvature ####################################
 % """
 % Hypothesis: if grain face convex when taking the left grain as resident grain, then grain face should move left.
 % Positive cases: move left; left grain small; face area decrease
 % """  
-face_itgcurv_an4_left = zeros(size(tracked_uniqueface_an4_sorted, 1), 1);
-face_itgcurv_an5_left = zeros(size(tracked_uniqueface_an4_sorted, 1), 1);
-face_area_an4 = zeros(size(tracked_uniqueface_an4_sorted, 1), 1);
-face_area_an5 = zeros(size(tracked_uniqueface_an4_sorted, 1), 1);
-for i = 1:size(tracked_uniqueface_an4_sorted, 1)
+face_itgcurv_an4_left = zeros(size(faces_an4_sorted, 1), 1);
+face_itgcurv_an5_left = zeros(size(faces_an4_sorted, 1), 1);
+for i = 1:size(faces_an4_sorted, 1)
     % ----- get itg_curv for the specific grain face -----
     % """
     % The reason for the long code was some faces have only [A, B] but not [B, A]. []*[] rises error.
     % """
-    mask_an4_1 = (tracked_uniqueface_an4_sorted(i, 1) == data_face_an4(:,1) & tracked_uniqueface_an4_sorted(i, 2) == data_face_an4(:,2));
-    mask_an4_2 = (tracked_uniqueface_an4_sorted(i, 2) == data_face_an4(:,1) & tracked_uniqueface_an4_sorted(i, 1) == data_face_an4(:,2));
+    mask_an4_1 = (faces_an4_sorted(i, 1) == data_face_an4(:,1) & faces_an4_sorted(i, 2) == data_face_an4(:,2));
+    mask_an4_2 = (faces_an4_sorted(i, 2) == data_face_an4(:,1) & faces_an4_sorted(i, 1) == data_face_an4(:,2));
     if sum(mask_an4_1) > 0
         face_itg_curv_1 = data_face_an4(mask_an4_1, 3)*data_face_an4(mask_an4_1, 4);
-        face_area_an4_1 = data_face_an4(mask_an4_1, 3);
     else
         face_itg_curv_1 = 0.0;
-        face_area_an4_1 = 0.0;
     end
     if sum(mask_an4_2) > 0
         face_itg_curv_2 = data_face_an4(mask_an4_2, 3)*data_face_an4(mask_an4_2, 4);
-        face_area_an4_2 = data_face_an4(mask_an4_2, 3);
     else
         face_itg_curv_2 = 0.0;
-        face_area_an4_2 = 0.0;
     end
     face_itgcurv_an4_left(i)  = - face_itg_curv_1 + face_itg_curv_2;
-    face_area_an4(i) = face_area_an4_1 + face_area_an4_2;
     
-    mask_an5_1 = (tracked_uniqueface_an5(i, 1) == data_face_an5(:,1) & tracked_uniqueface_an5(i, 2) == data_face_an5(:,2));
-    mask_an5_2 = (tracked_uniqueface_an5(i, 2) == data_face_an5(:,1) & tracked_uniqueface_an5(i, 1) == data_face_an5(:,2));
+    mask_an5_1 = (faces_an5(i, 1) == data_face_an5(:,1) & faces_an5(i, 2) == data_face_an5(:,2));
+    mask_an5_2 = (faces_an5(i, 2) == data_face_an5(:,1) & faces_an5(i, 1) == data_face_an5(:,2));
     if sum(mask_an5_1) > 0
         face_itg_curv_1 = data_face_an5(mask_an5_1, 3)*data_face_an5(mask_an5_1, 4);
-        face_area_an5_1 = data_face_an5(mask_an5_1, 3);
     else
         face_itg_curv_1 = 0.0;
-        face_area_an5_1 = 0.0;
     end
     if sum(mask_an5_2) > 0
         face_itg_curv_2 = data_face_an5(mask_an5_2, 3)*data_face_an5(mask_an5_2, 4);
-        face_area_an5_2 = data_face_an5(mask_an5_2, 3);
     else
         face_itg_curv_2 = 0.0;
-        face_area_an5_2 = 0.0;
     end
     face_itgcurv_an5_left(i)  = - face_itg_curv_1 + face_itg_curv_2;    
-    face_area_an5(i) = face_area_an5_1 + face_area_an5_2;
 end
 
 
@@ -181,34 +178,18 @@ end
 % - data_grain_diff = [size, F, F-Fnn, integral curvature]
 % - fMs_an4_left: face itg_curv. the most important information being its sign.
 % """
-% ----------------------------------- Inner faces -----------------------------------
-% fileID = fopen('190621_features_energygrad.txt','w');
-% % fprintf(fileID,'%s ,%s, %s ,%s, %s, %s, %s, %s, %s, %s, %s\n', 'move_left', 'neighfrac_pos_an4', 'gV_diff_an4', 'gF_diff_an4', 'gFnnF_diff_an4', 'gMs_diff_an4', ...
-% %                 'fMs_an4_left', 'FnnF_A_maxdec', 'FnnF_A_avgdec', 'FnnF_fMs_maxdec', 'FnnF_fMs_avgdec');
-% fprintf(fileID,'%s, %s ,%s, %s, %s, %s, %s, %s, %s, %s\n', 'neighfrac_pos_an4', 'gV_diff_an4', 'gF_diff_an4', 'gFnnF_diff_an4', 'gMs_diff_an4', ...
-%                 'fMs_an4_left', 'FnnF_A_maxdec', 'FnnF_A_avgdec', 'FnnF_fMs_maxdec', 'FnnF_fMs_avgdec');
-% for i = 1:length(data_grain_an4_diff)
-%     if mask_good_face(i)
-%         fprintf(fileID, '%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f \n', ...
-%             neighfrac_pos_an4(i), data_grain_an4_diff(i,1), data_grain_an4_diff(i,2), data_grain_an4_diff(i,3), data_grain_an4_diff(i,4), ...
-%             face_itgcurv_an4_left(i), fnnf_area_maxdec(i), fnnf_area_avgdec(i), fnnf_itgcurv_maxdec(i), fnnf_itgcurv_avgdec(i));
-%     end
-% end
-% fclose(fileID);
-
-
 % ----------------------------------- Full faces -----------------------------------
-fileID = fopen('190624_features_energygrad.txt','w');
-fprintf(fileID,'%s, %s ,%s, %s, %s\n', 'gV_diff_an4', 'gF_diff_an4', ...
+fileID = fopen('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190730_Lsmooth_energygrad.txt','w');
+fprintf(fileID,'%s, %s, %s, %s, %s, %s\n', 'move_left', 'gV_diff_an4', 'gF_diff_an4', ...
     'gFnnF_diff_an4', 'gMs_diff_an4', 'fMs_an4_left');
 for i = 1:length(data_grain_an4_diff)
-    if mask_good_face(i)
-        fprintf(fileID, '%6.3f, %6.3f, %6.3f, %6.3f, %6.3f \n', ...
-            data_grain_an4_diff(i,1), data_grain_an4_diff(i,2), data_grain_an4_diff(i,3), ...
-            data_grain_an4_diff(i,4), face_itgcurv_an4_left(i));
-    end
+    fprintf(fileID, '%6d, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f \n', ...
+        move_left(i), data_grain_an4_diff(i,1), data_grain_an4_diff(i,2), ...
+        data_grain_an4_diff(i,3), data_grain_an4_diff(i,4), face_itgcurv_an4_left(i));
 end
 fclose(fileID);
+
+
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 5. CHECKS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 1. Check Migartion & Grain data
@@ -226,7 +207,7 @@ fMs_an5_left = face_itgcurv_an5_left;
 % daspect([1 1 1]);
 % ##### plot the centroids #####
 rng('shuffle');
-idx = randi(size(tracked_uniqueface_an4_sorted, 1), 1);  
+idx = randi(size(faces_an4_sorted, 1), 1);  
 % i = 1638;
 
 eps = 0.5;
@@ -247,7 +228,7 @@ disp(' ');
 disp('#############################')
 % disp(['Pair ', num2str(idx), '  ;  one_piece_id = ', num2str(i)]);
 disp(['Pair ', num2str(idx)]);
-dispFacePairInfo(file_an4, file_an5, tracked_uniqueface_an4_sorted, tracked_uniqueface_an5, idx)
+dispFacePairInfo(file_an4, file_an5, faces_an4_sorted, faces_an5, idx)
 % disp(['mig_sign_norm_nearest = ',num2str(mig_localnorm_nearest(i, 3:4))])
 % disp(['mig_sign_norm_ot = ',num2str(mig_localnorm_ot(i, 3:4))])
 disp('---------------')
@@ -262,7 +243,7 @@ disp([memo2, 'gV_diff_an4 = ', num2str(gV_diff_an4(idx)), ',  fMs_an4_left = ',n
 
 
 figure
-plotCentroids(file_an4, file_an5, tracked_uniqueface_an4, tracked_uniqueface_an5, idx)
+plotCentroids(file_an4, file_an5, faces_an4, faces_an5, idx)
 % if move_left(idx) > 0
 %     disp('move left')
 %     title('move left', 'fontSize', 18)
@@ -349,7 +330,7 @@ area = sum(tri_area(mask));
 disp(['check from raw: area_an4 = ', num2str(area), ...
         ',   itgcurv_an4 = ', num2str(itg_abscurv)]);
 
-%% ###### 5.3. Unify Curvature Direction For Paraview ######
+%% ######################################## 5.3. Unify Curvature Direction For Paraview ########################################
 file = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin3_Hsmooth_curvSwapped_forParaview.dream3d';
 curv = h5read(file, '/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures')';
 fl = h5read(file, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
@@ -360,7 +341,7 @@ curv_inner = curv(mask_inner, :);
 % """ 
 % if obj_grain on left of face_label, tri_curve = - tri_curve
 % """
-obj_faces = tracked_uniqueface_an4;
+obj_faces = faces_an4;
 for i = 1:size(obj_faces, 1)
     disp(i);
 %     mask = ismember(fl, tracked_uniqueface_an4(i,:), 'rows');
@@ -371,4 +352,5 @@ end
 curv(mask_inner) = curv_inner;
 h5write(file, '/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures', curv');
 
-5.2. Check Face Diff
+
+

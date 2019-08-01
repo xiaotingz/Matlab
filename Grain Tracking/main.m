@@ -1,12 +1,12 @@
 %% ########################################### Data & Prepare ########################################### 
 clear 
 
-% file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d');
-% file_an5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_cropToAn4.dream3d');
-% load('look_up_table_an4_an5crop.mat')
-file_an4 = '/Users/xiaotingzhong/Desktop/Datas/Iron/iron_an0.dream3d';
-file_an5 = '/Users/xiaotingzhong/Desktop/Datas/Iron/iron_an1.dream3d';
-load('/Users/xiaotingzhong/Desktop/Datas/Iron/look_up_table_iron.mat');
+file_an4 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d');
+file_an5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_cropToAn4.dream3d');
+load('look_up_table_an4_an5crop.mat')
+% file_an4 = '/Users/xiaotingzhong/Desktop/Datas/Iron/iron_an0.dream3d';
+% file_an5 = '/Users/xiaotingzhong/Desktop/Datas/Iron/iron_an1.dream3d';
+% load('/Users/xiaotingzhong/Desktop/Datas/Iron/look_up_table_iron.mat');
 
 % ##### get the faceLabels and their correpondence ##### 
 % [faces_an4, faces_an5, face_corresp] = trackFace(file_an4, file_an5, look_up_table, 'use_complete_faces');

@@ -54,13 +54,14 @@ step = 80;
 % neighborList = double(h5read(file,'/VoxelDataContainer/FIELD_DATA/NeighborList'));
 % triangle_area_raw = roundn(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas'),-8).';
 
-file_an4 = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin3_Hsmooth.dream3d';
-file_an5 = '/Volumes/XIAOTING/Ni/An5new6_cropToAn4_Hsmooth.dream3d';
-centro_file = '/Users/xiaotingzhong/Desktop/Datas/Iron/iron_an1.dream3d';
+file_an4 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d';
+file_an5 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_cropToAn4.dream3d';
+centro_file = file_an5;
 file = centro_file;
-% file = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_smooth.dream3d');
-% centro_file = file_an4;
-% file = file_an4;
+eps_curv = 1;
+eps_area = 7;
+eps_min_ang = 10;
+
 
 %  -------------------------- load data_v6 -------------------------- 
 centroids = abs(roundn(h5read(centro_file,'/DataContainers/ImageDataContainer/CellFeatureData/Centroids'),-5).');
@@ -82,9 +83,6 @@ data_raw = [facelabel; curvature_of_triangle; triangle_area_raw; triangle_min_an
 
 %  -------------------------- get the grid bin data -------------------------- 
 % data_face = calcFaceCurvature(data_raw);
-eps_curv = 1;
-eps_area = 7;
-eps_min_ang = 10;
 data_face = calcFaceCurvature(data_raw, eps_curv, eps_area, eps_min_ang);
 
 % --- grain_ForCal = [ID_ForCal, D_ForCal, NNeigh_ForCal, numEdges_ForCal] ---;
