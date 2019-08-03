@@ -1,6 +1,9 @@
 function [triple_line, tl_info] = findTripleLines(file, eps_area, eps_curv, eps_min_ang)
 % ############################################################################
-% * Output
+% * Inputs
+%   - eps_
+%       Thresholds for trianlge qualities, but should use all triangles generally.
+% * Outputs
 %   - triple_line = [n, 3], n is the number of triple lines in the volume, 3
 %       stands for the threeGrainIDs encapsulating the triple line.
 %   - tl_info = [n, 4]
@@ -38,10 +41,10 @@ fl_idx = (1:size(fl_raw, 1))';
 
 % ##### Find the triangles on tripleline #####
 %     """
-%     - treat QuadNodes as TLnodes
-%     - the triple line triangles are those which have at least 2 TLnodes or QuadNodes 
+%     - Treat QuadNodes as TLnodes
+%     - The triple line triangles are those which have at least 2 TLnodes or QuadNodes 
 %            TLnodes=3 happens for the triangles sitting on a corner 
-%     - only mesh triangles of good quality are used.
+%     - Can threshold trianlges in use by trianlge quality.
 %     """
 node_type(node_type==4) = 3;
 mask_tl_tri = (sum(node_type(tri_node_raw)==3, 2) >= 2);
@@ -55,9 +58,9 @@ fl_idx = fl_idx(mask_obj_tri);
 
 % ##### Sort the triangles into groups of 3 #####
 %     """
-%     - creat a TLnode list to record the triple line nodes of each triangle,
+%     - Creat a TLnode list to record the triple line nodes of each triangle,
 %           group triangles according to the common triple line node 
-%     - special case are the triangles having 3 quad nodes, then it's difficult to tell which are the two nodes in use
+%     - Special case are the triangles having 3 quad nodes, then it's difficult to tell which are the two nodes in use
 %           in such case, duplicate the triangle
 %     """
 mask_TLnodes = (node_type(tri_node)==3);
@@ -97,13 +100,13 @@ for i = 1:(length(TLnodes)-1)
         cnt = 1;
     end
 end
-% --- the last else wasn't excuted ---
+% """ the last else wasn't excuted """
 if cnt == 3
     mask_groupOf3(i+1-2:i+1) = 1;
 end
 mask_groupOf3 = logical(mask_groupOf3);
 
-% ##### get triple lines from the triangle groups #####
+% ##### Process triangle groups for triple_line_id & dihedral_angles #####
 % """
 % TLnodes = [tri_id, tlnode_id_1, tlnode_id_2]
 % Note that the triangle winding must be kept correct for the angles to be correct. 
@@ -127,12 +130,13 @@ for i = 1:length(tl_tri_fl)/3
     if length(unique(fl_group)) == 3 && size(unique(sort(fl_group, 2), 'rows'),1) == 3
         tlgroup_fl_idx(i,:) = tl_tri_fl_idx((i-1)*3+1 : (i-1)*3+3);
         tlgroup_id(i,:) = unique(fl_group);
+        % """ Triangles in the same group share the same TL nodes """
         tl_node_coord_1 = node_coords(tl_node((i-1)*3+1, 1), :);
         tl_node_coord_2 = node_coords(tl_node((i-1)*3+1, 2), :);
         tlgroup_length(i) = norm(tl_node_coord_1 - tl_node_coord_2);
 % ----------------------------------------------------------------------------------
         % """ 
-        % no really working 
+        % NOT working 
         % """
         % --- calculate normal from coords, and keep winding consistent ---
 %         node_group = tl_tri_nodeid((i-1)*3+1 : (i-1)*3+3, :);
@@ -185,7 +189,7 @@ end
 % ----- clean the data ----- 
 % """
 % Reasons for three-triangle groups may not be good: 1. artifitial group.
-% 2. Actually a four--triangle group but got incorporated because one of
+% 2. Actually a four-triangle group but got incorporated because one of
 % the four triangles had bad quality and excluded before grouping.
 % """
 mask_valid_tl = (all(tlgroup_da>0, 2) & abs(sum(tlgroup_da, 2) - 360)<0.1);
@@ -193,7 +197,7 @@ tlgroup_id = tlgroup_id(mask_valid_tl, :);
 tlgroup_da = tlgroup_da(mask_valid_tl, :);
 tlgroup_length = tlgroup_length(mask_valid_tl, :);
 
-% ##### get unique triple_line identifiers and the weighted turning angles #####
+% ##### Get unique triple_line identifiers and the weighted turning angles #####
 % ----- first sort triple line into groups ----- 
 [tlgroup_id, sort_idx] = sortrows(tlgroup_id);
 tlgroup_da = tlgroup_da(sort_idx, :);

@@ -6,6 +6,11 @@ function [num_corners, num_edges] = getFaceCharacter(faces, TLs, QNs, FCNs)
 %   - QNs and FCNs, given by findQuadNodes.m result{1} and result{2}
 % * Note
 %   - This function takes only FiveCoordSuperQN but not other superQNs.
+%         - The assumption behind every FiveCoordNode is counted as two QN
+%           is that the formation of five grain set is likely due to identifiability, or resolution problem. 
+%         - In that case, there should be three grains with two corners and
+%           two grains with one corner, (E.g. [1,2,3,4,5] --> [1,2,3,4] & [2,3,4,5])
+%         - We don't know which are the true two QN pairs, so we just assign every grain two QNs.
 % ############################################################################
 % ----------------------- load debug data -----------------------
 % A = [277, 277, 277]';
@@ -31,6 +36,7 @@ if nargin == 3
         mask_QN_AB = ((sum(mask_QN_A, 2) + sum(mask_QN_B, 2)) == 2);
         num_corners(i) = sum(mask_QN_AB);
     end
+    
 % ##### QuadPoints and FCNoints #####
 elseif nargin == 4
     for i = 1:size(faces, 1)
@@ -49,6 +55,7 @@ elseif nargin == 4
         mask_FCN_A = (FCNs == A);
         mask_FCN_B = (FCNs == B);
         mask_FCN_AB = ((sum(mask_FCN_A, 2) + sum(mask_FCN_B, 2)) == 2);
+        
         num_corners(i) = sum(mask_QN_AB) + sum(mask_FCN_AB)*2;
     end
 end

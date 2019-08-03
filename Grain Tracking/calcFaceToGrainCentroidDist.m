@@ -26,7 +26,9 @@ tri_fls = h5read(file, '/DataContainers/TriangleDataContainer/FaceData/FaceLabel
 tri_nodes = 1 + double(h5read(file,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList'))';
 node_coords = double(h5read(file,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedVertexList'))';
 grain_centroids = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatureData/Centroids'))';
+grain_centroids(1,:) = [];
 
+% """ If thresholds not given, then use all triangles """
 if nargin == 5
     tri_curv = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5)';
     tri_area = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'),-5)';
@@ -41,20 +43,14 @@ elseif nargin == 2
     warning('In calcFaceToGrainCentroidDist.m not thresholding triangle quality at all.')
 end
     
-    
-grain_centroids(1,:) = [];
-mask = all(tri_fls > 0, 2);
+mask = all(tri_fls > 0, 2) & abs(tri_curv) < eps_curv & tri_area < eps_area & tri_min_ang > eps_min_ang;
 tri_nodes = tri_nodes(mask, :);
 tri_fls = tri_fls(mask, :);
-tri_curv = tri_curv(mask, :);
-tri_area = tri_area(mask, :);
-tri_min_ang = tri_min_ang(mask, :);
-
 tri_fls = sort(tri_fls, 2);
 
 % ##### Sort grain_id in faces #####
 % """
-% Note in this function, grain_id in faces are not necessarily sorted becaseu we want to maintain correspondence in calcFaceMigSign.m
+% Note in this function, grain_id in faces are not necessarily sorted because we want to maintain correspondence in calcFaceMigSign.m
 % Need to swap it then swap results back after calculation.
 % """
 mask_swap = (faces(:,1) > faces(:,2));
@@ -64,8 +60,7 @@ faces_sorted = sort(faces, 2);
 % ##### Find face_centroid #####
 face_centroid = zeros(size(faces_sorted, 1), 3);
 for i = 1:size(faces, 1)
-    mask = (tri_fls(:,1) == faces_sorted(i, 1) & tri_fls(:,2) == faces_sorted(i, 2) ...
-            & abs(tri_curv) < eps_curv & tri_area < eps_area & tri_min_ang > eps_min_ang);
+    mask = (tri_fls(:,1) == faces_sorted(i, 1) & tri_fls(:,2) == faces_sorted(i, 2));
     nodes = unique(tri_nodes(mask, :));
     face_centroid(i, :) = sum(node_coords(nodes, :))/length(nodes);
 end

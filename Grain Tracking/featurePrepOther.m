@@ -23,8 +23,8 @@ eps_min_ang = 10;
 % ------------- get faces to track -------------
 % """ Calculate all inner faces and record which ones are complete """
 [tracked_uniqueface_an4_inner, tracked_uniqueface_an5_inner] = trackUniqueFace(file_an4, file_an5, look_up_table, 'use_inner_faces');
-faces_an4 = tracked_uniqueface_an4_inner;
-faces_an5 = tracked_uniqueface_an5_inner;
+obj_faces_an4 = tracked_uniqueface_an4_inner;
+obj_faces_an5 = tracked_uniqueface_an5_inner;
 
 
 %% #################################### 1. Identify (inner) complete faces ####################################
@@ -34,14 +34,14 @@ complete = ismember(sort(tracked_uniqueface_an4_inner, 2), sort(tracked_uniquefa
 
 
 %% #################################### 2. Identify broken faces ####################################
-% is_one_piece = checkIfOnepiece(file_an4, tracked_uniqueface_an4_inner)
+is_one_piece = checkIfOnepiece(file_an4, obj_faces_an4)
 load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190730_one_piece.mat', 'is_one_piece');
 
 
 
 %% #################################### 3.1. Identify twins, from D3D ####################################
-% [is_twin_an4, incoherence_an4] = calcTwinsFromD3D(file_an4, faces_an4, eps_curv, eps_area, eps_min_ang);
-% [is_twin_an5, incoherence_an5] = calcTwinsFromD3D(file_an5, faces_an5, eps_curv, eps_area, eps_min_ang);
+[is_twin_an4, incoherence_an4] = calcTwinsFromD3D(file_an4, obj_faces_an4, eps_curv, eps_area, eps_min_ang);
+[is_twin_an5, incoherence_an5] = calcTwinsFromD3D(file_an5, obj_faces_an5, eps_curv, eps_area, eps_min_ang);
 
 
 
@@ -49,8 +49,8 @@ load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190730_one_piece.m
 % % ----- BAD: by Rodrigues vector -----
 % % rfvec_twin = [1,1,1]/norm([1,1,1]) * tand(60/2);
 % % % """ Note 'AvgEAs' | 'AvgEulerAngles' """
-% % [rfvecs_an4]  = getFaceRFvecs(file_an4, tracked_uniqueface_an4);
-% % [rfvecs_an5]  = getFaceRFvecs(file_an5, tracked_uniqueface_an5);
+% % [rfvecs_an4]  = getFaceRFvecs(file_an4, obj_faces_an4);
+% % [rfvecs_an5]  = getFaceRFvecs(file_an5, obj_faces_an5);
 % % dist_twin_an4 = vecnorm(rfvecs_an4 - rfvec_twin, 2, 2);
 % % dist_twin_an5 = vecnorm(rfvecs_an5 - rfvec_twin, 2, 2);
 
@@ -63,14 +63,14 @@ load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190730_one_piece.m
 % dg_obj(:,:,5) = AAToG(31.59, [1, 1, 0]);  % sigma27a
 % dg_obj(:,:,6) = AAToG(35.43, [2, 1, 0]);  % sigma27b
 % 
-% dists_miso = calcDistFromMisorientation(file_an4, faces_an4, dg_obj);
+dists_miso = calcDistFromMisorientation(file_an4, obj_faces_an4, dg_obj);
 
 load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190730_Lsmoth_miso_dists.mat')
 
 %% #################################### 4. Identify distance from target normals ####################################
 % target_normals = [1,1,1;1,1,0;1,0,0;1,1,2];
 % target_normals = target_normals ./ vecnorm(target_normals, 2, 2);
-% [dists_norm_an4, std_norm_an4] = calcDistFromTargetNormals(file_an4, faces_an4, target_normals, eps_curv, eps_area, eps_min_ang);
+[dists_norm_an4, std_norm_an4] = calcDistFromTargetNormals(file_an4, obj_faces_an4, target_normals, eps_curv, eps_area, eps_min_ang);
 load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190730_normal_dists.mat', 'face_dist_avgs', 'face_dist_stds');
 
 

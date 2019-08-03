@@ -17,9 +17,6 @@ function [result, quadn_list, fivecoordn_list, sixcoordn_list] = findQuadNodes(f
 % file = '/Users/xiaotingzhong/Desktop/Datas/synthetic/180502_CubicSingleEquiaxedOut.dream3d';
 % file = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_mesh.dream3d');
 % ---------------------------------------------------------------
-% dims = double(h5read(file, '/DataContainers/SyntheticVolumeDataContainer/_SIMPL_GEOMETRY/DIMENSIONS'));
-% grainIds = squeeze(h5read(file, '/DataContainers/SyntheticVolumeDataContainer/CellData/FeatureIds'));
-
 dims = double(h5read(file, '/DataContainers/ImageDataContainer/_SIMPL_GEOMETRY/DIMENSIONS'));
 grainIds = squeeze(h5read(file, '/DataContainers/ImageDataContainer/CellData/FeatureIds'));
 
@@ -44,6 +41,10 @@ for i = 2 : (dims(1) - 1)
                     node2 =  calcNodeID(i, j, k+1, xDim_N, yDim_N);
                     node3 =  calcNodeID(i, j+1, k, xDim_N, yDim_N);
                     node4 =  calcNodeID(i, j+1, k+1, xDim_N, yDim_N);
+                    % """
+                    % insert, every cell is like a hashtable and only new elements will be inserted. 
+                    %   Will be deleted in > 2019 versions. 
+                    % """
                     ownerList{node1} = insert(ownerList{node1}, [voxel, neigh4]);    
                     ownerList{node2} = insert(ownerList{node2}, [voxel, neigh4]);
                     ownerList{node3} = insert(ownerList{node3}, [voxel, neigh4]);            
@@ -163,14 +164,20 @@ for i = 1:length(superQNs)
     end
 end
 
-% ##### for pillar shape sample, starting with i,j,k=2 won't exclude the surface voxels #####
+% ##### Cleaning data #####
+% """
+% Assumption: one four-grain group can only give one quad point
+% """
 QNs = unique(quadn_list(:,2:5), 'rows');
-% --- if one of the ID=0, the voxel is on freeSurface, thus doesn't give a quad --- 
+% """
+% For pillar shape sample, starting with i,j,k=2 won't exclude the surface voxels
+% If one of the ID=0, the voxel is on freeSurface, thus doesn't give a quad
+%     Otherwise, even if all the 4 grains are surface grains, the voxel is still a quad
+% """
 QNs = QNs(~any(QNs == 0, 2), :);
-% --- Note even for HEDM data, if all the 4 grains are surface grains, the voxel is still a quad ---
-% --- because as long as surface, G=0 will be included in the IDs. --- 
 
-% --- same process applies to the superQuads, note 0 can only show once in the first digit --- 
+% --- Same process applies to the superQuads --- 
+% """ Note results from unique() is sorted so 0 can only show once as the first element """
 fiveCoordNs = []; sixCoordNs = []; sevenCoordNs = []; eightCoordNs = [];
 if ~isempty(fivecoordn_list)
     fiveCoordNs = unique(fivecoordn_list(:,2:6), 'rows');
@@ -196,36 +203,39 @@ if ~isempty(eightCoordNList)
     sevenCoordNs = [sevenCoordNs; eightCoordNs(mask_sevenNinEN, 2:8)];
     eightCoordNs = eightCoordNs(~mask_sevenNinEN, :);
 end
-% --- after deleting the extra zeros, clean the data again --- 
+
+% --- Clean data again after removing extra zeros --- 
 QNs = unique(QNs, 'rows');
 fiveCoordNs = unique(fiveCoordNs, 'rows');
 sixCoordNs = unique(sixCoordNs, 'rows');
 sevenCoordNs = unique(sevenCoordNs, 'rows');
 eightCoordNs = unique(eightCoordNs, 'rows');
 
+% --- Return final result --- 
 result = {QNs, fiveCoordNs, sixCoordNs, sevenCoordNs, eightCoordNs};
 
-% QNs = unique(QNList(:,2:5), 'rows');
-% 
-% fiveCoordNs = []; sixCoordNs = []; sevenCoordNs = []; eightCoordNs = [];
-% if ~isempty(FiveNList)
-%     fiveCoordNs = unique(FiveNList(:,2:6), 'rows');
-% end
-% if ~isempty(SixNList)
-% sixCoordNs = unique(SixNList(:,2:7), 'rows');
-% end
-% if ~isempty(SevenNList)
-% sevenCoordNs = unique(SevenNList(:,2:8), 'rows');
-% end
-% if ~isempty(EightNList)
-% eightCoordNs = unique(EightNList(:,2:9), 'rows');
-% end
-% result = {QNs, fiveCoordNs, sixCoordNs, sevenCoordNs, eightCoordNs};
 
 % ##### Get coordinates from nodeID/voxelID #####
 % [I, J, K] = ind2sub([xDim_N, yDim_N, zDim_N], nodeID);
 
 end
+
+
+
+% % ############################## Checks ##############################
+% % ----- Compare #quads_calc to #quads_d3d -----
+% % """
+% % #quads by D3D is significantly bigger than the calculated value
+% % """
+% node_types_an4 = h5read(file_an4,'/DataContainers/TriangleDataContainer/VertexData/NodeType');
+% node_types_an5 = h5read(file_an5,'/DataContainers/TriangleDataContainer/VertexData/NodeType');
+% 
+% 
+% sum(node_types_an4 == 4)
+% sum(length(result_an4{1,1}) + length(result_an4{1,2}) + length(result_an4{1,3}) + length(result_an4{1,4}))
+% 
+% sum(node_types_an5 == 4)
+% sum(length(result_an5{1,1}) + length(result_an5{1,2}) + length(result_an5{1,3}) + length(result_an5{1,4}))
 
 
 

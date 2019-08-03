@@ -7,6 +7,7 @@ function x_to_y = solveNodeCorresp_Nearest(X, Y)
 %     - x_to_y = [m, 1], for each node in X, id of the corresponding node in Y
 % * NOTE
 %     - Make sure samples are aligned by changing ORIGIN.
+%     - copied from ../solve_corresp
 %     - This script finds the nearest nodes for nodes on the smaller face.
 % ##########################################################################
 % % ----------------------- load debug data -----------------------

@@ -1,8 +1,11 @@
-function face_itgcurv = calcFaceItgCurv(file, faces, input, eps_curv, eps_area, eps_min_ang)
+function face_itgcurv = calcFaceItgCurv(file, faces, sign_req, eps_curv, eps_area, eps_min_ang)
 % ##########################################################################
 % * Input
 %     - faces([n,2]) and faceCorresp([n,1]) 
 %         is returned by the function trackFace.m or trackUniqueFace.m
+%     - sign_req = 'signed_resident_left' | 'abs'
+%         'signed_resident_left': calculates signed face_itg_curv assuming resident grain on left.
+%         'abs': calculate face_itg_abs_curv
 %     - eps_
 %         thresholds for good quality triangles. Especially important for data by Hsmooth.
 % * Output
@@ -19,10 +22,19 @@ function face_itgcurv = calcFaceItgCurv(file, faces, input, eps_curv, eps_area, 
 % faces = faces_an4;
 % ---------------------------------------------------------------
 facelabel = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels'))';
-tri_curv =  abs(roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5))';
+tri_curv =  roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5)';
 tri_area = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'),-5)';
 tri_min_ang = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceDihedralAngles'),-5)';
 
+if strcmp(sign_req, 'abs')
+    tri_curv = abs(tri_curv);
+else
+    if ~ strcmp(sign_req, 'signed_resident_left')
+        warning('Wrong input sign_req, use ''signed_resident_left'' or ''abs''')
+        return
+    end
+end
+    
 % data_raw = [facelabel.'; tri_curv.'; tri_area.'];
 data_raw = [facelabel'; tri_curv'; tri_area'; tri_min_ang'];
 
@@ -31,7 +43,7 @@ data_raw = [facelabel'; tri_curv'; tri_area'; tri_min_ang'];
 % """
 data_face_tmp = calcFaceCurvature(data_raw, eps_curv, eps_area, eps_min_ang);
 
-if strcmp(input, 'all_faces')
+% if strcmp(input, 'all_faces')
 %     --------------------------------------------------------------------------------------
 %     """ BUG INSIDE """
 %     % ### then make data_face the same format as faces, so that the indexes can be used ###
@@ -67,19 +79,26 @@ if strcmp(input, 'all_faces')
 %     %     faceCurves = data_face;
 %     --------------------------------------------------------------------------------------
 
-elseif strcmp(input, 'as_given')
-    face_itgcurv = zeros(size(faces));
-    for i = 1:length(faces)
-        mask_face = ((data_face_tmp(:,1) == faces(i,1) & data_face_tmp(:,2) == faces(i,2)) | ...
-            (data_face_tmp(:,1) == faces(i,2) & data_face_tmp(:,2) == faces(i,1)));
-        face_itgcurv(i, 1) = sum(data_face_tmp(mask_face, 3));
-        face_itgcurv(i, 2) = sum(data_face_tmp(mask_face, 3).*data_face_tmp(mask_face, 4));
+face_itgcurv = zeros(size(faces));
+for i = 1:size(faces, 1)
+    mask_1 = data_face_tmp(:,1) == faces(i,1) & data_face_tmp(:,2) == faces(i,2);
+    mask_2 = data_face_tmp(:,1) == faces(i,2) & data_face_tmp(:,2) == faces(i,1);
+    mask_face = (mask_1 | mask_2);
+    
+    face_itgcurv(i, 1) = sum(data_face_tmp(mask_face, 3));
+    
+    if strcmp(sign_req, 'signed_resident_left')
+        face_itgcurv(i, 2) = - sum(data_face_tmp(mask_1, 3) .* data_face_tmp(mask_1, 4)) ...
+                            + sum(data_face_tmp(mask_2, 3) .* data_face_tmp(mask_2, 4));
+    elseif strcmp(sign_req, 'abs')
+        face_itgcurv(i, 2) = sum(data_face_tmp(mask_face, 3) .* data_face_tmp(mask_face, 4));
     end
-else
-    warning('The third argument of calcFaceItgCurv should be either all_faces or as_given.')
+    
 end
 
 end
+
+
 
 % %%
 % % ############################# CHECK #############################
@@ -94,7 +113,7 @@ end
 % tri_curv =  roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5)';
 % tri_area = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'),-5)';
 % tri_min_ang = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceDihedralAngles'),-5)';
-% mask = all(facelabel>0, 2) & abs(tri_curv)<1 & tri_area<7 & tri_min_ang>10;
+% mask = all(facelabel>0, 2) & abs(tri_curv)<eps_acurv & tri_area<eps_area & tri_min_ang>eps_min_ang;
 % facelabel = facelabel(mask, :);
 % tri_curv = tri_curv(mask);
 % tri_area = tri_area(mask);

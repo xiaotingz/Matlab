@@ -37,8 +37,8 @@ end
 end
 
 
-
-
+% ####################### Checks #######################
+% see featurePrepGeoAndTopo.m, section 5.1
 
 
 
