@@ -52,11 +52,11 @@ node_coords_2 = features(features(:,1)==2, 3:5);
 trisurf(tri_connect_1, node_coords_1(:,1), node_coords_1(:,2), node_coords_1(:,3),'Facecolor',colors(1,:), 'Facealpha', 0.3, 'edgealpha', 0.3);
 trisurf(tri_connect_2, node_coords_2(:,1), node_coords_2(:,2), node_coords_2(:,3),'Facecolor',colors(3,:), 'Facealpha', 0.3, 'edgealpha', 0.3);
 rotate3d on
-for i = 1:length(x_to_y)
-    if x_to_y(i) > 0
-        plot3([node_coords_1(i,1), node_coords_2(x_to_y(i),1)], [node_coords_1(i,2), node_coords_2(x_to_y(i),2)], [node_coords_1(i,3), node_coords_2(x_to_y(i),3)], 'k', 'LineWidth', 1);
-    end
-end
+% for i = 1:length(x_to_y)
+%     if x_to_y(i) > 0
+%         plot3([node_coords_1(i,1), node_coords_2(x_to_y(i),1)], [node_coords_1(i,2), node_coords_2(x_to_y(i),2)], [node_coords_1(i,3), node_coords_2(x_to_y(i),3)], 'k', 'LineWidth', 1);
+%     end
+% end
 
 % ##### Plot SVM plane #####
 % --- limite the plot range --- 
@@ -76,8 +76,8 @@ for i = 1:max(features(:,end))
         color = colors(3+i, :);
 
         % --- color nodes according to its cluster --- 
-        scatter3(features(features(:,end)==i, 3), features(features(:,end)==i, 4), features(features(:,end)==i, 5), ...
-            80, 'filled', 'MarkerFaceColor',color, 'MarkerEdgeColor',color)
+%         scatter3(features(features(:,end)==i, 3), features(features(:,end)==i, 4), features(features(:,end)==i, 5), ...
+%             80, 'filled', 'MarkerFaceColor',color, 'MarkerEdgeColor',color)
 
         % --- plot median plane --- 
         mask_cluster_i = (features(:, end) == i);
@@ -96,9 +96,9 @@ for i = 1:max(features(:,end))
 
         % --- plot the SVM seperation plane and plane normal--- 
         surf(xx,yy,z, 'FaceColor', color, 'EdgeColor', color, 'FaceAlpha', 0.3, 'EdgeAlpha', 0.3);
-        idx = 2;
-        quiver3(xx(idx)+0.1, yy(idx), z(idx), normal(1), normal(2), normal(3), scale, 'color', color,  'LineWidth', 3, 'MaxHeadSize', 3);
-        quiver3(xx(idx)+0.1, yy(idx), z(idx), -normal(1), -normal(2), -normal(3), scale, 'color', color, 'LineWidth', 3,'MaxHeadSize', 3);
+        idx = 4;
+        quiver3(xx(idx)+0.1, yy(idx), z(idx), normal(1), normal(2), normal(3), scale, 'color', color,  'LineWidth', 3, 'MaxHeadSize', 4);
+        quiver3(xx(idx)+0.1, yy(idx), z(idx), -normal(1), -normal(2), -normal(3), scale, 'color', color, 'LineWidth', 3,'MaxHeadSize', 4);
 %     end
 end
     

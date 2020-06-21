@@ -74,20 +74,12 @@ end
 end
 
 % %% ####################################### Check #######################################
-% % """ See 190425_190712_connected_faces 190712_info.txt for detail records """
-% % ---------- Load Data ----------
-% load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/records/190425_190712_connected_faces/190712_data_an4an5.mat')
-% % """
-% % file_an4 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d';
-% % file_an5 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_cropToAn4.dream3d';
-% % load('look_up_table_an4_an5crop.mat')
-% % load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190624_Ni_crop_TopologyResult_uniqiue.mat', ...
-% %     'triple_line_full_an4')
-% % tls = triple_line_full_an4;
-% % [tracked_uniqueface_an4, tracked_uniqueface_an5] = trackUniqueFace(file_an4, file_an5, look_up_table, 'none');
-% % [faces, num_neigh_face, neigh_list_faceid] = findFaceConnection(file_an4, tls);
-% % nn_faces = getLeftRightFaceConnections(tracked_uniqueface_an4, tls, file_an4);
-% % """
+% load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190730_Lsmoth_Topologies.mat', 'triple_line_full_an4', 'file_an4')
+% file = file_an4;
+% tls = triple_line_full_an4;
+% 
+% % [faces, num_neigh_face, neigh_list_faceid] = findFaceConnection(file, tls);
+% % nn_faces = getLeftRightFaceConnections(faces, tls, file, 'use_inner_faces');
 % 
 % % ---------- Add faces_feature_face_id_d3d for faces returned by findFaceConnection ----------
 % feature_face_label = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceFeatureData/FaceLabels')';
@@ -109,15 +101,14 @@ end
 % end
 % 
 % % ---------- Make a dictionray of connected faces for the tracked faces ----------
-% n = size(tracked_uniqueface_an4, 1);
+% n = size(faces, 1);
 % dict_neighbor_leftright = containers.Map('KeyType','char','ValueType','any'); 
 % for i = 1:n
-%     key_faceid = mat2str(tracked_uniqueface_an4(i, :));
-%     dict_neighbor_leftright(key_faceid) = [nn_faces{i, 1}; nn_faces{i, 2}];
+%     key_faceid = mat2str(faces(i, :));
+%     dict_neighbor_leftright(key_faceid) = {nn_faces{i, 1}, nn_faces{i, 2}};
 % end
 % 
-% %%
-% for i = 1:20
+% for i = 1:5
 %     % ---------- Pick an Id from the full faces of an4 ----------
 %     rng('shuffle')
 %     idx = randi(size(faces, 1));
@@ -130,7 +121,7 @@ end
 %     res_neigh_list = [faces(id_neigh_face, :), faces_featurefaceid(id_neigh_face)];
 %     if isKey(dict_neighbor_leftright, label)
 %         res_leftright = dict_neighbor_leftright(label);
-%         res_leftright = sortrows(res_leftright);
+%         res_leftright = sortrows([res_leftright{1}; res_leftright{2}]);
 %         res_neigh_list = sortrows(res_neigh_list);
 %         if ~ all(all(res_leftright == res_neigh_list))
 %             warning('Neighbor results are different!')
@@ -146,6 +137,19 @@ end
 %     end
 % 
 % end
+
+
+%%  ----- zero neighbor faces -----
+% mask = num_neigh_face == 0;
+% tmp = faces(mask, :);
+% info = zeros(size(tmp, 1), 3);
+% info(:, 1:2) = tmp;
+% for i = 1:size(tmp, 1)
+%     info(i, 3) = dict_facefeatureid(mat2str(tmp(i, :)));
+% end
+% disp(info)
+
+
 
 
 

@@ -16,17 +16,12 @@ function [triple_line, tl_info] = findTripleLines(file, eps_area, eps_curv, eps_
 %                   /   \
 %                 g1, da_1
 % ############################################################################
-% ----------------------- load debug data -----------------------
-% % clear
-% % file = '/Users/xiaotingzhong/Desktop/Datas/synthetic/180502_CubicSingleEquiaxedOut.dream3d';
-% file = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_cropToAn4_Hsmooth.dream3d';
-% % '/Volumes/XIAOTING/Ni/An4new6_fixOrigin2_smooth.dream3d';
-% % '/Volumes/XIAOTING/Ni/An4new6_fixOrigin3_Hsmooth.dream3d';
-% % '/Volumes/XIAOTING/Ni/An5new6_cropToAn4_Hsmooth.dream3d'
-% eps_area = 7;
-% eps_curv = 1;
-% eps_min_ang = 10;
-% ---------------------------------------------------------------
+% % ----------------------- load debug data -----------------------
+% file = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d';
+% eps_area = 10e6;
+% eps_curv = 10e6;
+% eps_min_ang = 0;
+% % ---------------------------------------------------------------
 
 % ##### Read in data ##### 
 tri_node_raw = 1 + double(h5read(file,'/DataContainers/TriangleDataContainer/_SIMPL_GEOMETRY/SharedTriList'))';
@@ -186,11 +181,14 @@ for i = 1:length(tl_tri_fl)/3
     end
 end
 
-% ----- clean the data ----- 
+% ##### Clean 3-triangle groups with bad dihedral angles ##### 
 % """
-% Reasons for three-triangle groups may not be good: 1. artifitial group.
-% 2. Actually a four-triangle group but got incorporated because one of
-% the four triangles had bad quality and excluded before grouping.
+% Reasons for three-triangle groups may not be good: 
+%   1. Actually a four-triangle group but got incorporated because one of
+%   the four triangles had bad quality and excluded before grouping.
+%   2. One of the angles > 180.
+%   3. Artificial group? Shouldn't be a significant source because
+%   artificial groups shouldn't form group of three.
 % """
 mask_valid_tl = (all(tlgroup_da>0, 2) & abs(sum(tlgroup_da, 2) - 360)<0.1);
 tlgroup_id = tlgroup_id(mask_valid_tl, :);
@@ -236,17 +234,18 @@ len = [len; culm_len];
 
 tl_info = [dihedral_angle, len];
 
-% triple_line_unique = unique(tlgroup_id, 'rows');
+% triple_line = unique(tlgroup_id, 'rows');
 end
 
 
-% %% ######################################### Check ######################################### 
-% % """
-% % Idea: plot a group of triangles to see if things are correct.
-% % Helper variable: fl_idx_, with this data, TL triangle groups can be
-% % visualized together with grains. 
-% % Or, just use the following code to plot the nodes. 
-% % """
+% %%
+% % %% ######################################### Check ######################################### 
+% % % """
+% % % Idea: plot a group of triangles to see if things are correct.
+% % % Helper variable: fl_idx_, with this data, TL triangle groups can be
+% % % visualized together with grains. 
+% % % Or, just use the following code to plot the nodes. 
+% % % """
 % %% ##### Find bad groups #####
 % notfull = abs(sum(dihedral_angle, 2) - 360) > 0.1;
 % idx_notfull = (1:size(dihedral_angle,1))';
@@ -258,11 +257,10 @@ end
 % group = idx_notfull(randi(length(idx_notfull)));
 % start = (group-1)*3 + 1;
 % final = (group-1)*3 + 3;
-% fl_group = tl_tri_fl(start:final, :)
-% fl_idx_group = tl_tri_fl_idx(start:final)
+% fl_group = tl_tri_fl(start:final, :);
+% fl_idx_group = tl_tri_fl_idx(start:final);
 % disp(['dihedral angles = ', num2str(dihedral_angle(group,:)), ...
 %     ';  sum(angs) = ', num2str(sum(dihedral_angle(group,:)))]);
-% 
 % 
 % %% ##### Plot nodes of the group #####
 % tmp = unique(node_group(:));
@@ -277,7 +275,7 @@ end
 % 
 % daspect([1,1,1])
 % rotate3d on
-% 
+
 
 
 

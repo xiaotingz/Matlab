@@ -5,7 +5,8 @@
 % - Solve Subgraph Corresp, One Complete Plane
 % ############################################################## 
 %% ############################### Pieces of the Subgraphs ############################### 
-load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/180822.mat');
+load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/trials/180822.mat');
+load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/trials/180822_FaceCorresp.mat');
 % load('180828_piecewise_face')
 
 % ----- find the piecewise faces and their number of pieces -----
@@ -68,9 +69,10 @@ sum(any(amp_asym_size < 10, 2))
 
 %% ############################### Check, Visualize Subgraph ###############################
 x_to_y = X_to_Y{idx};
-face_node_info = getSingleFaceNodes(tracked_uniqueface_an4(idx,:), tracked_uniqueface_an5(idx,:));
+face_node_info = getSingleFaceNodes(file_an4, file_an5, tracked_uniqueface_an4(idx,:), tracked_uniqueface_an5(idx,:));
 visualizeFace(face_node_info, x_to_y)
 hold on
+
 
 % ----- subgraph corresps -----
 coord = facenode_coord_an4;
@@ -119,13 +121,90 @@ daspect([1 1 1])
 rotate3d on
 
 %% ##################### 2D nodes & boundary #####################
-bound_cp_i = boundary(node_proj2d_cp{i}(:,1), node_proj2d_cp{i}(:,2));
-for i = 1:length(pgon_cp)
-%     pgon_cp{i} = polyshape(node_proj2d_cp{i}(bound_cp_i, 1), node_proj2d_cp{i}(bound_cp_i, 2))
-    plot(pgon_cp{i})
-end
-% scatter(node_proj2d_cp{i}(:,1), node_proj2d_cp{i}(:,2))
+load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/trials/180822.mat');
+load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/trials/180822_FaceCorresp.mat');
+file_an4 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d';
+file_an5 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/D3Ds/An5new6_smooth.dream3d';
+idx = 6719;
+
+x_to_y = X_to_Y{idx};
+face_node_info = getSingleFaceNodes(file_an4, file_an5, tracked_uniqueface_an4(idx,:), tracked_uniqueface_an5(idx,:));
+visualizeFace(face_node_info, x_to_y)
+set(gca,'visible','off')
+
+
+%%
+% ------------ Read info ------------
+facelabel_an4 = double(h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels'))';
+facelabel_an5 = double(h5read(file_an5, '/DataContainers/TriangleDataContainer/FaceData/FaceLabels'))';
+normal_an4 = double(h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceData/FaceNormals'))';
+normal_an5 = double(h5read(file_an5, '/DataContainers/TriangleDataContainer/FaceData/FaceNormals'))';
+facelabel_an4 = sort(facelabel_an4, 2);
+facelabel_an5 = sort(facelabel_an5, 2);
+
+mask_obj_face_an4 = ( facelabel_an4(:,1) == tracked_uniqueface_an4(idx,1) & ...
+    facelabel_an4(:,2) == tracked_uniqueface_an4(idx,2) ); 
+mask_obj_face_an5 = ( facelabel_an5(:,1) == tracked_uniqueface_an5(idx,1) & ...
+    facelabel_an5(:,2) == tracked_uniqueface_an5(idx,2) ); 
+
+face_normals_an4 = normal_an4(mask_obj_face_an4, :);
+face_normals_an5 = normal_an5(mask_obj_face_an5, :);
+
+% ------------ Origin of the base plane ------------
+face_nodes_an4 = face_node_info{4, 1};
+face_nodes_an5 = face_node_info{4, 2};
+face_node_types_an4 = face_node_info{3, 1};
+face_node_types_an5 = face_node_info{3, 2};
+bp_origin = sum([face_nodes_an4; face_nodes_an5]) / size([face_nodes_an4; face_nodes_an5], 1);
+
+% ------------ Normal of the base plane ------------
+bp_normal = sum([face_normals_an4; face_normals_an5]) / size([face_normals_an4; face_normals_an5], 1);
+
+% ------------ Get 2D points ------------
+[points_2d_an4, native2d_x_an4] = project3DPointsTo2DPlane(face_nodes_an4, bp_origin, bp_normal, 'bp');
+[points_2d_an5, native2d_x_an5] = project3DPointsTo2DPlane(face_nodes_an5, bp_origin, bp_normal, 'bp');
+
+
+%% ------------ Fig b ------------
+colors = get(gca,'colororder');
+
+figure()
+bound_cp_an4 = boundary(points_2d_an4(:,1), points_2d_an4(:,2));
+pgon_cp_an4 = polyshape(points_2d_an4(bound_cp_an4, 1), points_2d_an4(bound_cp_an4, 2));
+plot(pgon_cp_an4, 'FaceAlpha', 0, 'EdgeColor', colors(1,:), 'LineWidth', 2)
 hold on
+scatter(points_2d_an4(:,1), points_2d_an4(:,2), 'MarkerFaceColor', [1,1,1], 'MarkerEdgeColor', colors(1,:));
+scatter(points_2d_an4(face_node_types_an4>=3,1), points_2d_an4(face_node_types_an4>=3,2), 'MarkerFaceColor', colors(1,:), 'MarkerEdgeColor', colors(1,:));
+
+bound_cp_an5 = boundary(points_2d_an5(:,1), points_2d_an5(:,2));
+pgon_cp_an5 = polyshape(points_2d_an5(bound_cp_an5, 1), points_2d_an5(bound_cp_an5, 2));
+plot(pgon_cp_an5, 'FaceAlpha', 0, 'EdgeColor', colors(3,:), 'LineWidth', 2)
+scatter(points_2d_an5(:,1), points_2d_an5(:,2), 'MarkerFaceColor', [1,1,1], 'MarkerEdgeColor', colors(3,:));
+scatter(points_2d_an5(face_node_types_an5>=3,1), points_2d_an5(face_node_types_an5>=3,2), 'MarkerFaceColor', colors(3,:), 'MarkerEdgeColor', colors(3,:));
+
+daspect([1 1 1])
+set(gca,'visible','off')
+
+%%
+%  ------------ Fig c ------------
+poly_intersect = intersect(pgon_cp_an4, pgon_cp_an5);
+mask_good_nodes_an4 = inpolygon(points_2d_an4(:, 1), points_2d_an4(:, 2), ...
+    poly_intersect.Vertices(:, 1), poly_intersect.Vertices(:,2));
+mask_good_nodes_an5 = inpolygon(points_2d_an5(:, 1), points_2d_an5(:, 2), ...
+    poly_intersect.Vertices(:, 1), poly_intersect.Vertices(:,2));
+
+figure()
+plot(pgon_cp_an4, 'FaceAlpha', 0, 'EdgeColor', colors(1, :), 'LineWidth', 2)
+hold on
+scatter(points_2d_an4(mask_good_nodes_an4,1),points_2d_an4(mask_good_nodes_an4,2), 'p', ...
+    'MarkerFaceColor', colors(1,:), 'MarkerEdgeColor', colors(1,:))
+plot(pgon_cp_an5, 'FaceAlpha', 0, 'EdgeColor', colors(3, :), 'LineWidth', 2)
+scatter(points_2d_an5(mask_good_nodes_an5,1),points_2d_an5(mask_good_nodes_an5,2), 'p', ...
+    'MarkerFaceColor', colors(3,:), 'MarkerEdgeColor', colors(3,:))
+
+daspect([1 1 1])
+set(gca,'visible','off')
+
 
 
 

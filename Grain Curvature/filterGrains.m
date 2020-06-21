@@ -1,7 +1,7 @@
 % ###############################################################
 % criterion = 'centroidPos' | 'touchingFS' | 'numFaces' | 'NN_centoridPos' | 'NN_touchingFS'
 % ###############################################################
-function grain_ForCal = filterGrains(criterion, facelabel, num_of_neigh, neighborList, X,Y,Z, centroids, grain_diameter_raw)
+function grain_ForCal = filterGrains(criterion, facelabel, num_of_neigh, neighborList, origin, size, centroids, grain_diameter_raw)
 
 delete_bool = ones(length(centroids),1);
 try 
@@ -31,11 +31,11 @@ try
         aveD_raw = sum(grain_diameter_raw) / length(grain_diameter_raw);
 %         aveD_raw = 3.33;
         for i = 1:length(centroids)
-            if centroids(i,1) < aveD_raw || X - centroids(i,1) < aveD_raw
+            if centroids(i,1) - origin(1) < aveD_raw || size(1) + origin(1) - centroids(i,1) < aveD_raw
                 delete_bool(i) = 0;
-            elseif centroids(i,2) < aveD_raw || Y - centroids(i,2) < aveD_raw
+            elseif centroids(i,2) - origin(2) < aveD_raw || size(2) + origin(2) - centroids(i,2) < aveD_raw
                 delete_bool(i) = 0;
-            elseif centroids(i,3) < aveD_raw || Z - centroids(i,3) < aveD_raw
+            elseif centroids(i,3) - origin(3) < aveD_raw || size(3) + origin(3) - centroids(i,3) < aveD_raw
                 delete_bool(i) = 0;
             end
         end
@@ -45,11 +45,11 @@ try
 %         total = 0;
         for i = 1:length(centroids)
         % check centroid of the grain i 
-            if centroids(i,1) < aveD_raw || X - centroids(i,1) < aveD_raw
+            if centroids(i,1) - origin(1) < aveD_raw || size(1) + origin(1) - centroids(i,1) < aveD_raw
                 delete_bool(i) = 0;
-            elseif centroids(i,2) < aveD_raw || Y - centroids(i,2) < aveD_raw
+            elseif centroids(i,2) - origin(2) < aveD_raw || size(2) + origin(2) - centroids(i,2) < aveD_raw
                 delete_bool(i) = 0;
-            elseif centroids(i,3) < aveD_raw || Z - centroids(i,3) < aveD_raw
+            elseif centroids(i,3) - origin(3) < aveD_raw || size(3) + origin(3) - centroids(i,3) < aveD_raw
                 delete_bool(i) = 0;
             end
         % check centroid of neighbors of the ith grain
@@ -60,11 +60,11 @@ try
             for j = nlist_start : nlist_end
                 k = neighborList(j);
 %                 total = total + k;
-                if centroids(k,1) < aveD_raw || X - centroids(k,1) < aveD_raw
+                if centroids(i,1) - origin(1) < aveD_raw || size(1) + origin(1) - centroids(i,1) < aveD_raw
                     delete_bool(i) = 0;
-                elseif centroids(k,2) < aveD_raw || Y - centroids(k,2) < aveD_raw
+                elseif centroids(i,2) - origin(2) < aveD_raw || size(2) + origin(2) - centroids(i,2) < aveD_raw
                     delete_bool(i) = 0;
-                elseif centroids(k,3) < aveD_raw || Z - centroids(k,3) < aveD_raw
+                elseif centroids(i,3) - origin(3) < aveD_raw || size(3) + origin(3) - centroids(i,3) < aveD_raw
                     delete_bool(i) = 0;
                 end
             end

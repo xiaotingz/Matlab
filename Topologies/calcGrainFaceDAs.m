@@ -59,6 +59,7 @@ for i = 1:size(faces, 1)
     da_len_weighted(i, 1) = sum(connect_tl_da(mask_l) .* connect_tl_len) / sum(connect_tl_len);
     da_len_weighted(i, 2) = sum(connect_tl_da(mask_r) .* connect_tl_len) / sum(connect_tl_len);
     da_len_weighted(i, 3) = sum(connect_tl_da(mask_opp) .* connect_tl_len) / sum(connect_tl_len);
+    % """ weight the dihedral angles by #triangles """ 
     da_num_weighted(i, 1) = sum(connect_tl_da(mask_l)) / size(mask_l, 1);
     da_num_weighted(i, 2) = sum(connect_tl_da(mask_r)) / size(mask_r, 1);
     da_num_weighted(i, 3) = sum(connect_tl_da(mask_opp)) / size(mask_opp, 1);

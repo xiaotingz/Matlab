@@ -5,8 +5,7 @@
 %         2. Topology Feature
 %         3. Dihedral Angles
 %         4. Write txt File
-%         5.1. Check geometry data
-%         5.2. Check topology data
+%         5. Checks
 %     - Preparation of the topology features: see main.m in /Topologies
 % ##########################################################################
 % file_an4 = '/Volumes/XIAOTING/Ni/An4new6_fixOrigin3_Hsmooth.dream3d';
@@ -14,6 +13,8 @@
 file_an4 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d';
 file_an5 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_cropToAn4.dream3d';
 load('look_up_table_an4_an5crop.mat')
+topology_file = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190730_Lsmoth_Topologies.mat';
+write_file = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190730_Lsmooth_geo_topo.txt';
 % load('/Volumes/XIAOTING/Ni/working/190621_tracked_faces_full.mat')
 % tracked_uniqueface_an4 = tracked_uniqueface_an4_full;
 % tracked_uniqueface_an5 = tracked_uniqueface_an5_full;
@@ -76,13 +77,13 @@ face_tmp_an4 = calcFaceItgCurv(file_an4, obj_faces_an4_sorted, 'signed_resident_
 face_tmp_an5 = calcFaceItgCurv(file_an5, obj_faces_an5, 'signed_resident_left', eps_curv, eps_area, eps_min_ang);
 
 face_itgcurv_an4_left = face_tmp_an4(:,2);
-face_itgcurv_an5_left = face_tmp_an4(:,2);
+face_itgcurv_an5_left = face_tmp_an5(:,2);
 
 face_itgcurv_left_diff = face_itgcurv_an5_left - face_itgcurv_an4_left;
 
 %%  #################################### 2. Topology Feature #################################### 
 % """ go to ../Topologies/main to do calculation """
-load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190730_Lsmoth_Topologies.mat', ...
+load(topology_file, ...
     'faces_an4', 'faces_an5', 'num_corners_an4', 'num_corners_an5', 'num_edges_an4', 'num_edges_an5');
 
 % ----- Prepare data dictionary for faces -----
@@ -128,49 +129,53 @@ edge_diff = face_edges_an5 - face_edges_an4;
 % eps_area = 7;
 % eps_curv = 1;
 % eps_min_ang = 10;
-% % [triple_line_an4, tl_info_an4] = findTripleLines(file_an4, eps_area, eps_curv, eps_min_ang);
+% [triple_line_an4, tl_info_an4] = findTripleLines(file_an4, eps_area, eps_curv, eps_min_ang);
 % [triple_line_an5, tl_info_an5] = findTripleLines(file_an5, eps_area, eps_curv, eps_min_ang);
+% 
+% % load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190730_Hsmoth_Topologies.mat', ...
+% %     'triple_line_an4', 'tl_info_an4', 'triple_line_an5', 'tl_info_an5')
+% % load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190730_Hsmoth_energy_grad.mat', 'obj_faces_an4_sorted', 'obj_faces_an5')
 % [da_len_w_an4, da_num_w_an4] = calcGrainFaceDAs(obj_faces_an4_sorted, triple_line_an4, tl_info_an4);
 % [da_len_w_an5, da_num_w_an5] = calcGrainFaceDAs(obj_faces_an5, triple_line_an5, tl_info_an5);
 % 
 % da_len_w_diff = da_len_w_an5 - da_len_w_an4;
 % da_num_w_diff = da_num_w_an5 - da_num_w_an4;
-
+% 
 
 %%  #################################### 4. Write txt File #################################### 
-% area_thres = 20;
-% ratio_thres_pos = 10;
-% ratio_thres_neg = 1/ratio_thres_pos - 1;
-% fa_diff_ratio = face_area_diff ./ face_area_an4;
-% mask_good_face = (face_area_an4 > area_thres & face_area_an4 + face_area_diff > area_thres ...
-%     & fa_diff_ratio < ratio_thres_pos & fa_diff_ratio > ratio_thres_neg);
-% fileID = fopen('190718_Hsmooth_mask_good_face.txt','w');
-% fprintf(fileID,'%s\n', 'mask_good_face');
-% for i = 1:size(mask_good_face, 1)
-%     fprintf(fileID, '%3d\n', mask_good_face(i));
-% end
-% fclose(fileID);
+% % area_thres = 20;
+% % ratio_thres_pos = 10;
+% % ratio_thres_neg = 1/ratio_thres_pos - 1;
+% % fa_diff_ratio = face_area_diff ./ face_area_an4;
+% % mask_good_face = (face_area_an4 > area_thres & face_area_an4 + face_area_diff > area_thres ...
+% %     & fa_diff_ratio < ratio_thres_pos & fa_diff_ratio > ratio_thres_neg);
+% % fileID = fopen('190718_Hsmooth_mask_good_face.txt','w');
+% % fprintf(fileID,'%s\n', 'mask_good_face');
+% % for i = 1:size(mask_good_face, 1)
+% %     fprintf(fileID, '%3d\n', mask_good_face(i));
+% % end
+% % fclose(fileID);
 
-fileID = fopen('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190730_Lsmooth_geo_topo.txt','w');
-fprintf(fileID,'%s, %s, %s, %s, %s, %s, %s, %s, %s, %s\n', ...
-    'A_an4', 'fMs_abs_an4', 'fMs_signed_an4', 'avg_FabsavgH_an4', 'C_an4', ...
-    'A_diff', 'fMs_abs_diff', 'fMs_signed_diff', 'avg_FabsavgH_diff', 'C_diff');
+fileID = fopen(write_file,'w');
+fprintf(fileID,'%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s\n', ...
+    'A_an4', 'fMs_abs_an4', 'fMs_signed_an4', 'avg_FabsavgH_an4', 'C_an4', 'E_an4', ...
+    'A_diff', 'fMs_abs_diff', 'fMs_signed_diff', 'avg_FabsavgH_diff', 'C_diff', 'E_diff');
 for i = 1:size(face_area_an4, 1)
-    fprintf(fileID, '%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n', ...
-        face_area_an4(i), face_itg_abscurv_an4(i), face_itgcurv_an4_left(i), face_avg_abscurv_an4(i), face_corners_an4(i),...
-        face_area_diff(i), face_itg_abscurv_diff(i), face_itgcurv_left_diff(i), face_avg_abscurv_diff(i), corner_diff(i));
+    fprintf(fileID, '%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n', ...
+        face_area_an4(i), face_itg_abscurv_an4(i), face_itgcurv_an4_left(i), face_avg_abscurv_an4(i), face_corners_an4(i), face_edges_an4(i), ...
+        face_area_diff(i), face_itg_abscurv_diff(i), face_itgcurv_left_diff(i), face_avg_abscurv_diff(i), corner_diff(i), edge_diff(i));
 end
 fclose(fileID);
 
-% ----- Write DA data -----
-% fileID = fopen('190425_features_dihedral_ang.txt','w');
-% fprintf(fileID,'%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s\n', ...
-%     'da_len_w_an4_l', 'da_len_w_an4_r', 'da_len_w_an4_opp', 'da_num_w_an4_l', 'da_num_w_an4_r', 'da_num_w_an4_opp', ...
-%     'da_len_w_diff_l', 'da_len_w_diff_r', 'da_len_w_diff_opp', 'da_num_w_diff_l', 'da_num_w_diff_r', 'da_num_w_diff_opp');
-% for i = 1:length(face_area_an4)
-%     fprintf(fileID, '%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n', ...
-%         da_len_w_an4(i, 1), da_len_w_an4(i, 2), da_len_w_an4(i, 3), da_num_w_an4(i, 1), da_num_w_an4(i, 2), da_num_w_an4(i, 3), ...
-%         da_len_w_diff(i, 1), da_len_w_diff(i, 2), da_len_w_diff(i, 3), da_num_w_diff(i, 1), da_num_w_diff(i, 2), da_num_w_diff(i, 3));
+% % ----- Write DA data -----
+% fileID = fopen('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190730_Hsmooth_dihedral_ang.txt','w');
+% fprintf(fileID,'%s, %s, %s, %s, %s, %s\n', ...
+%     'da_len_w_an4_l', 'da_len_w_an4_r', 'da_len_w_an4_opp', ...
+%     'da_len_w_diff_l', 'da_len_w_diff_r', 'da_len_w_diff_opp');
+% for i = 1:length(da_len_w_an4)
+%     fprintf(fileID, '%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n', ...
+%         da_len_w_an4(i, 1), da_len_w_an4(i, 2), da_len_w_an4(i, 3), ...
+%         da_len_w_diff(i, 1), da_len_w_diff(i, 2), da_len_w_diff(i, 3));
 % end
 % fclose(fileID);
 
@@ -202,15 +207,15 @@ tri_curv = tri_curv(mask);
 tri_area = tri_area(mask);
 tri_min_ang = tri_min_ang(mask);
 
-num_tris_an4 = calcNumTrianglesOnFace(file_an4, obj_faces_an4, eps_curv, eps_area, eps_min_ang);
+% num_tris_an4 = calcNumTrianglesOnFace(file_an4, obj_faces_an4, eps_curv, eps_area, eps_min_ang);
 
-
-%% ######################################## 5.1. Check geometry data ########################################
+load(topology_file, 'triple_line_full_an4', 'triple_line_full_an5')
+%% ################################################################################
 
 % ----- Show data from above calculation -----
 rng('shuffle');
 % idx = randi(size(obj_faces_an4, 1));
-% 7397 1695 9193 4088
+% 10168 7397 1695 9193 4088
 idx = 4088;
 
 label_an4 = obj_faces_an4_sorted(idx, :);
@@ -226,17 +231,21 @@ disp(['idx_corresp = ', num2str(idx)])
 disp('-----')
 disp('an4')
 disp(['label = ', mat2str(label_an4), ',   face_feature_id = ', num2str(featurefaceid_an4)])
-disp(['area_an4 = ', num2str(face_tmp_an4(idx, 1)), ...
-        ',   itgcurv_abs_an4 = ', num2str(face_tmp_an4(idx, 2)), ...
+disp(['area_an4 = ', num2str(face_area_an4(idx)), ...
+        ',   itgcurv_abs_an4 = ', num2str(face_itg_abscurv_an4(idx)), ...
         ',   itgcurv_left_an4 = ', num2str(face_itgcurv_an4_left(idx)), ...
         ',   num_tris_an4 = ', num2str(num_tris_an4(idx))]);
+disp(['C_an4 = ', num2str(face_corners_an4(idx)), ',   E_an4 = ', num2str(face_edges_an4(idx))]);
 disp('an5')
 disp(['label = ', mat2str(label_an5), ',   face_feature_id = ', num2str(featurefaceid_an5)])
 disp(['area_an5 = ', num2str(face_tmp_an5(idx, 1)), ...
-        ',   itgcurv_abs_an5 = ', num2str(face_tmp_an5(idx, 2)), ...
         ',   itgcurv_left_an5 = ', num2str(face_itgcurv_an5_left(idx))]);
+disp(['C_an5 = ', num2str(face_corners_an5(idx)), ',   E_an5 = ', num2str(face_edges_an5(idx))]);
 disp('-----')
-disp(['area_diff = ', num2str(face_area_diff(idx)), ',   itgcurv_diff = ', num2str(face_itg_abscurv_diff(idx))])
+disp(['area_diff = ', num2str(face_area_diff(idx)), ...
+    ',   itg_abscurv_diff = ', num2str(face_itg_abscurv_diff(idx)), ...
+    ',   itg_curv_left_diff = ', num2str(face_itgcurv_left_diff(idx))])
+disp(['C_diff = ', num2str(corner_diff(idx)), ',   E_diff = ', num2str(edge_diff(idx))])
 
 
 
@@ -256,15 +265,20 @@ disp('check from raw')
 disp(['area_an4 = ', num2str(area),  ',   itgcurv_abs_an4 = ', num2str(itg_abscurv), ...
         ',   itgcurv_left_an4 = ', num2str(itg_curv_left)]);
 disp(['avgcurv_abs_an4 = ', num2str(avg_abscurv), ',   num_tris_on_face = ', num2str(sum(mask))]);
+
+% ----- Resident triple lines -----
+mask_an4 = sum(ismember(triple_line_full_an4, label_an4), 2) == 2;
+resident_tls_an4 = triple_line_full_an4(mask_an4, :);
+mask_an5 = sum(ismember(triple_line_full_an5, label_an5), 2) == 2;
+resident_tls_an5 = triple_line_full_an5(mask_an5, :);
+
+disp('-----')
+disp('resident triple lines, an4')
+disp(num2str(resident_tls_an4))
+disp('resident triple lines, an5')
+disp(num2str(resident_tls_an5))
+
 disp(' ')
-
-    
-%% ######################################## 5.2. Check topology data ########################################
-% see /Topologies/main, section checks
-
-
-
-
 
 
 

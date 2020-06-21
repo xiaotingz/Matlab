@@ -107,7 +107,7 @@ if nargin == 4
 %             quiver3(xx(idx)+0.1, yy(idx), z(idx), normal(1), normal(2), normal(3), scale, 'color', color,  'LineWidth', 3, 'MaxHeadSize', 3);
 %             quiver3(xx(idx)+0.1, yy(idx), z(idx), -normal(1), -normal(2), -normal(3), scale, 'color', color, 'LineWidth', 3,'MaxHeadSize', 3);
 %         end
-    end
+%     end
     
 
     
@@ -147,9 +147,9 @@ elseif nargin == 6
     % --- plot support vector points  --- 
     % plot3(X(SVMModel.IsSupportVector,1),X(SVMModel.IsSupportVector,2),X(SVMModel.IsSupportVector,3), 'ko');
     % --- set axis ratio to be realistic ---
-end
 
 daspect([1 1 1])
 end
+
 
 

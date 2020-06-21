@@ -5,6 +5,9 @@ function dists = calcDistFromMisorientation(file, faces, dg_obj)
 %           Labels of the faces, for which misorientation angle needs to be calcualted
 %     - dg_obj = [3, 3, n]
 %           Orientation matrix of the objective misorientations.
+%     - thres
+%           CLS Misorientation distance threshold by Brandon Criterion
+%               http://pajarito.materials.cmu.edu/rollett/27750/L14-CSL_Theory_GBE-17Mar16.pdf
 % * Output
 %     - dist_twin = [n, 1]
 %           Distance between given misorientations and sigma3.

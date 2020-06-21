@@ -7,7 +7,7 @@
 %% ##### Load data ##### 
 load('look_up_table_an4_an5.mat')
 file_an4 = ('/Volumes/XIAOTING/Ni/an0-an4/An4new6.dream3d');
-% file_An5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/Gstats_recalc_fromAditi/An5new6_recalc_cropforalign.dream3d');
+% file_an5 = ('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/Gstats_recalc_fromAditi/An5new6_recalc_cropforalign.dream3d');
 file_an5 = ('/Volumes/XIAOTING/Ni/an0-an4/An5new6.dream3d');
 
 origin_an4 = double(h5read(file_an4,'/DataContainers/ImageDataContainer/_SIMPL_GEOMETRY/ORIGIN'))';
@@ -23,7 +23,7 @@ avg_centroid_diff = calcOriginShiftFromTrackedGrains(file_an4, file_an5, look_up
 % h5write(file_new_origin, '/DataContainers/ImageDataContainer/_SIMPL_GEOMETRY/ORIGIN', new_origin)
 
 %% ##### Fix Origin By Comparing Voxels #####
-% shift = calcVolumeDisplacement(file_An4, file_An5, look_up_table);
+% shift = calcVolumeDisplacement(file_an4, file_an5, look_up_table);
 diff_origin = origin_an4 - origin_an5;
 origin_shift = shift .* step_size;
 new_origin = origin_an5 + origin_shift;

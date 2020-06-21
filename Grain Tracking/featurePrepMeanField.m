@@ -21,14 +21,16 @@
 %     - This script is closely related to featurePrepGeoAndTopo.m
 %       Preparation of the topology features, see main.m in /Topologies
 % ##########################################################################
+load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190730_Hsmoth_Topologies.mat', ...
+    'faces_an4', 'faces_an5', 'triple_line_full_an4', 'num_edges_an4', 'triple_line_full_an5', 'num_edges_an5')
+file_an4 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixOrigin3_Hsmooth.dream3d';
+file_an5 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_cropToAn4_Hsmooth.dream3d';
+write_file = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190730_Hsmooth_mean_field.txt';
+% load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190730_Lsmoth_Topologies.mat', ...
+%     'faces_an4', 'faces_an5', 'triple_line_full_an4', 'num_edges_an4', 'triple_line_full_an5', 'num_edges_an5')
 % file_an4 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d';
 % file_an5 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_cropToAn4.dream3d';
-% load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190624_Ni_crop_TopologyResult_uniqiue.mat', ...
-%     'triple_line_full_an4')
-load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190730_Lsmoth_Topologies.mat', ...
-    'triple_line_full_an4', 'num_corners_an4', 'triple_line_full_an5', 'num_corners_an5')
-file_an4 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d';
-file_an5 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_cropToAn4.dream3d';
+% write_file = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190730_Lsmooth_mean_field.txt';
 load('look_up_table_an4_an5crop.mat')
 
 eps_curv = 1;
@@ -42,12 +44,17 @@ num_neigh_an5 = h5read(file_an5, '/DataContainers/ImageDataContainer/CellFeature
 num_neigh_an4(1) = [];
 num_neigh_an5(1) = [];
 
-faces_an4 = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceFeatureData/FaceLabels')';
-faces_an5 = h5read(file_an5, '/DataContainers/TriangleDataContainer/FaceFeatureData/FaceLabels')';
-faces_an4 = faces_an4(all(faces_an4 > 0, 2), :);
-faces_an5 = faces_an5(all(faces_an5 > 0, 2), :);
+% faces_an4 = h5read(file_an4, '/DataContainers/TriangleDataContainer/FaceFeatureData/FaceLabels')';
+% faces_an5 = h5read(file_an5, '/DataContainers/TriangleDataContainer/FaceFeatureData/FaceLabels')';
+% faces_an4(1, :) = [];
+% faces_an5(1, :) = [];
+% faces_an4 = faces_an4(all(faces_an4 > 0, 2), :);
+% faces_an5 = faces_an5(all(faces_an5 > 0, 2), :);
+
 [tracked_uniqueface_an4_complete, tracked_uniqueface_an5_complete] = trackUniqueFace(file_an4, file_an5, look_up_table, 'use_complete_faces');
 [tracked_uniqueface_an4_inner, tracked_uniqueface_an5_inner] = trackUniqueFace(file_an4, file_an5, look_up_table, 'use_inner_faces');
+obj_faces_an4 = tracked_uniqueface_an4_inner;
+obj_faces_an5 = tracked_uniqueface_an5_inner;
 
 % ----- Connections -----
 % nn_faces_an4 = getLeftRightFaceConnections(faces_an4, triple_line_full_an4, file_an4, 'use_inner_faces');
@@ -61,22 +68,29 @@ faces_an5 = faces_an5(all(faces_an5 > 0, 2), :);
 %     using by checking if the target grain (grain_id from obj_faces_an4_sorted)
 %     sits on left or right.
 % """
-face_itgcurv_an4 = calcFaceItgCurv(file_an4, faces_an4, 'signed_resident_left', eps_curv, eps_area, eps_min_ang);
-face_itgcurv_an5 = calcFaceItgCurv(file_an5, faces_an5, 'signed_resident_left', eps_curv, eps_area, eps_min_ang);
-face_area_an4 = face_itgcurv_an4(:, 1);
-face_itgcurv_an4 = face_itgcurv_an4(:, 2);
-face_area_an5 = face_itgcurv_an5(:, 1);
-face_itgcurv_an5 = face_itgcurv_an5(:, 2);
+face_itgcurv_signed_an4 = calcFaceItgCurv(file_an4, faces_an4, 'signed_resident_left', eps_curv, eps_area, eps_min_ang);
+face_itgcurv_signed_an5 = calcFaceItgCurv(file_an5, faces_an5, 'signed_resident_left', eps_curv, eps_area, eps_min_ang);
+face_area_an4 = face_itgcurv_signed_an4(:, 1);
+face_itgcurv_signed_an4 = face_itgcurv_signed_an4(:, 2);
+face_area_an5 = face_itgcurv_signed_an5(:, 1);
+face_itgcurv_signed_an5 = face_itgcurv_signed_an5(:, 2);
 
+face_itgcurv_abs_an4 = calcFaceItgCurv(file_an4, faces_an4, 'abs', eps_curv, eps_area, eps_min_ang);
+face_itgcurv_abs_an5 = calcFaceItgCurv(file_an5, faces_an5, 'abs', eps_curv, eps_area, eps_min_ang);
+face_itgcurv_abs_an4 = face_itgcurv_abs_an4(:, 2);
+face_itgcurv_abs_an5 = face_itgcurv_abs_an5(:, 2);
 
 % dg_obj(:,:,1) = AAToG(60, [1, 1, 1]);
 % dists_twin_an4 = calcDistFromMisorientation(file_an4, faces_an4, dg_obj);
-% is_twin_an4 = int32(dists_twin_an4 < 5);
+% is_twin_an4 = dists_twin_an4 < 5;
 
 
 %%
 % ---------------------------- Prepare dictionaries, faces ----------------------------
 % """ first check on data correspondence """
+is_twin_an4 = double(is_twin_an4);
+is_twin_an5 = double(is_twin_an5);
+
 if size(num_corners_an4, 1) ~= size(faces_an4, 1)
     warning('num_corners data DOES NOT CORRESPOND to faces data')
 end 
@@ -90,29 +104,33 @@ for i = 1:size(tracked_uniqueface_an4_inner, 1)
     dict_fl_final2init(key_an5) = tracked_uniqueface_an4_inner(i, :);
 end
 
-dict_corner_an4 = containers.Map('KeyType','char','ValueType','double');
+dict_edge_an4 = containers.Map('KeyType','char','ValueType','double');
 dict_area_an4 = containers.Map('KeyType','char','ValueType','double');
-dict_itgfacecurv_an4 = containers.Map('KeyType','char','ValueType','double');
-dict_twin_an4 = containers.Map('KeyType','char','ValueType','int32');
+dict_itgcurv_signed_an4 = containers.Map('KeyType','char','ValueType','double');
+dict_itgcurv_abs_an4 = containers.Map('KeyType','char','ValueType','double');
+dict_twin_an4 = containers.Map('KeyType','char','ValueType','double');
 dict_neigh_faces_an4 = containers.Map();
 for i = 1:size(faces_an4, 1)
     key = mat2str(faces_an4(i, :));
-    dict_corner_an4(key) = num_corners_an4(i);
+    dict_edge_an4(key) = num_edges_an4(i);
     dict_area_an4(key) = face_area_an4(i);
-    dict_itgfacecurv_an4(key) = face_itgcurv_an4(i);
+    dict_itgcurv_signed_an4(key) = face_itgcurv_signed_an4(i);
+    dict_itgcurv_abs_an4(key) = face_itgcurv_abs_an4(i);
     dict_twin_an4(key) = is_twin_an4(i);
     dict_neigh_faces_an4(key) = {nn_faces_an4{i, 1}; nn_faces_an4{i, 2}};
 end
 
-dict_corner_an5 = containers.Map('KeyType','char','ValueType','double');
+dict_edge_an5 = containers.Map('KeyType','char','ValueType','double');
 dict_area_an5 = containers.Map('KeyType','char','ValueType','double');
-dict_itgfacecurv_an5 = containers.Map('KeyType','char','ValueType','double');
+dict_itgcurv_signed_an5 = containers.Map('KeyType','char','ValueType','double');
+dict_itgcurv_abs_an5 = containers.Map('KeyType','char','ValueType','double');
 dict_neigh_faces_an5 = containers.Map();
 for i = 1:size(faces_an5, 1)
     key = mat2str(faces_an5(i, :));
-    dict_corner_an5(key) = num_corners_an5(i);
+    dict_edge_an5(key) = num_edges_an5(i);
     dict_area_an5(key) = face_area_an5(i);
-    dict_itgfacecurv_an5(key) = face_itgcurv_an5(i);
+    dict_itgcurv_signed_an5(key) = face_itgcurv_signed_an5(i);
+    dict_itgcurv_abs_an5(key) = face_itgcurv_abs_an5(i);
     dict_neigh_faces_an5(key) = {nn_faces_an5{i, 1}; nn_faces_an5{i, 2}};
 end
 
@@ -129,15 +147,18 @@ dict_g_final2init = containers.Map(look_up_table(:,2), look_up_table(:,1));
 % """
 
 % ---------------------------- Initialize variables ----------------------------
-% ----- 1.1. C - <Cnn> -----
-% """ Similar to F - <Fnn> for grains, but replace F with C (#corners of face) """ 
-avg_cnn = zeros(size(obj_faces_an4, 1), 1);
-c_cnn = zeros(size(obj_faces_an4, 1), 1);
+% ----- 1.1. E - <Enn> -----
+% """ 
+% Similar to F - <Fnn> for grains, but replace F with E (#edges of face) 
+% E, not C, because edges are better measured then corners. 
+% """ 
+avg_enn = zeros(size(obj_faces_an4, 1), 1);
+e_enn = zeros(size(obj_faces_an4, 1), 1);
 
 % ----- 1.2. GF - <GFnn> ----- 
 % """ Similar to F - <Fnn> for grains, but replace F with GF (absolute value of face integral curvature) """ 
-avg_gfnn = zeros(size(obj_faces_an4, 1), 1);
-gf_gfnn = zeros(size(obj_faces_an4, 1), 1);
+avg_abs_gfnn = zeros(size(obj_faces_an4, 1), 1);
+abs_gf_gfnn = zeros(size(obj_faces_an4, 1), 1);
 
 % ----- 1.3. fraction of neighboring faces: twin & positive curvature -----
 % """ 
@@ -156,30 +177,30 @@ for i = 1:size(obj_faces_an4, 1)
     n = size(neighbors{1}, 1) + size(neighbors{2}, 1);
     
     % ----- loop neighbors -----
-    total_corners = 0;
-    total_itgfacecurv = 0;
+    total_edges = 0;
+    total_itgcurv_abs = 0;
     num_pos_curv_neigh = 0;
     num_twins = 0;
     for j = 1:2
         if size(neighbors{j}, 1) > 0
             % """
             % The resident grain should be the only common element of all rows 
-            %     nn_faces = {{k1, 3}*n, {k2, 3}*n}, [face_label_1, face_label_2, feature_face_id]
+            %     nn_faces = {{k, 3}*n, {k, 3}*n}, [face_label_1, face_label_2, feature_face_id]
             % """ 
             % --- Identify resident grain ---
             resident_g_id = intersect(obj_faces_an4(i, :), neighbors{j}(1, 1:2));
             for k = 1:size(neighbors{j}, 1)
                 % --- Look up properties ---
                 key_neigh = mat2str(neighbors{j}(k, 1:2));
-                total_corners = total_corners + dict_corner_an4(key_neigh);
+                total_edges = total_edges + dict_edge_an4(key_neigh);
                 num_twins = num_twins + dict_twin_an4(key_neigh);
+                total_itgcurv_abs = total_itgcurv_abs + dict_itgcurv_abs_an4(key_neigh);
                 % --- Adjust curvature sign ---
                 if resident_g_id == neighbors{j}(k, 1)
-                    neigh_curv = dict_itgfacecurv_an4(key_neigh);
+                    neigh_curv = dict_itgcurv_signed_an4(key_neigh);
                 else
-                    neigh_curv = - dict_itgfacecurv_an4(key_neigh);
+                    neigh_curv = - dict_itgcurv_signed_an4(key_neigh);
                 end
-                total_itgfacecurv = total_itgfacecurv + neigh_curv;
                 if neigh_curv > 0
                     num_pos_curv_neigh = num_pos_curv_neigh + 1;
                 end
@@ -188,10 +209,10 @@ for i = 1:size(obj_faces_an4, 1)
     end
     
     % ----- record values -----
-    avg_cnn(i) = total_corners / n;
-    c_cnn(i) = dict_corner_an4(key_obj_face) - avg_cnn(i);
-    avg_gfnn(i) = total_itgfacecurv / n;
-    gf_gfnn(i) = dict_itgfacecurv_an4(key_obj_face) - avg_gfnn(i);
+    avg_enn(i) = total_edges / n;
+    e_enn(i) = dict_edge_an4(key_obj_face) - avg_enn(i);
+    avg_abs_gfnn(i) = total_itgcurv_abs / n;
+    abs_gf_gfnn(i) = dict_itgcurv_abs_an4(key_obj_face) - avg_abs_gfnn(i);
     pos_frac(i) = num_pos_curv_neigh / n;
     twin_frac(i) = num_twins / n;
 end
@@ -307,9 +328,9 @@ appeared_frac_g = zeros(size(obj_faces_an4, 1), 1);
 %     - max_dfnn(max_nndiff): max(diff(F) of connected grains)
 %     - avg_dfnn(avg_nndiff): average(diff(F) of connected grains)
 % """
-max_dfnn_g = zeros(size(obj_faces_an4, 1), 1);
-min_dfnn_g = zeros(size(obj_faces_an4, 1), 1);
-avg_dfnn_g = zeros(size(obj_faces_an4, 1), 1);
+max_fnn_diff_g = zeros(size(obj_faces_an4, 1), 1);
+min_fnn_diff_g = zeros(size(obj_faces_an4, 1), 1);
+avg_fnn_diff_g = zeros(size(obj_faces_an4, 1), 1);
 
 for i = 1:size(obj_faces_an4, 1)
     key_an4 = mat2str(obj_faces_an4(i, :));
@@ -392,22 +413,22 @@ for i = 1:size(obj_faces_an4, 1)
     
     disappeared_frac_g(i) = num_neigh_g_disappeared / n;
     appeared_frac_g(i) = num_neigh_g_appeared / n;
-    max_dfnn_g(i) = max_neigh_g_df;
-    min_dfnn_g(i) = min_neigh_g_df;
-    avg_dfnn_g(i) = total_neigh_g_df / n;
+    max_fnn_diff_g(i) = max_neigh_g_df;
+    min_fnn_diff_g(i) = min_neigh_g_df;
+    avg_fnn_diff_g(i) = total_neigh_g_df / n;
 end
 
 %%  #################################### 4. Write txt file #################################### 
-fileID = fopen('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190730_Lsmooth_mean_field.txt','w');
+fileID = fopen(write_file,'w');
 fprintf(fileID,'%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s\n', ...
-    'c_cnn', 'gf_gfnn', 'pos_frac', 'twin_frac', ...
+    'E_Enn', 'abs_gf_gfnn', 'pos_frac', 'twin_frac', ...
     'total_dann', 'grow_frac', 'disappeared_frac', 'appeared_frac', ...
     'disappeared_frac_g', 'appeared_frac_g', 'max_dfnn_g', 'min_dfnn_g', 'avg_dfnn_g');
 for i = 1:size(obj_faces_an4, 1)
-    fprintf(fileID, '%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f,%6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n', ...
-        c_cnn(i), gf_gfnn(i), pos_frac(i), twin_frac(i), ...
+    fprintf(fileID, '%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n', ...
+        e_enn(i), abs_gf_gfnn(i), pos_frac(i), twin_frac(i), ...
         total_dann(i), grow_frac(i), disappeared_frac(i), appeared_frac(i), ...
-        disappeared_frac_g(i), appeared_frac_g(i), max_dfnn_g(i), min_dfnn_g(i), avg_dfnn_g(i));
+        disappeared_frac_g(i), appeared_frac_g(i), max_fnn_diff_g(i), min_fnn_diff_g(i), avg_fnn_diff_g(i));
 end
 fclose(fileID);
 
@@ -416,7 +437,17 @@ fclose(fileID);
 %% ###################### 5.1. Face connections ######################
 % see getLeftRightFaceConnections.m & findFaceConnection.m + getNeighList.m
 
-
+idx = randi(size(obj_faces_an4, 1));
+disp('----------')
+disp('an4:')
+disp(mat2str(obj_faces_an4(idx, :)))
+neighbor_an4 = dict_neigh_faces_an4(mat2str(obj_faces_an4(idx, :)));
+disp(num2str([neighbor_an4{1}; neighbor_an4{2}]))
+disp('an5:')
+disp(mat2str(obj_faces_an5(idx, :)))
+neighbor_an5 = dict_neigh_faces_an5(mat2str(obj_faces_an5(idx, :)));
+disp(num2str([neighbor_an5{1}; neighbor_an5{2}]))
+disp(' ')
 
 %% ###### 5.2. Check if F-Fnn relationship applies to grain_itg_curv instead of faces ######
 % data_grain is calculate from /Grain Curvature/

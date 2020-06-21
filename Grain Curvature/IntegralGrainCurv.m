@@ -25,20 +25,25 @@
 % ##################################################################
 % clear
 
-% subset1
-% file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311_STO1470sub2_GBCD.dream3d');
-% centro_file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311_STO1470sub2_GBCD_originCorrect.dream3d');
-X=232*0.3; Y=129*0.3; Z=36*0.3;
-% X=213*0.3; Y=297*0.3; Z=40*0.3;
+% ------- subset1 -------
+% file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311_STO1470sub1_GBCD.dream3d');
+% centro_file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311_STO1470sub1_GBCD_originCorrect.dream3d');
+% ------- subset2 -------
+file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311_STO1470sub2_GBCD.dream3d');
+centro_file = ('/Users/xiaotingzhong/Desktop/Datas/STO_1470/180311_STO1470sub2_GBCD_originCorrect.dream3d');
+% ------- F -------
+% file = ('/Users/xiaotingzhong/Desktop/Datas/SteelFinal_setTo0/Jan31_Fca0.dream3d');
+% centro_file = ('/Users/xiaotingzhong/Desktop/Datas/SteelFinal_setTo0/Jan31_Fca0.dream3d')
+% ------- A -------
 % file = ('/Users/xiaotingzhong/Desktop/Datas/SteelFinal_setTo0/problemData/Jan31_Aa0_CurvDistri10.dream3d');
 % centro_file = ('/Users/xiaotingzhong/Desktop/Datas/SteelFinal_setTo0/problemData/Jan31_Aa0_CurvDistri10.dream3d');
 % X=434*0.15; Y=267*0.15; Z=100*0.2;
-% subset2
-% file = ('/Users/xiaotingzhong/Desktop/Datas/SteelFinal_setTo0/Jan31_Fca0.dream3d');
-% centro_file = ('/Users/xiaotingzhong/Desktop/Datas/SteelFinal_setTo0/Jan31_Fca0.dream3d');
-% X=234*0.15; Y=267*0.15; Z=68*0.2;
+origin = h5read(centro_file, '/DataContainers/ImageDataContainer/_SIMPL_GEOMETRY/ORIGIN');
+steps = double(h5read(centro_file, '/DataContainers/ImageDataContainer/_SIMPL_GEOMETRY/DIMENSIONS'));
+resolution = double(h5read(centro_file, '/DataContainers/ImageDataContainer/_SIMPL_GEOMETRY/SPACING'));
+size = steps .* resolution;
 % -- criterions in filterGrains: 'centroidPos' | 'touchingFS' | 'numFaces'| 'NN_centoridPos' | 'NN_touchingFS'
-criterion = 'none';
+criterion = 'centroidPos';
 % -- xAxis in gridData: 'D' | 'F' | 'E'
 xAxis = 'D';
 
@@ -60,10 +65,10 @@ xAxis = 'D';
 % neighborList = double(h5read(file,'/VoxelDataContainer/FIELD_DATA/NeighborList'));
 % triangle_area_raw = roundn(h5read(file,'/SurfaceMeshDataContainer/FACE_DATA/SurfaceMeshFaceAreas'),-8).';
 %  -------------------------- load data_v6 -------------------------- 
-file_an4 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d';
-file_an5 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_cropToAn4.dream3d';
-centro_file = file_an5;
-file = centro_file;
+% file_an4 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d';
+% file_an5 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_cropToAn4.dream3d';
+% centro_file = file_an5;
+% file = centro_file;
 
 centroids = abs(roundn(h5read(centro_file,'/DataContainers/ImageDataContainer/CellFeatureData/Centroids'),-5).');
 grain_diameter_raw = roundn(h5read(centro_file,'/DataContainers/ImageDataContainer/CellFeatureData/EquivalentDiameters'),-5).';
@@ -72,23 +77,23 @@ neighborList = double(h5read(file,'/DataContainers/ImageDataContainer/CellFeatur
 facelabel = double(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels'));
 curvature_of_triangle = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/MeanCurvatures'),-5);
 triangle_area_raw = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceAreas'),-5);
-triangle_min_ang = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceDihedralAngles'),-5);
+% triangle_min_ang = roundn(h5read(file,'/DataContainers/TriangleDataContainer/FaceData/FaceDihedralAngles'),-5);
 
 centroids(1,:) = [];
 grain_diameter_raw(1) = [];
 num_of_neigh(1) = [];
-data_raw = [facelabel; curvature_of_triangle; triangle_area_raw; triangle_min_ang];
+% data_raw = [facelabel; curvature_of_triangle; triangle_area_raw; triangle_min_ang];
 
 
 %  -------------------------- get the grid bin data -------------------------- 
 eps_curv = 1;
 eps_area = 7; 
 eps_min_ang = 10;
-data_face = calcFaceCurvature(data_raw, eps_curv, eps_area, eps_min_ang);
-grain_ForCal = filterGrains(criterion, facelabel, num_of_neigh, neighborList, X,Y,Z, centroids, grain_diameter_raw);
+% data_face = calcFaceCurvature(data_raw, eps_curv, eps_area, eps_min_ang);
+grain_ForCal = filterGrains(criterion, facelabel, num_of_neigh, neighborList, origin, size, centroids, grain_diameter_raw);
 
 % """ data_grain = [grainId, grainDiameter, #Faces, #edges, IntegralGrainCurvature] """
-data_grain = calcGrainCurvature(data_face, grain_ForCal);
+% data_grain = calcGrainCurvature(data_face, grain_ForCal);
 
 
 %% -------------------------- make G from Ms -------------------------- 

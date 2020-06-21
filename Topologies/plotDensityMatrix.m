@@ -1,4 +1,4 @@
-function plotDensityMatrix(x, y, x_bin_setting, y_bin_setting, x_name, y_name)
+function plotDensityMatrix(x, y, edges_x, edges_y, x_name, y_name)
 % ############################################################################
 % * Inputs
 %   - x & y
@@ -13,15 +13,16 @@ function plotDensityMatrix(x, y, x_bin_setting, y_bin_setting, x_name, y_name)
 % xbins = 35; xMin = 0; xMax = 35;
 % ybins = 35; yMin = 0; yMax = 35;
 % ---------------------------------------------------------------
-xMin = x_bin_setting(1);
-xMax = x_bin_setting(2);
-xbins = x_bin_setting(3);
-yMin = y_bin_setting(1);
-yMax = y_bin_setting(2);
-ybins = y_bin_setting(3);
+% xMin = x_bin_setting(1);
+% xMax = x_bin_setting(2);
+% xbins = x_bin_setting(3);
+% yMin = y_bin_setting(1);
+% yMax = y_bin_setting(2);
+% ybins = y_bin_setting(3);
 
 % ----- Make Plot -----
-N = hist3([y,x], 'edges', {yMin:(yMax-yMin)/ybins:yMax xMin:(xMax-xMin)/xbins:xMax} );
+% N = hist3([y,x], 'edges', {yMin:(yMax-yMin)/ybins:yMax xMin:(xMax-xMin)/xbins:xMax} );
+N = hist3([y,x], 'edges', {edges_y edges_x} );
 colormap(flipud(hot))
 set(gca,'YDir','normal');
 p = imagesc(N);

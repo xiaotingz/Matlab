@@ -37,64 +37,71 @@ faces_an5 = sortrows(sort(faces_an5, 2));
 % [da_len_weighted_an5, da_num_weighted_an5] = calcGrainFaceDAs(faces_an5, triple_line_an5, tl_info_an5);
 
 %% ##################################### Checks #####################################
-%% ###################### 1. Edges & Corners ######################
-% ------------------- #edges v.s. #corners -------------------
+% Most of the checks are at the end of each function file.
+load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/final/190730_Hsmoth_GeoTopo.mat', ...
+    'face_area_an4', 'face_area_diff', 'face_corners_an4', 'face_edges_an4', 'tracked_uniqueface_an4_inner');
+load('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/final/190730_Hsmoth_MeanField.mat', ...
+    'tracked_uniqueface_an4_complete')
+% ('face_itg_abscurv_an4', 'face_itgcurv_an4_left')
+
+face_area_an5 = face_area_an4 + face_area_diff;
+area_diff_ratio = face_area_diff ./ face_area_an4;
+mask_good = face_area_an4 > 20 & face_area_an5 > 20 & area_diff_ratio < 10 & area_diff_ratio > -0.9;
+mask_complete = ismember(tracked_uniqueface_an4_inner, tracked_uniqueface_an4_complete, 'rows');
+mask = mask_good & mask_complete;
+face_area_an4 = face_area_an4(mask);
+face_edges_an4 = face_edges_an4(mask);
+face_corners_an4 = face_corners_an4(mask);
+
+clear mask mask_complete mask_good tracked_uniqueface_an4_complete tracked_uniqueface_an4_inner face_area_an5 face_area_diff area_diff_ratio
+
+%% ###################### #edges v.s. #corners ######################
 set(0,'defaultAxesFontSize',20)
-scatter(num_corners_an4, num_edges_an4, 'filled', ...
-    'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k', 'MarkerFaceAlpha', 0.1, 'MarkerEdgeAlpha', 0.1)
-xlabel('C')
-ylabel('E')
-axis_lim = floor(min(max(num_corners_an4), max(num_edges_an4)) / 5 + 1) * 5;
-line([0, axis_lim], [0, axis_lim], 'color', [0.5, 0.5, 0.5])
-xlim([0, axis_lim]);
-ylim([0, axis_lim]);
-pbaspect([1 1 1])
+% scatter(face_corners_an4, face_edges_an4, 'filled', ...
+%     'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k', 'MarkerFaceAlpha', 0.1, 'MarkerEdgeAlpha', 0.1)
+% xlabel('C')
+% ylabel('E')
+% axis_lim = floor(min(max(face_corners_an4), max(face_edges_an4)) / 5 + 1) * 5;
+% line([0, axis_lim], [0, axis_lim], 'color', [0.5, 0.5, 0.5])
+% xlim([0, axis_lim]);
+% ylim([0, axis_lim]);
+% pbaspect([1 1 1])
+
+% figure()
+% x = face_corners_an4;
+% y = face_edges_an4;
+% x_bin_setting = 0 : axis_lim : axis_lim;
+% y_bin_setting = 0 : axis_lim : axis_lim;
+% plotDensityMatrix(x, y, x_bin_setting, y_bin_setting, 'C', 'E')
+% 
+% xTicks = [0:5:35];
+% % xLabels = mat2cell();
+% set(gca, 'XTick', xTicks)
+% set(gca,'XMinorTick','on','YMinorTick','on')
+
 
 figure()
-x = num_corners_an4;
-y = num_edges_an4;
-x_bin_setting = [0, axis_lim, axis_lim];
-y_bin_setting = [0, axis_lim, axis_lim];
-plotDensityMatrix(x, y, x_bin_setting, y_bin_setting, 'C', 'E')
+x = sqrt(face_area_an4);
+y = face_edges_an4;
+step_x = 6;
+edges_x = 0 : step_x : step_x*axis_lim;
+edges_y = 0 : 1 : axis_lim;
+plotDensityMatrix(x, y, edges_x, edges_y, 'sqrt(A)', 'E')
 
-xTicks = [0:5:35];
+
+xlabel('$\sqrt{A}$  ($\mu$m)', 'Interpreter', 'Latex', 'FontSize',20);
+% xTicks = [0:5:35];
 % xLabels = mat2cell();
-set(gca, 'XTick', xTicks)
+% set(gca, 'XTick', xTicks)
+xTickLabels = [5:5:35]*step_x;
+xTickLabels = num2cell(xTickLabels,length(xTickLabels));
+xticklabels(xTickLabels)
+
+set(gca,'XMinorTick','on','YMinorTick','on')
 
 
-% ------------------- Info for paraview -------------------
-% """
-% num_corners & num_nnface_avgcorner
-% """
-file = file_an4;
-num_corners = num_corners_an4;
-num_edges = num_edges_an4;
-faces = faces_an4;
-num_nnface_avgcorner = num_nnface_avgcorner_an4;
-tl = triple_line_full_an4;
-face_feature_label = h5read(file, '/DataContainers/TriangleDataContainer/FaceFeatureData/FaceLabels')';
 
-[~, num_neigh_face, neaigh_list_faceid] = findFaceConnection(file, tl);
-keys_face_feature_label = num2str(face_feature_label);
-keys_face_feature_label = mat2cell(keys_face_feature_label, ones(1, size(keys_face_feature_label, 1)), size(keys_face_feature_label, 2));
-idx_face_feature_label = (1:length(face_feature_label))' - 1;
-faceid_dict = containers.Map(keys_face_feature_label, idx_face_feature_label);
-keys_faces = num2str(faces);
-
-idx = randi(length(faces));
-disp(['idx_full_faces = ', num2str(idx), ';   idx_face_feature_id = ', num2str(faceid_dict(keys_faces(idx, :)))])
-disp(['num_corners = ', num2str(num_corners(idx)), ',  num_edges = ', num2str(num_edges(idx))])
-
-neighbors = getNeighList(idx, num_neigh_face, neigh_list_faceid);
-neighbor_corners = num_corners(neighbors);
-disp(['num_nnface_avgcorner_calc = ', num2str(num_nnface_avgcorner(idx)), ...
-        ';   check = ', num2str(sum(neighbor_corners)/length(neighbor_corners))]);
-
-mask_tl = (sum(ismember(tl, faces(idx, :)), 2) == 2);
-resident_tl = tl(mask_tl, :);
-disp('resident triple lines:')
-disp(resident_tl)
-
+%%
 
 
 

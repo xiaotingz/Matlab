@@ -145,13 +145,15 @@ face_itgcurv_an5_left = face_itgcurv_an5(:, 2);
 % - data_grain_diff = [size, F, F-Fnn, integral curvature]
 % - fMs_an4_left: face itg_curv. the most important information being its sign.
 % """
+
+dist_f_g_diff = dists_f_g_an5 - dists_f_g_an4;
 % ----------------------------------- Full faces -----------------------------------
-fileID = fopen('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190730_Lsmooth_energygrad.txt','w');
-fprintf(fileID,'%s, %s, %s, %s, %s, %s\n', 'move_left', 'gV_diff_an4', 'gF_diff_an4', ...
+fileID = fopen('/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/data_matlab/190730_Hsmooth_energygrad.txt','w');
+fprintf(fileID,'%s, %s, %s, %s, %s, %s\n', 'dist_f_g_diff', 'gV_diff_an4', 'gF_diff_an4', ...
     'gFnnF_diff_an4', 'gMs_diff_an4', 'fMs_an4_left');
 for i = 1:length(data_grain_an4_diff)
-    fprintf(fileID, '%6d, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f \n', ...
-        move_left(i), data_grain_an4_diff(i,1), data_grain_an4_diff(i,2), ...
+    fprintf(fileID, '%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f \n', ...
+        dist_f_g_diff(i), data_grain_an4_diff(i,1), data_grain_an4_diff(i,2), ...
         data_grain_an4_diff(i,3), data_grain_an4_diff(i,4), face_itgcurv_an4_left(i));
 end
 fclose(fileID);
@@ -193,6 +195,8 @@ num_tris_an4 = calcNumTrianglesOnFace(file_an4, obj_faces_an4, eps_curv, eps_are
 %% ######################################## 5.1. Check Migartion & Grain data ########################################
 % load('/Volumes/XIAOTING/Ni/working/181107_mig_piececorresp_comb.mat', 'face_onepiece');
 % load('/Volumes/XIAOTING/Ni/working/Grain Tracking/projection/190417_dist_left_from_an4normproj.mat');
+file_an4 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An4new6_fixedOrigin_smooth.dream3d';
+file_an5 = '/Users/xiaotingzhong/Desktop/Datas/Ni_an4_5/An5new6_cropToAn4.dream3d';
 
 gV_diff_an4 = data_grain_an4_diff(:,1);
 fMs_an4_left = face_itgcurv_an4_left;
@@ -204,14 +208,14 @@ rng('shuffle');
 idx = randi(size(obj_faces_an4_sorted, 1), 1);  
 % i = 1638;
 
-eps = 0.5;
-if dist_left(idx) > eps
-    memo = '   (move left)';
-elseif dist_left(idx) < -eps
-    memo = '   (move right)';
-else
-    memo = '   (stable)';
-end
+% eps = 0.5;
+% if dist_left(idx) > eps
+%     memo = '   (move left)';
+% elseif dist_left(idx) < -eps
+%     memo = '   (move right)';
+% else
+%     memo = '   (stable)';
+% end
 
 disp(' ');
 disp('#############################')
@@ -222,12 +226,12 @@ dispFacePairInfo(file_an4, file_an5, obj_faces_an4_sorted, obj_faces_an5, idx)
 % disp('---------------')
 % disp(['dist_left_norm_proj = ',num2str(dist_left(idx)), memo])
 disp('---------------')
-disp(['mig_left_centrod = ', num2str(move_left(idx)), ...
+disp(['mig_left_centroid = ', num2str(move_left(idx)), ...
     ',  left_centroid_an4 = ',num2str(dists_f_g_an4(idx, 1)), ',  left_centroid_an5 = ',num2str(dists_f_g_an5(idx, 1))])
 
 
 figure
-plotCentroids(file_an4, file_an5, obj_faces_an4, obj_faces_an5, idx)
+plotCentroids(file_an4, file_an5, obj_faces_an4_sorted, obj_faces_an5, idx)
 if move_left(idx) > 0
     disp('move left')
     title('move left', 'fontSize', 18)
@@ -257,14 +261,14 @@ disp([memo2, 'gV_diff_an4 = ', num2str(gV_diff_an4(idx)), ',  fMs_an4_left = ',n
 % disp(['gF_diff_an4 = ', num2str(gF_diff_an4(idx)), ',  gMs_diff_an4 = ',num2str(gMs_diff_an4(idx, 1))])
 
 
-% ----- Display data from raw calculation ----
-label_an4 = obj_faces_an4_sorted(idx, :);
-mask_1 = (tri_fl(:,1)==label_an4(1) & tri_fl(:,2)==label_an4(2));
-mask_2 = (tri_fl(:,1)==label_an4(2) & tri_fl(:,2)==label_an4(1));
-
-itg_curv_left = - sum(tri_area(mask_1) .* tri_curv(mask_1)) + sum(tri_area(mask_2) .* tri_curv(mask_2));
-
-disp(['check from raw:  fMs_an4_left = ', num2str(itg_curv_left)]);
+% % ----- Display data from raw calculation ----
+% label_an4 = obj_faces_an4_sorted(idx, :);
+% mask_1 = (tri_fl(:,1)==label_an4(1) & tri_fl(:,2)==label_an4(2));
+% mask_2 = (tri_fl(:,1)==label_an4(2) & tri_fl(:,2)==label_an4(1));
+% 
+% itg_curv_left = - sum(tri_area(mask_1) .* tri_curv(mask_1)) + sum(tri_area(mask_2) .* tri_curv(mask_2));
+% 
+% disp(['check from raw:  fMs_an4_left = ', num2str(itg_curv_left)]);
 
 
 %% ##### save plot #####

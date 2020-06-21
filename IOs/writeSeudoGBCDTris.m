@@ -77,12 +77,12 @@ tri_nodes = 1 + h5read(file_an4,'/DataContainers/TriangleDataContainer/_SIMPL_GE
 node_types = h5read(file_an4,'/DataContainers/TriangleDataContainer/VertexData/NodeType')';
 fl = h5read(file_an4,'/DataContainers/TriangleDataContainer/FaceData/FaceLabels')';
 fl = sort(fl, 2);
-mask = all(fl >= 0, 2);
+mask = all(fl > 0, 2);
 fl = fl(mask, :);
 tri_nodes = tri_nodes(mask, :);
 
 tri_node_types = node_types(tri_nodes);
-mask_good_tris = (all(tri_node_types == 2, 2) & all(fl > 0, 2));
+mask_good_tris = all(tri_node_types == 2, 2);
 
 fl = fl(mask_good_tris, :);
 data = data(mask_good_tris, :);

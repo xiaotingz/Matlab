@@ -3,16 +3,22 @@
 % The base circle is 0.6, with bars of heights +- 0.4
 % """
 % ----- read data -----
-file_name = fopen('/Users/xiaotingzhong/Documents/Matlab/Grain Tracking/_DfMs_XGB_feature_names.txt','r');
-file_coef = fopen('/Users/xiaotingzhong/Documents/Matlab/Grain Tracking/_DfMs_XGB_coefs.txt','r');
-fig_name = 'DfMs_XGB';
-% feature_class_idx = [[1, 6]; [7, 8]; [9, length(feature_names)-6]; [length(feature_names)-5, length(feature_names)]];
-% feature_class_idx = [[1, 4]; [5, 6]; [7, length(feature_names)-6]; [length(feature_names)-5, length(feature_names)]];
-feature_class_idx = [[1, 4]; [5, 8]; [9, 18]; [19, 21]];
+y = 'fMs_abs_diff_';
+model = 'xgboost';
+% file_name = ['/Users/xiaotingzhong/Desktop/190829/results_full_MAE/190730_', y, model, '_Hsmooth_names.txt'];
+% file_coef = ['/Users/xiaotingzhong/Desktop/190829/results_full_MAE/190730_', y, model, '_Hsmooth_coefs.txt'];
+file_name = ['/Users/xiaotingzhong/Desktop/190829/results_full_MAE/', y, '1_names.txt'];
+file_coef = ['/Users/xiaotingzhong/Desktop/190829/results_full_MAE/', y, '1_coefs.txt'];
+file_name = fopen(file_name,'r');
+file_coef = fopen(file_coef,'r');
+fig_name = [y, model];
+% feature_class_idx = [[1, 1]; [2, 7]; [8, 14]; [15, 24]; [25, 26]];
+feature_class_idx = [[1, 1]; [2, 5]; [6, 11]; [12, 24]; [25, 26]];
+
 
 coefs = textscan(file_coef,'%f');
 coefs = coefs{1,1};
-feature_names = textscan(file_name,'%s');
+feature_names = textscan(file_name,'%s','Delimiter','\n');
 feature_names = feature_names{1,1};
 
 n = length(coefs);
@@ -53,10 +59,10 @@ for i = 1:length(theta)
     if ang > 90 && ang < 270
         ang = ang + 180;
         text(theta(i), r_out,  char(feature_names{i, 1}),'Rotation', ang, ...
-            'HorizontalAlignment', 'right', 'fontSize', 12, 'Interpreter', 'none')
+            'HorizontalAlignment', 'right', 'fontSize', 14, 'Interpreter', 'latex')
     else
         text(theta(i), r_out,  char(feature_names{i, 1}), 'Rotation', ang, ...
-            'fontSize', 12, 'Interpreter', 'none')
+            'fontSize', 14, 'Interpreter', 'latex')
     end
 end
 

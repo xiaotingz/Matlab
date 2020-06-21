@@ -1,5 +1,5 @@
 set(0,'defaultAxesLabelFontSize',1.2)
-set(0,'defaultAxesFontSize',17)
+set(0,'defaultAxesFontSize',20)
 
 
 %% ##### 190626 #####
